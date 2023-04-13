@@ -1722,8 +1722,20 @@ class DatasetList(_ListTypePreserver):
 		return any(ds.columns[column].none_support for ds in self if column in ds.columns)
 
 	def iterate(self, sliceno, columns=None, range=None, sloppy_range=False, hashlabel=None, pre_callback=None, post_callback=None, filters=None, translators=None, status_reporting=True, rehash=False, slice=None, copy_mode=False):
-		"""Iterate the datasets in this chain. See Dataset.iterate_list for usage"""
+		"""Iterate the datasets in this list. See Dataset.iterate_list for usage"""
 		return Dataset.iterate_list(sliceno, columns, self, range=range, sloppy_range=sloppy_range, hashlabel=hashlabel, pre_callback=pre_callback, post_callback=post_callback, filters=filters, translators=translators, status_reporting=status_reporting, rehash=rehash, slice=slice, copy_mode=copy_mode)
+
+	def iterate_chain(self, sliceno, columns=None, length=-1, range=None, sloppy_range=False, reverse=False, hashlabel=None, stop_ds=None, pre_callback=None, post_callback=None, filters=None, translators=None, status_reporting=True, rehash=False, slice=None, copy_mode=False):
+		"""
+		Iterate the datasets in this list, and all its chained ones.
+		See Dataset.iterate_chain and Dataset.iterate_list for details.
+		"""
+		if stop_ds and len(stop_ds) != len(self):
+			raise DatasetUsageError('len stop_ds must be equal to list')
+		chain = DatasetChain()
+		for ix, ds in enumerate(self):
+			chain.extend(ds.chain(length, reverse, stop_ds[ix] if stop_ds else None))
+		return Dataset.iterate_list(sliceno, columns, chain, range=range, sloppy_range=sloppy_range, hashlabel=hashlabel, pre_callback=pre_callback, post_callback=post_callback, filters=filters, translators=translators, status_reporting=status_reporting, rehash=rehash, slice=slice, copy_mode=copy_mode)
 
 	def range(self, colname, start=None, stop=None):
 		"""Filter out only datasets where colname has values in range(start, stop)"""
