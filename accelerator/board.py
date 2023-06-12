@@ -244,26 +244,49 @@ def ds_json(d):
 	res['columns'] = {k: c.type for k, c in ds.columns.items()}
 	return res
 
+
+class Board:
+	def __init__(self, cfg, listen_on):
+		self.listen = resolve_listen(listen_on)[0]
+		if isinstance(self.listen, str):
+			# The listen path may be relative to the directory the user started us
+			# from, but the reloader will exec us from the project directory, so we
+			# have to be a little gross.
+			self.listen = os.path.join(cfg.user_cwd, cfg.board_listen)
+			sys.argv[2:] = [self.listen]
+		# Ideally we want to get rid of the hard-dependency on the server to run
+		# the board. Hopefully at the cost of very little functionality. Right
+		# now it is used for:
+		# * Get jobs and ds with name2job and name2ds. Since we have IDs, we can
+		#   probably refactor those two functions to not depend on the server,
+		#   since the urd should have all the information available
+		# * /status and /last_error endpoints. Which are probably not 100% needed
+		# * To get the list of workdirs from the server. It's probably possible
+		#   to refactor this to do it without the call to the server.
+		# * To get the list of methods. This is probably something that we could
+		#   live without.
+		self.url = cfg.url
+		# This is a requirement if there's no config
+		self.urd = cfg.urd
+		# We want this to be a list (or for the board to find others below)
+		self.workdirs = cfg.workdirs
+		# This could be empty, and results will not be displayed, but that's it
+		self.result_directory = cfg.result_directory
+		# This could totally be ignored, or maybe required if cfg does not exist
+		self.project = os.path.split(cfg.project_directory)[1]
+
+
 def main(argv, cfg):
 	parser = ArgumentParser(prog=argv.pop(0), description='''runs a web server on listen_on (default localhost:8520, can be socket path) for displaying results (result_directory)''')
 	parser.add_argument('--development', action='store_true', negation='not', help='enable tracebacks, disable caching, ...')
 	parser.add_argument('listen_on', default='localhost:8520', nargs='?', help='host:port or path/to/socket')
 	args = parser.parse_intermixed_args(argv)
-	cfg.board_listen = resolve_listen(args.listen_on)[0]
-	if isinstance(cfg.board_listen, str):
-		# The listen path may be relative to the directory the user started us
-		# from, but the reloader will exec us from the project directory, so we
-		# have to be a little gross.
-		cfg.board_listen = os.path.join(cfg.user_cwd, cfg.board_listen)
-		argv[1:] = [cfg.board_listen]
-	run(cfg, from_shell=True, development=args.development)
 
-def run(cfg, from_shell=False, development=False):
-	global _development
-	_development = development
+	brd = Board(cfg, args.listen_on)
+	run(cfg, brd, from_shell=True)
 
-	project = os.path.split(cfg.project_directory)[1]
-	setproctitle('ax board-server for %s on %s' % (project, cfg.board_listen,))
+def run(cfg, brd, from_shell=False):
+	setproctitle('ax board-server for %s on %s' % (brd.project, brd.listen,))
 
 	# The default path filter (i.e. <something:path>) does not match newlines,
 	# but we want it to do so (e.g. in case someone names a dataset with one).
@@ -278,10 +301,10 @@ def run(cfg, from_shell=False, development=False):
 			data = urlencode(kw).encode('utf-8')
 		else:
 			data = None
-		return call(os.path.join(cfg.url, *map(url_quote, path)), data=data)
+		return call(os.path.join(brd.url, *map(url_quote, path)), data=data)
 
 	def call_u(*path, **kw):
-		url = os.path.join(cfg.urd, *map(url_quote, path))
+		url = os.path.join(brd.urd, *map(url_quote, path))
 		if kw:
 			url = url + '?' + urlencode(kw)
 		return call(url, server_name='urd')
@@ -375,14 +398,14 @@ def run(cfg, from_shell=False, development=False):
 	def main_page(path='/results'):
 		return dict(
 			project=project,
-			workdirs=cfg.workdirs,
+			workdirs=brd.workdirs,
 			path=path,
 			url_path=url_quote(path),
 		)
 
 	# Look for actual workdirs, so things like /workdirs/foo/foo-37/foo-1/bar
 	# resolves to ('foo-37', 'foo-1/bar') and not ('foo-1', 'bar').
-	path2wd = {v: k for k, v in cfg.workdirs.items()}
+	path2wd = {v: k for k, v in brd.workdirs.items()}
 	def job_and_file(path, default_name):
 		wd = ''
 		path = iter(path.split('/'))
@@ -406,7 +429,7 @@ def run(cfg, from_shell=False, development=False):
 		res = {'files': files, 'dirs': dirs}
 		default_jobid = None
 		default_prefix = ''
-		prefix = cfg.result_directory
+		prefix = brd.result_directory
 		for part in path.strip('/').split('/'):
 			prefix = os.path.join(prefix, part)
 			if not default_jobid:
@@ -454,7 +477,7 @@ def run(cfg, from_shell=False, development=False):
 	@bottle.get('/results/<path:path>')
 	def results(path=''):
 		path = path.strip('/')
-		if os.path.isdir(os.path.join(cfg.result_directory, path)):
+		if os.path.isdir(os.path.join(brd.result_directory, path)):
 			accept = get_best_accept('text/html', 'application/json', 'text/json')
 			if accept == 'text/html':
 				return main_page(path=os.path.join('/results', path).rstrip('/'))
@@ -464,13 +487,13 @@ def run(cfg, from_shell=False, development=False):
 				return json.dumps(results_contents(path))
 		elif path:
 			try:
-				link_dest = os.readlink(os.path.join(cfg.result_directory, path))
+				link_dest = os.readlink(os.path.join(brd.result_directory, path))
 				job, _ = job_and_file(link_dest, None)
 			except OSError:
 				job = None
-			return static_file(path, root=cfg.result_directory, job=job)
+			return static_file(path, root=brd.result_directory, job=job)
 		else:
-			return {'missing': 'result directory %r missing' % (cfg.result_directory,)}
+			return {'missing': 'result directory %r missing' % (brd.result_directory,)}
 
 	@bottle.get('/status')
 	@view('status')
@@ -494,7 +517,7 @@ def run(cfg, from_shell=False, development=False):
 	@bottle.get('/job/<jobid>/method.tar.gz/')
 	@bottle.get('/job/<jobid>/method.tar.gz/<name:path>')
 	def job_method(jobid, name=None):
-		job = name2job(cfg.url, cfg.urd, jobid)
+		job = name2job(brd.url, brd.urd, jobid)
 		with tarfile.open(job.filename('method.tar.gz'), 'r:gz') as tar:
 			if name:
 				info = tar.getmember(name)
@@ -509,7 +532,7 @@ def run(cfg, from_shell=False, development=False):
 
 	@bottle.get('/job/<jobid>/<name:path>')
 	def job_file(jobid, name):
-		job = name2job(cfg.url, cfg.urd, jobid)
+		job = name2job(brd.url, brd.urd, jobid)
 		res = static_file(name, root=job.path, job=job)
 		if not res.content_type and res.status_code < 400:
 			# bottle default is text/html, which is probably wrong.
@@ -520,7 +543,7 @@ def run(cfg, from_shell=False, development=False):
 	@bottle.get('/job/<jobid>/')
 	@view('job')
 	def job(jobid):
-		job = name2job(cfg.url, cfg.urd, jobid)
+		job = name2job(brd.url, brd.urd, jobid)
 		try:
 			post = job.post
 		except IOError:
@@ -552,7 +575,7 @@ def run(cfg, from_shell=False, development=False):
 	@bottle.get('/dataset/<dsid:path>')
 	@view('dataset', ds_json)
 	def dataset(dsid):
-		ds = name2ds(cfg.url, cfg.urd, dsid.rstrip('/'))
+		ds = name2ds(brd.url, brd.urd, dsid.rstrip('/'))
 		q = bottle.request.query
 		if q.column:
 			lines = int(q.lines or 10)
@@ -593,7 +616,7 @@ def run(cfg, from_shell=False, development=False):
 
 	def load_workdir(jobs, name):
 		known = call_s('workdir', name)
-		for jid in workdir_jids(cfg.workdirs, name):
+		for jid in workdir_jids(brd.workdirs, name):
 			jobs[jid] = job_data(known, jid)
 		return jobs
 
@@ -607,7 +630,7 @@ def run(cfg, from_shell=False, development=False):
 	@view('workdir', 'jobs')
 	def all_workdirs():
 		jobs = collections.OrderedDict()
-		for name in sorted(cfg.workdirs):
+		for name in sorted(brd.workdirs):
 			load_workdir(jobs, name)
 		return dict(name='ALL', jobs=jobs)
 
@@ -684,7 +707,7 @@ def run(cfg, from_shell=False, development=False):
 	if not from_shell:
 		kw['quiet'] = True
 	kw['server'] = WaitressServer
-	listen = cfg.board_listen
+	listen = brd.listen
 	if isinstance(listen, tuple):
 		kw['host'], kw['port'] = listen
 	else:
