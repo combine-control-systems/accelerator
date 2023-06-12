@@ -68,9 +68,9 @@ def show_job(args, known, jid, as_latest=False):
 		path = path.rsplit('-', 1)[0] + '-LATEST'
 	print('\t'.join((path, data.klass, data.method, data.humantime)))
 
-def workdir_jids(cfg, name):
+def workdir_jids(workdirs, name):
 	jidlist = []
-	for jid in os.listdir(cfg.workdirs[name]):
+	for jid in os.listdir(workdirs[name]):
 		if '-' in jid:
 			wd, num = jid.rsplit('-', 1)
 			if wd == name and num.isdigit():
@@ -100,7 +100,7 @@ def main(argv, cfg):
 			print("No such workdir:", name, file=sys.stderr)
 			continue
 		known = call(cfg.url + '/workdir/' + url_quote(name))
-		for jid in workdir_jids(cfg, name):
+		for jid in workdir_jids(cfg.workdirs, name):
 			show_job(args, known, jid)
 
 		try:

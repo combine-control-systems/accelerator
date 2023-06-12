@@ -632,7 +632,7 @@ def run(cfg, from_shell=False, development=False):
 
 	def load_workdir(jobs, name):
 		known = call_s('workdir', name)
-		for jid in workdir_jids(cfg, name):
+		for jid in workdir_jids(cfg.workdirs, name):
 			jobs[jid] = job_data(known, jid)
 		return jobs
 
