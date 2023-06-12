@@ -6,7 +6,7 @@
 			{{ line }}<br>
 		% end
 	% end
-	% if cfg.get('interpreters'):
+	% if interpreters:
 		<br>Runs on &lt;{{ data.version }}&gt; {{ data.description.interpreter }}
 	% end
 	% for thing in ('options', 'datasets', 'jobs',):
