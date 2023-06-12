@@ -497,7 +497,7 @@ def run(cfg, from_shell=False, development=False):
 	@bottle.get('/job/<jobid>/method.tar.gz/')
 	@bottle.get('/job/<jobid>/method.tar.gz/<name:path>')
 	def job_method(jobid, name=None):
-		job = name2job(cfg, jobid)
+		job = name2job(cfg.url, cfg.urd, jobid)
 		with tarfile.open(job.filename('method.tar.gz'), 'r:gz') as tar:
 			if name:
 				info = tar.getmember(name)
@@ -525,7 +525,7 @@ def run(cfg, from_shell=False, development=False):
 
 	@bottle.get('/job/<jobid>/<name:path>')
 	def job_file(jobid, name):
-		job = name2job(cfg, jobid)
+		job = name2job(cfg.url, cfg.urd, jobid)
 		if os.path.isdir(job.filename(name)):
 			files = {fn for fn in os.listdir(job.filename(name))}
 			dirs = {dn for dn in files if os.path.isdir(job.filename(name + '/' + dn))}
@@ -547,7 +547,7 @@ def run(cfg, from_shell=False, development=False):
 	@bottle.get('/job/<jobid>/')
 	@view('job')
 	def job(jobid):
-		job = name2job(cfg, jobid)
+		job = name2job(cfg.url, cfg.urd, jobid)
 		try:
 			post = job.post
 		except IOError:
@@ -591,7 +591,7 @@ def run(cfg, from_shell=False, development=False):
 	@bottle.get('/dataset/<dsid:path>')
 	@view('dataset', ds_json)
 	def dataset(dsid):
-		ds = name2ds(cfg, dsid.rstrip('/'))
+		ds = name2ds(cfg.url, cfg.urd, dsid.rstrip('/'))
 		q = bottle.request.query
 		if q.column:
 			lines = int(q.lines or 10)
@@ -611,14 +611,14 @@ def run(cfg, from_shell=False, development=False):
 	@bottle.get('/graph/job/<jobid>')
 	@view('rendergraph', prefer_ctype='image/svg+xml')
 	def job_graph(jobid):
-		job = name2job(cfg, jobid)
+		job = name2job(cfg.url, cfg.urd, jobid)
 		ret = graph.graph(job, 'job')
 		return ret
 
 	@bottle.get('/graph/dataset/<dsid:path>')
 	@view('rendergraph', prefer_ctype='image/svg+xml')
 	def dataset_graph(dsid):
-		ds = name2ds(cfg, dsid.rstrip('/'))
+		ds = name2ds(cfg.url, cfg.urd, dsid.rstrip('/'))
 		ret = graph.graph(ds, 'dataset')
 		return ret
 
@@ -696,7 +696,7 @@ def run(cfg, from_shell=False, development=False):
 		results = None
 		if d.get('build_job'):  # non-existing on older versions
 			try:
-				bjob = name2job(cfg, d['build_job'])
+				bjob = name2job(cfg.url, cfg.urd, d['build_job'])
 				v, lr = bjob.load('link_result.pickle')
 				if v == 0:
 					results = '[%s]' % (', '.join(v for k, v in lr if k == key),)

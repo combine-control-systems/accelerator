@@ -142,7 +142,7 @@ def main(argv, cfg):
 		args.max_count = 0
 
 	try:
-		ds = name2ds(cfg, args.dataset)
+		ds = name2ds(cfg.url, cfg.urd, args.dataset)
 	except NoSuchWhateverError as e:
 		print(e, file=sys.stderr)
 		return 1

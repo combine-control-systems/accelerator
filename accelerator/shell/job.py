@@ -245,7 +245,7 @@ def main(argv, cfg):
 	res = 0
 	for path in args.jobid:
 		try:
-			job = name2job(cfg, path)
+			job = name2job(cfg.url, cfg.urd, path)
 			if args.just_output:
 				show_output_d(job.output('parts'), args.verbose)
 			elif args.just_path:

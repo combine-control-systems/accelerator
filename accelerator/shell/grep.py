@@ -279,7 +279,7 @@ def main(argv, cfg):
 	not_columns = set(args.not_columns or ())
 
 	try:
-		args.datasets = [name2ds(cfg, ds) for ds in args.datasets]
+		args.datasets = [name2ds(cfg.url, cfg.urd, ds) for ds in args.datasets]
 	except NoSuchWhateverError as e:
 		print(e, file=sys.stderr)
 		return 1
@@ -291,7 +291,7 @@ def main(argv, cfg):
 			columns.append(word)
 		else:
 			try:
-				args.datasets.append(name2ds(cfg, word))
+				args.datasets.append(name2ds(cfg.url, cfg.urd, word))
 			except NoSuchWhateverError as e:
 				if not args.datasets or args.not_columns:
 					print(e, file=sys.stderr)
