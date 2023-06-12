@@ -494,7 +494,7 @@ def run(cfg, from_shell=False, development=False):
 	@bottle.get('/job/<jobid>/method.tar.gz/')
 	@bottle.get('/job/<jobid>/method.tar.gz/<name:path>')
 	def job_method(jobid, name=None):
-		job = name2job(cfg, jobid)
+		job = name2job(cfg.url, cfg.urd, jobid)
 		with tarfile.open(job.filename('method.tar.gz'), 'r:gz') as tar:
 			if name:
 				info = tar.getmember(name)
@@ -509,7 +509,7 @@ def run(cfg, from_shell=False, development=False):
 
 	@bottle.get('/job/<jobid>/<name:path>')
 	def job_file(jobid, name):
-		job = name2job(cfg, jobid)
+		job = name2job(cfg.url, cfg.urd, jobid)
 		res = static_file(name, root=job.path, job=job)
 		if not res.content_type and res.status_code < 400:
 			# bottle default is text/html, which is probably wrong.
@@ -520,7 +520,7 @@ def run(cfg, from_shell=False, development=False):
 	@bottle.get('/job/<jobid>/')
 	@view('job')
 	def job(jobid):
-		job = name2job(cfg, jobid)
+		job = name2job(cfg.url, cfg.urd, jobid)
 		try:
 			post = job.post
 		except IOError:
@@ -552,7 +552,7 @@ def run(cfg, from_shell=False, development=False):
 	@bottle.get('/dataset/<dsid:path>')
 	@view('dataset', ds_json)
 	def dataset(dsid):
-		ds = name2ds(cfg, dsid.rstrip('/'))
+		ds = name2ds(cfg.url, cfg.urd, dsid.rstrip('/'))
 		q = bottle.request.query
 		if q.column:
 			lines = int(q.lines or 10)
