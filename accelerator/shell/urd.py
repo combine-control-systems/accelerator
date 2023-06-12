@@ -109,7 +109,7 @@ def main(argv, cfg):
 			print("path %r doesn't take an entry (%r)" % ('/'.join(path), entry,), file=sys.stderr)
 			return None, None
 		try:
-			res = urd_call_w_tildes(cfg, '/'.join(path), tildes)
+			res = urd_call_w_tildes(cfg.urd, '/'.join(path), tildes)
 		except UrdError as e:
 			print(e, file=sys.stderr)
 			res = None

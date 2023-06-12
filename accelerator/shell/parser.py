@@ -72,8 +72,8 @@ def split_tildes(n, allow_empty=False, extended=False):
 	assert n or allow_empty, "empty job id"
 	return n, lst
 
-def method2job(cfg, method, **kw):
-	url ='%s/method2job/%s?%s' % (cfg.url, url_quote(method), urlencode(kw))
+def method2job(url, method, **kw):
+	url ='%s/method2job/%s?%s' % (url, url_quote(method), urlencode(kw))
 	found = call(url)
 	if 'error' in found:
 		raise JobNotFound(found.error)
@@ -93,22 +93,22 @@ def job_up(job, count):
 		job = prev
 	return job
 
-def urd_call_w_tildes(cfg, path, tildes):
-	res = call(cfg.urd + '/' + path, server_name='urd', retries=0, quiet=True)
+def urd_call_w_tildes(urd, path, tildes):
+	res = call(urd + '/' + path, server_name='urd', retries=0, quiet=True)
 	if tildes:
 		up = sum(count for char, count in tildes if char == '^')
 		down = sum(count for char, count in tildes if char == '~')
 		tildes = down - up
 		if tildes:
 			key = res.user + '/' + res.build
-			timestamps = call(cfg.urd + '/' + key + '/since/0', server_name='urd', retries=0, quiet=True)
+			timestamps = call(urd + '/' + key + '/since/0', server_name='urd', retries=0, quiet=True)
 			pos = timestamps.index(res.timestamp) + tildes
 			if pos < 0 or pos >= len(timestamps):
 				return None
-			res = call(cfg.urd + '/' + key + '/' + timestamps[pos], server_name='urd', retries=0, quiet=True)
+			res = call(urd + '/' + key + '/' + timestamps[pos], server_name='urd', retries=0, quiet=True)
 	return res
 
-def name2job(cfg, n, _want_ds=False):
+def name2job(url, urd, n, _want_ds=False):
 	dotted = None
 	if '.' in n:
 		if n.startswith(':') and ':' in n[1:]: # :urd:-list
@@ -135,8 +135,8 @@ def name2job(cfg, n, _want_ds=False):
 		assert n, "empty " + what
 		return n, current, tildes
 	n, current, tildes = split(n, "job id")
-	job = _name2job(cfg, n, current)
-	job = _name2job_do_tildes(cfg, job, current, tildes)
+	job = _name2job(url, urd, n, current)
+	job = _name2job_do_tildes(url, job, current, tildes)
 	ds = None
 	if dotted:
 		for n in dotted:
@@ -178,17 +178,17 @@ def name2job(cfg, n, _want_ds=False):
 				ds = None
 			if tildes:
 				ds = None
-			job = _name2job_do_tildes(cfg, job, current, tildes)
+			job = _name2job_do_tildes(url, job, current, tildes)
 	if _want_ds and ds:
 		return ds
 	return job
 
-def _name2job_do_tildes(cfg, job, current, tildes):
+def _name2job_do_tildes(url, job, current, tildes):
 	for char, count in tildes:
 		if char == '~':
-			job = method2job(cfg, job.method, offset=-count, start_from=job, current=current)
+			job = method2job(url, job.method, offset=-count, start_from=job, current=current)
 		elif char == '+':
-			job = method2job(cfg, job.method, offset=count, start_from=job, current=current)
+			job = method2job(url, job.method, offset=count, start_from=job, current=current)
 		elif char == '^':
 			job = job_up(job, count)
 		elif char == '<':
@@ -203,10 +203,10 @@ def _name2job_do_tildes(cfg, job, current, tildes):
 		raise JobNotFound('Job resolved to %r but that job does not exist' % (job,))
 	return job
 
-def _name2job(cfg, n, current):
+def _name2job(url, urd, n, current):
 	if n.startswith(':'):
 		# resolve through urd
-		assert cfg.urd, 'No urd configured'
+		assert urd, 'No urd configured'
 		a = n[1:].rsplit(':', 1)
 		if len(a) == 1:
 			raise JobNotFound('looks like a partial :urdlist:[entry] spec')
@@ -223,7 +223,7 @@ def _name2job(cfg, n, current):
 			path.append('latest')
 		path = '/'.join(map(url_quote, path))
 		try:
-			urdres = urd_call_w_tildes(cfg, path, tildes)
+			urdres = urd_call_w_tildes(urd, path, tildes)
 		except UrdError as e:
 			print(e, file=sys.stderr)
 			urdres = None
@@ -252,7 +252,7 @@ def _name2job(cfg, n, current):
 		return Job(n)
 	if n not in ('.', '..') and '/' not in n:
 		# Must be a method then
-		return method2job(cfg, n, current=current)
+		return method2job(url, n, current=current)
 	if exists(join(n, 'setup.json')):
 		# Looks like the path to a jobdir
 		path, jid = split(realpath(n))
@@ -283,7 +283,7 @@ def split_ds_dir(n):
 		name_bits = ['default']
 	return n, '/'.join(reversed(name_bits))
 
-def name2ds(cfg, n):
+def name2ds(url, urd, n):
 	job = name = tildes = None
 	if n.startswith(':'):
 		colon2 = n.rfind(':', 1)
@@ -292,12 +292,12 @@ def name2ds(cfg, n):
 			if tailslash > 0:
 				name = n[tailslash + 1:]
 				n = n[:tailslash]
-		job = name2job(cfg, n, _want_ds=name is None)
+		job = name2job(url, urd, n, _want_ds=name is None)
 	elif '/' not in n:
-		job = name2job(cfg, n, _want_ds=True)
+		job = name2job(url, urd, n, _want_ds=True)
 	else:
 		n, name = split_ds_dir(n)
-		job = name2job(cfg, n)
+		job = name2job(url, urd, n)
 		name, tildes = split_tildes(name, allow_empty=True)
 	if isinstance(job, Dataset):
 		ds = job

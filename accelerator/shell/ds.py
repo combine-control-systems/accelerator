@@ -128,9 +128,9 @@ def main(argv, cfg):
 		for n in args.dataset:
 			try:
 				try:
-					dsvec = name2ds(cfg, n).job.datasets
+					dsvec = name2ds(cfg.url, cfg.urd, n).job.datasets
 				except NoSuchWhateverError:
-					dsvec = name2job(cfg, n).datasets
+					dsvec = name2job(cfg.url, cfg.urd, n).datasets
 			except Exception as e:
 				badinput.append((n, e))
 				dsvec = None
@@ -151,7 +151,7 @@ def main(argv, cfg):
 
 	for n in args.dataset:
 		try:
-			ds = name2ds(cfg, n)
+			ds = name2ds(cfg.url, cfg.urd, n)
 		except NoSuchWhateverError as e:
 			badinput.append((n, e))
 			continue
