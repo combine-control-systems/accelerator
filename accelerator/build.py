@@ -446,7 +446,7 @@ class Urd(object):
 		if info.urd:
 			assert '://' in str(info.urd), 'Bad urd URL: %s' % (info.urd,)
 		self._url = info.urd or ''
-		self._user = user
+		self.user = user
 		self.info = info
 		self.flags = set(a.flags)
 		self.horizon = horizon
@@ -478,7 +478,7 @@ class Urd(object):
 
 	def _path(self, path):
 		if '/' not in path:
-			path = '%s/%s' % (self._user, path,)
+			path = '%s/%s' % (self.user, path,)
 		return path
 
 	def _call(self, url, data=None, fmt=_urd_typeify):
@@ -536,7 +536,7 @@ class Urd(object):
 	def _test_auth(self):
 		if not self._auth_tested:
 			try:
-				self._call('%s/test/%s' % (self._url, self._user,), True)
+				self._call('%s/test/%s' % (self._url, self.user,), True)
 			except UrdPermissionError:
 				return False
 			self._auth_tested = True
