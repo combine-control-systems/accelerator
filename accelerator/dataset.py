@@ -1147,6 +1147,25 @@ class Dataset(unicode):
 		else:
 			return '%s.%s' % (self.fs_name, thing[0])
 
+	def to_dataframe(self, columns, index=None, stop_ds=None):
+		try:
+			import pandas as pd
+		except ImportError:
+				raise DatasetUsageError('to_dataframe called, but pandas not installed')
+		assert not index or index in self.columns.keys()
+		# pandas has a terrible memory-management footprint
+		# We prefer to allocate everything in memory before instantiating, than
+		# to slowly let it grow its own structure
+		df_rows = []
+		if columns is None:
+			columns = self.columns
+		if isinstance(columns, str_types):
+			columns = [columns]
+		for v in self.iterate_chain(None, columns=columns, stop_ds=stop_ds):
+			df_rows.append(v)
+		df = pd.DataFrame(df, columns=columns, index=index)
+		return df
+
 _datasetwriters = {}
 _datasets_written = []
 
@@ -1736,6 +1755,29 @@ class DatasetList(_ListTypePreserver):
 		for ix, ds in enumerate(self):
 			chain.extend(ds.chain(length, reverse, stop_ds[ix] if stop_ds else None))
 		return Dataset.iterate_list(sliceno, columns, chain, range=range, sloppy_range=sloppy_range, hashlabel=hashlabel, pre_callback=pre_callback, post_callback=post_callback, filters=filters, translators=translators, status_reporting=status_reporting, rehash=rehash, slice=slice, copy_mode=copy_mode)
+
+	def to_dataframe(self, columns=None, index=None, stop_ds=None):
+		try:
+			import pandas as pd
+		except ImportError:
+				raise DatasetUsageError('to_dataframe called, but pandas not installed')
+		assert not index or index in self[0].columns
+		# pandas has a terrible memory-management footprint
+		# We prefer to allocate everything in memory before instantiating, than
+		# to slowly let it grow its own structure
+		df_rows = []
+		if columns is None:
+			columns = list(sorted(self[0].columns))
+		if isinstance(columns, str_types):
+			columns = [columns]
+		for ds in self:
+			assert all(c in ds.columns for c in columns + [index])
+		for v in self.iterate_chain(None, columns=columns, stop_ds=stop_ds):
+			df_rows.append(v)
+		df = pd.DataFrame(df_rows, columns=columns)
+		if index:
+			df.set_index(index, inplace=True)
+		return df
 
 	def range(self, colname, start=None, stop=None):
 		"""Filter out only datasets where colname has values in range(start, stop)"""
