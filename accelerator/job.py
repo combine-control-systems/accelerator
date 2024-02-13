@@ -150,8 +150,10 @@ class Job(unicode):
 			encoding = 'utf-8'
 		return open(self.filename(filename, sliceno), mode, encoding=encoding, errors=errors)
 
-	def files(self, pattern='*'):
+	def files(self, pattern='*', sliceno=None):
 		from fnmatch import filter
+		if sliceno is not None:
+			pattern = '%s.%d' % (pattern, sliceno,)
 		try:
 			return set(filter(self.post.files, pattern))
 		except FileNotFoundError:
