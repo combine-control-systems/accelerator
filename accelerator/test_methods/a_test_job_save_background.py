@@ -61,12 +61,6 @@ class SlowTrue(object):
 	def __init__(self, sleeptime):
 		self.sleeptime = sleeptime
 
-	# python2 version
-	def __nonzero__(self):
-		time.sleep(self.sleeptime)
-		return True
-
-	# python3 version
 	def __bool__(self):
 		time.sleep(self.sleeptime)
 		return True
