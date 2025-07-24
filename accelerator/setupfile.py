@@ -28,7 +28,7 @@ from json import dumps
 from datetime import datetime, date, time, timedelta
 from pathlib import PosixPath, PurePosixPath
 
-from accelerator.compat import iteritems, unicode
+from accelerator.compat import iteritems
 
 from accelerator.error import AcceleratorError, NoSuchJobError
 from accelerator.extras import DotDict, json_load, json_save, json_encode
@@ -130,7 +130,7 @@ def copy_json_safe(src):
 		elif isinstance(src, timedelta):
 			return src.total_seconds()
 		else:
-			assert isinstance(src, (str, unicode, int, float, bool)) or src is None, "%s not supported in data" % (type(src),)
+			assert isinstance(src, (str, int, float, bool)) or src is None, "%s not supported in data" % (type(src),)
 			return src
 
 def encode_setup(data, sort_keys=True, as_str=False):
