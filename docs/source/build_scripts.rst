@@ -103,8 +103,9 @@ the *job ids* of all jobs created or re-used.
    to the built in accelerator *board* web server.
 
 
-Building Jobs from Job Scripts
-------------------------------
+
+Building Job Scripts
+--------------------
 
 The typical use of build scripts is to build jobs by executing job
 scripts (i.e smaller Python programs), where data and results can be

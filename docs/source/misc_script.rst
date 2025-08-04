@@ -1,6 +1,34 @@
 Miscellaneous
 =============
 
+Depend on extra files
+---------------------
+
+
+Equivalent Hashes
+-----------------
+
+
+Accessing a Job's parameters
+----------------------------
+
+
+Accessing a Job's post data
+---------------------------
+
+
+More input option types
+-----------------------
+
+jobWithFile
+
+RequiredOptions
+
+OptionEnum
+
+none_ok
+
+
 
 
 Status and Progress Reporting

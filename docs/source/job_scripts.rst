@@ -90,20 +90,24 @@ source file, see the following example
                  f = float,
              )
    datasets = ('source_dataset', 'anothersourceds',)
-   jobs = ('previous_job',)
+   jobs = ('previous_job', ['a_list_of_jobs',],)
 
-.. note:: ``datasets`` and ``jobs`` are *tuples*, and therefore it is *key
-  to remember to add a comma* after any single item like the
-  ``jobs=('previous_job'',)`` assignment above.  Otherwise it will be
+.. note:: ``datasets`` and ``jobs`` are *tuples*, and therefore it is
+  *key to remember to add a comma* after any single item like the
+  ``jobs=('previous_job',)`` assignment above.  Otherwise it will be
   interpreted as a string or characters, and things will break.
 
 - The ``options`` parameter is a dictionary, that can take almost
   "anything", with or without default values and type definitions.
 
-- The ``datasets`` parameter is a list or tuple of datasets references.
+- The ``datasets`` parameter is a list or tuple of datasets
+  references.
 
 - The ``jobs`` parameter is similar to ``datasets``, but contains a
   list of job references.
+
+- Both ``datasets`` and ``jobs`` can also takes lists as input.
+
 
 Parameters are assigned by the build call like this:
 
@@ -115,7 +119,8 @@ Parameters are assigned by the build call like this:
          name='thename',
          f=42.0
          source=ds,
-         previous=job0
+         previous=job0,
+	 a_list_of_jobs=[job0, job1, job2],
    )
 
 .. note:: In the example above, all parameters have unique names, so
@@ -589,8 +594,8 @@ There are three helper functions for input data:
 
 
 
-Descriptions
-------------
+Adding a Description
+--------------------
 
 A text description is added to a job script using the ``description``
 variable.  This description is visible in *exax Board* (@) and using
