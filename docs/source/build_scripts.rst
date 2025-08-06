@@ -144,11 +144,18 @@ Here are some basic examples
         job2 = urd.build('next_script', prev=job1)
 
 .. code-block::
-    :caption: Print data that a job returned
+    :caption: Print all data that the job returned
 
     def main(urd):
         job = urd.build('my_script')
-	print(job.load())
+        print(job.load())
+
+.. code-block::
+    :caption: Print what the job wrote on the terminal
+
+    def main(urd):
+        job = urd.build('my_script')
+        print(job.output())              # contains both stdout and stderr
 
 The ``.build()`` function is just one of several class methods
 provided by the ``urd`` object.

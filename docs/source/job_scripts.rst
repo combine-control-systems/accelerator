@@ -182,6 +182,82 @@ value will be ``None``.
 
 
 
+Additional Option Type: ``OptionString``
+..........................................
+
+A common special case is to hava a mandatory string option.  The
+``OptionStrin()`` function is designed for this.
+
+.. code-block::
+
+   from accelerator import OptionString
+
+   options={
+       'name': OptionString('example'),
+   }
+
+Here, the string 'example` is just that - and example of what is
+expected.  It is not used as default value. ``OptionString`` does not
+accept None as input.
+
+
+
+Additional Option Type: ``RequiredOption``
+..........................................
+
+If an option (of arbitrary type) is mandatory, this can be specified
+using the ``RequiredOption()`` function:
+
+.. code-block::
+
+   from accelerator import RequiredOption
+
+   options={
+       'age': RequiredOption(int),
+   }
+
+Using this definition, execution will stop if ``age`` is left
+unassigned, and a helpful error message will appear.
+
+By default, it is not okay to set the option to None, but permission
+is given by setting ``none_ok=True``:
+
+.. code-block::
+
+   options={
+       'maybeage': RequiredOption(int, none_ok=True),
+   }
+
+in this case is accept an explicit ``None`` as well, but it is not
+allowed to leave the option unassigned.
+
+
+
+Additional Option Type: ``OptionEnum``
+..........................................
+
+Alternatively, if the expected values belong to a closed set, one can
+use the ``OptionEnum()`` function:
+
+.. code-block::
+
+   from accelerator import OptionEnum
+
+   options={
+       'colour': OptionEnum('red green blue')
+       # or
+       'color': OptionEnum(['red', 'green', 'blue'])
+   }
+
+This will throw an error if the option is not set to one of these
+three alternatives.
+
+``OptionEnum`` also accepts a ``none_ok=True`` parameter, allowing the
+parameter to be set explicitly to ``None`` as well.  In either case,
+the parameter can not be left unassigned.
+
+
+
 Execution and Data Flow
 -----------------------
 
@@ -251,8 +327,8 @@ but in some cases a lower number is preferred in order to limit the
 max load on the machine.)
 
 The number of slices, as well as the current fork number *sliceno*
-(ranging from zero to *slices* minus one) are available as parameters to
-the ``analysis()`` function
+ranging from zero to *slices* minus one) are available as parameters
+to the ``analysis()`` function.
 
 .. code-block::
     :caption: Example of ``analysis()`` function.
@@ -260,6 +336,10 @@ the ``analysis()`` function
     def analysis(sliceno, slices):
         print('This is slice %d/%d' % (sliceno, slices))
         return sliceno * sliceno
+
+
+.. note:: ``sliceno`` is a mandatory parameter to ``analysis()``.  ``slices`` is not.
+
 
 When all forks have completed execution, the return value from all
 ``analysis()`` calls become available to the ``synthesis()`` function
@@ -379,6 +459,7 @@ is used to find the correct data file.
 
 .. tip:: In many cases, return values can often be used instead of
    explicitly creating any files.
+
 
 
 Writing Files
@@ -627,18 +708,54 @@ Retrieving stdout and stderr
 
 Everything written to ``stdout`` and ``stderr`` (using for example
 plain ``print()``-statements) is always stored persistently in the job
-directory.  It can be retreived using the ``ax job`` command, for
-example like this
+directory.  Use the job object's ``output()`` function to access it
+
+.. code-block::
+   :caption:  Show what the job printed to the terminal
+
+   def main(urd):
+       job = urd.build('my_script')
+       print(job.output())              # contains both stdout and stderr
+
+It can also be retreived using the ``ax job`` command, for example
+like this
 
 .. code-block:: sh
    :caption: ``ax job`` print stdout and stderr
 
     ax job test-43 -O
 
-It is also straightforward to view the output in *Board*.
+And it is straightforward to view the output in the *Board* web server
+as well.
 
-In a job or build script, this output is accessible using the
-``job.output()`` function.
+
+Output retreieval in more detail
+--------------------------------
+
+The combined stdout and stderr output is stored in the job directory
+like this
+
+.. code-block:: text
+
+   job-x/
+     OUTPUT/
+       prepare     # created if any output in prepare()
+       synthesis   #                          synthesis()
+       0           #                          analysis() slice 0
+       3           #                          analysis() slice 3
+
+Note that no empty files will be created.
+
+It is possible to access any part of the output, like shown in the
+following examples
+
+.. code-block::
+
+   job.output()             # everything
+   job.output('prepare')
+   job.output('synthesis')
+   job.output(0)
+   job.output(3)
 
 
 
