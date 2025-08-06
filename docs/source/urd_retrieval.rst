@@ -64,7 +64,7 @@ Here is a working example.
 The code above creates a new urd session called ``process``.  This
 session retrieves the latest session from the ``import`` urdlist, and
 takes the ``csvimport`` job (stored in the sessions joblist) as input
-to the ``process_data`` method.
+to the ``process_data`` job script.
 
 The contents of the Urd database can be viewed using the ``ax urd``
 shell command:

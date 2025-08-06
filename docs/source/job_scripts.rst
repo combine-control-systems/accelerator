@@ -135,7 +135,8 @@ Parameters are assigned by the build call like this:
 Receiving Input Parameters
 --------------------------
 
-Inside the method, parameters are available like in the following example
+Inside the job script, parameters are available like in the following
+example
 
 .. code-block::
    :caption: Print some input parameters to stdout.
@@ -188,7 +189,7 @@ More details in @@@@@@@@@@@@@
 Execution and Data Flow
 -----------------------
 
-There are three functions used for code execution in a method, of
+There are three functions used for code execution in a job script, of
 which at least one is mandatory.  They are, listed in execution order
 
  - ``prepare()``
@@ -228,7 +229,7 @@ available using the returned object's ``load()`` function, like this
       print(data['value'])
 
 If this is executed using ``ax run mytest``, the build script will
-execute the method ``test`` and print the value "20" to standard
+execute the job script ``test`` and print the value "20" to standard
 output.
 
 
@@ -343,8 +344,8 @@ Share Data using Return Value
 The simplest way to share data between a job script and another job or
 build script is to use the return value.
 
-In a job script that creates some data that should be available
-elsewhere, just return it:
+To make data created by a job script available elsewhere, just return
+it:
 
 .. code-block::
     :caption: Example of return value.
@@ -447,11 +448,11 @@ is a wrapper around Python's ``open()`` function:
   This is handled using ``save(..., sliceno=sliceno)``, see @.
 
 In addition, it is possible to create *temporary files* that only
-exists during the execution of the method and will be automatically
-deleted upon job completion.  This *might* be useful for huge
-temporary files if disk space is a major concern.  Add the parameter
-``temp=True`` to ``job.save()`` or ``job.json_save()`` to make the file
-temporary.
+exists during the execution of the job script and will be
+automatically deleted upon job completion.  This *might* be useful for
+huge temporary files if disk space is a major concern.  Add the
+parameter ``temp=True`` to ``job.save()`` or ``job.json_save()`` to
+make the file temporary.
 
 
 
@@ -467,7 +468,7 @@ exax Board web server for visual inspection.
 
 
 Almost all created files are *registered automatically by default*
-when the method finishes execution.  Files in subdirectories is the
+when the job script finishes execution.  Files in subdirectories is the
 exception, they are not automatically registered.
 
 .. note :: Files in subdirectories are not registered automatically.
@@ -517,7 +518,7 @@ registered manually, it stops being temporary.
 Find and Load Created Files 
 ----------------------------
 
-Files in a job are easily accessible by other methods and build
+Files in a job are easily accessible by other job scripts and build
 scripts, see this example where data created in a job is read back
 into the running build script.  The example assumes the files are
 registered, but this is not a requirement.
@@ -525,7 +526,7 @@ registered, but this is not a requirement.
 .. code-block::
    :caption: Writing and reading files (see  currentjob@ ref for info about ``save()`` and more.
 
-    # in the method "a_methodthatsavefiles.py"
+    # in the job script "a_methodthatsavefiles.py"
     def synthesis(job):
         ...
         job.save(data1, 'afilename')
@@ -619,14 +620,14 @@ the ``ax method`` (@) command, and it looks like this
     """
 
 .. tip :: Use ``ax method`` or *exax Board* to see descriptions of all
-   available methods.
+   available job scripts.
 
 Descriptions work much like git commit messages.  If the description
 is multi-lined, the first row is a short description that will be
 shown when typing ``ax method`` to list all job scripts and their
 short descriptions.  A detailed description may follow on consecutive
 lines, and it will be shown when doing ``ax method <a particular
-method>``.
+job script>``.
 
 
 
@@ -657,7 +658,7 @@ as well.
 
 
 Output retreieval in more detail
---------------------------------
+................................
 
 The combined stdout and stderr output is stored in the job directory
 like this

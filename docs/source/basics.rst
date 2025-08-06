@@ -129,9 +129,9 @@ the configuration file.
 This is where build and job scripts are stored.  As the name
 indicated, they are importable Python packages.
 
-The standard method bundled with exax are stored in another package,
-and example files in yet another.  It is possible to define any number
-of packages in the configuration file.
+The standard job scripts bundled with exax are stored in another
+package, and example files in yet another.  It is possible to define
+any number of packages in the configuration file.
 
 **What is the result directory**
 
