@@ -22,11 +22,6 @@ More input option types
 
 jobWithFile
 
-RequiredOptions
-
-OptionEnum
-
-none_ok
 
 
 
@@ -85,3 +80,6 @@ the progress of the program
 
 The last created status message will be printed to ``stdout`` when
 ``C-t`` is pressed.
+
+
+

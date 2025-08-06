@@ -181,80 +181,7 @@ value will be ``None``.
    - If the default value is a type and left unassigned, its value will become ``None``.
 
 
-
-Additional Option Type: ``OptionString``
-..........................................
-
-A common special case is to hava a mandatory string option.  The
-``OptionStrin()`` function is designed for this.
-
-.. code-block::
-
-   from accelerator import OptionString
-
-   options={
-       'name': OptionString('example'),
-   }
-
-Here, the string 'example` is just that - and example of what is
-expected.  It is not used as default value. ``OptionString`` does not
-accept None as input.
-
-
-
-Additional Option Type: ``RequiredOption``
-..........................................
-
-If an option (of arbitrary type) is mandatory, this can be specified
-using the ``RequiredOption()`` function:
-
-.. code-block::
-
-   from accelerator import RequiredOption
-
-   options={
-       'age': RequiredOption(int),
-   }
-
-Using this definition, execution will stop if ``age`` is left
-unassigned, and a helpful error message will appear.
-
-By default, it is not okay to set the option to None, but permission
-is given by setting ``none_ok=True``:
-
-.. code-block::
-
-   options={
-       'maybeage': RequiredOption(int, none_ok=True),
-   }
-
-in this case is accept an explicit ``None`` as well, but it is not
-allowed to leave the option unassigned.
-
-
-
-Additional Option Type: ``OptionEnum``
-..........................................
-
-Alternatively, if the expected values belong to a closed set, one can
-use the ``OptionEnum()`` function:
-
-.. code-block::
-
-   from accelerator import OptionEnum
-
-   options={
-       'colour': OptionEnum('red green blue')
-       # or
-       'color': OptionEnum(['red', 'green', 'blue'])
-   }
-
-This will throw an error if the option is not set to one of these
-three alternatives.
-
-``OptionEnum`` also accepts a ``none_ok=True`` parameter, allowing the
-parameter to be set explicitly to ``None`` as well.  In either case,
-the parameter can not be left unassigned.
+More details in @@@@@@@@@@@@@
 
 
 
@@ -761,6 +688,8 @@ following examples
 
 Progress/status reporting
 -------------------------
+
+@@@ there is also a different version in "in misc_script.rst"!
 
 If a job takes a long time to complete, pressing CTRL+T will force
 exax to print a message on stdout.  This message can be tailored to

@@ -15,6 +15,7 @@ Welcome to exax's online documentation!
    build_scripts
    job_scripts
    misc_script
+   option_typing
    urd_introduction
    urd_retrieval
    urd_admin
