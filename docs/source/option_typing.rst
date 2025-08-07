@@ -252,7 +252,7 @@ example:
 
 4.  ``None`` is always accepted, unless the type is
       - ``RequiredOptions(..., none_ok=False)``
-      - ``OptionEnum(..., none_ok=False)
+      - ``OptionEnum(..., none_ok=False)``
       - ``OptionString()``
 
 5. Inputs can be left unassigned, unless the type is
@@ -261,6 +261,3 @@ example:
      - ``OptionString``
 
 6. Containers.  ``{}`` specifies a ``dict`` etc.  @@ more on container formalia here...
-
-
-
