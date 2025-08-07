@@ -86,7 +86,7 @@ source file, see the following example
 
    options = dict(
                  x=3,
-                 name='protomolecule',
+                 key='protomolecule',
                  f = float,
              )
    datasets = ('source_dataset', 'anothersourceds',)
@@ -116,7 +116,7 @@ Parameters are assigned by the build call like this:
 
    urd.build('my_script',
          x=37,
-         name='thename',
+         key='some string',
          f=42.0
          source=ds,
          previous=job0,
@@ -130,6 +130,11 @@ Parameters are assigned by the build call like this:
           If names are not unique, it is possible to explicitly state
           the kind of parameter using ``..., datasets={'source': ds},...`` and so on.
 
+.. note:: The ``build()``-call consumes a few parameters that are not
+          forwarded to the job script.  See section @@@.  The most
+          common one is ``name``.
+
+          An input option can not have the name ``name`` for this reason!
 
 
 Receiving Input Parameters
@@ -453,6 +458,23 @@ automatically deleted upon job completion.  This *might* be useful for
 huge temporary files if disk space is a major concern.  Add the
 parameter ``temp=True`` to ``job.save()`` or ``job.json_save()`` to
 make the file temporary.
+
+
+.. tip:: It is possible to create "parallel" files in ``analysis``.  A
+         parallel file is a set of files, one per slice, that is
+         associated with a single filename by exax.
+
+         The basic idea is that one can do
+
+         .. code-block::
+
+            def analysis(sliceno):
+                data = ...
+
+                job.save(data, 'filename', sliceno=sliceno)   # save per slice
+                data = job.load('filename', sliceno=sliceno)  # load per slice
+
+         read more about it here: @@@
 
 
 
