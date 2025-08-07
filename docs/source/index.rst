@@ -11,6 +11,7 @@ Welcome to exax's online documentation!
    basics
    high_level_example
    quickstart
+   job_fundamentals
    script_packages
    build_scripts
    job_scripts
