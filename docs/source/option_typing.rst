@@ -102,8 +102,67 @@ specified, like this
 Additional Option Type: ``JobWithFile``
 .......................................
 
-@@@
+It is possible to explicitly specify explicit files from specific jobs
+in a ``build()`` call using the ``JobWithFile`` class.  Here is an example
 
+.. code-block::
+
+   def main(urd):
+
+       job1 = urd.build('example1')
+       job2 = urd.build('example2')
+
+       urd.build('example3',
+           firstfile=job1.withfile('myfile1', sliced=True),
+           secondfile=job2.withfile('myfile2')
+       )
+
+where the options definition part of the job script for ``example3``
+looks like this
+
+.. code-block::
+
+   from accelerator import JobWithFile
+
+   options=dict(
+       firstfile=JobWithFile,
+       secondfile=JobWithFile
+   )
+
+The ``.withfile()`` function takes a filename argument, and in
+addition two optional arguments: ``sliced`` and ``extras``. The
+``extras`` argument is used to pass any kind of information that is
+helpful when using the speciﬁed file, and ``sliced`` tells that the
+file is stored in parallel slices.  (Sliced files are described in
+section @@@.)
+
+The files are loaded usinf ``.load()``, like this
+
+.. code-block::
+
+   def analysis(sliceno):
+       print(options.firstfile.load(sliceno=sliceno))
+
+   def synthesis():
+       print(options.secondfile.load())
+
+The ``.load()`` function assumes that the file is in Python Pickle
+format, and there is also an ``.json_load()`` function for
+JSON-ﬁles. To get the full filename of the file, use ``.filename()``
+
+.. code-block::
+
+       print(options.firstfile.filename(sliceno=3))
+       print(options.secondfile.filename())
+
+There is also the wrapper around open(), so it is possible to use ``open()``
+
+.. code-block::
+
+       with(options.firstfile.open(), 'rb') as fh:
+           data = fh.read()
+
+and have full flexibility.
 
 
 
