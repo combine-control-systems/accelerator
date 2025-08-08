@@ -365,7 +365,7 @@ Then this data is available in a build script like this
     :caption: Return value from job script into a build script.
 
     def main(urd):
-        job = urd.build('scriptreturningdata')
+        job = urd.build('scriptreturndata')
         data = job.load()
 
 Similarly, to access the data in another job script
@@ -373,9 +373,9 @@ Similarly, to access the data in another job script
 .. code-block::
     :caption: Return value from one job script to another.
 
-    jobs=('jobreturningdata',)
+    jobs=('jobreturndata',)
     def synthesis():
-        data = jobs.jobreturningdata.load()
+        data = jobs.jobreturndata.load()
 
 assuming it was provided by the build script
 
@@ -383,15 +383,15 @@ assuming it was provided by the build script
     :caption: Corresponding build script passing the first job as input to the second.
 
     def main(urd):
-        job = urd.build('scriptreturningdata')
-        urd.build('scriptusingdata', jobreturningdata=job)
+        job = urd.build('scriptreturndata')
+        urd.build('scriptusingdata', jobreturndata=job)
 
-Note how simple this is, and without the need to make up arbitrary filenames.
-Instead of filename, the job script (i.e. source code and input parameters)
-is used to find the correct data file.
-
-.. tip:: In many cases, return values can often be used instead of
-   explicitly creating any files.
+Note how easy it is to share files between jobs.  Also, if the return
+value is used *there is no need for arbitrary filenames at all*.  And
+even if filenames are used, the correct file will be looked up by exax
+using a combination of filename, job input parameters, and source
+code, so there is no need to manually keep track of different versions
+of output files, they all share the same filename.
 
 
 
