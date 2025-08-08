@@ -185,8 +185,51 @@ provide an absolute path to a file containing some useful
 visualisation.
 
 
+
 Input Files
 -----------
+
+Ideally, absolute paths to input data files should not be stored in a
+project's source code.  The source code would then need modification
+if the project is moved to a computer with a different file hierarchy,
+for example.
+
+Exax solution is to use a configuration parameter called ``input
+directory`` defined the ``accelerator.conf`` file.
+
+Let's say data is stored in the ``/data`` directory
+
+.. code-block:: text
+
+  /data/
+       |-> file1
+       |-> dir/
+              |-> file2
+
+In the ``accelerator.conf``, this is reflected in the line
+
+.. code-block:: text
+
+  input directory: /data
+
+The input filenames and data can then be accessed like this
+
+.. code-block::
+
+  path = job.input_directory()              # absolute path to input directory
+
+  fn = job.input_filename('file1')          # abs path to file1
+  fn = job.input_filename('dir', 'file2')   #             file2, or just
+  fn = job.input_filename('dir/file2')
+
+
+  with job.input('file1', 'rb') as fh:      # read contents of file1
+      data = fh.read()
+
+``job.input`` is basically a wrapper around Python's ``open()``
+function that in addition to finding the correct file asserts that the
+file is opened in read mode only.
+
 
 
 Sliced Files
