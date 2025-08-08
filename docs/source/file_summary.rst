@@ -1,3 +1,10 @@
+@@@ Job objects and job ids. BEHÖVER UTVECKLAS
+
+
+
+
+
+
 All About Files
 ===============
 
@@ -12,6 +19,12 @@ This chapter describes how to
 
 Writing and Reading data
 ------------------------
+
+@@@@@@@@@@@@@@@@@
+
+From a programmer's point of view, data is passed from job to job
+using job objects.  The job object provides functions for both reading
+and writing files.  See @@@
 
 
 
@@ -75,13 +88,13 @@ serialisations, see this example
 .. code-block::
 
    # Store and load data using Python's pickle format
-   job.save('filename', data)              # save in pickle format
+   job.save(data, 'filename')              # save in pickle format
 
    data = job.load('filename')             # load
 
 
    # Store and load data using JSON format
-   job.json_save('filename', data)         # save in JSON format
+   job.json_save(data, 'filename')         # save in JSON format
 
    data = job.json_load('filename')        # load
 
@@ -102,6 +115,20 @@ project, so while files can be created by any means, all files are
 closely connected to the job that created them, and therefore it makes
 sense to use only the three job-object based load functions above for
 data reading.
+
+
+
+Using ``JobWithFile()``
+.......................
+
+``JobWithFile`` is an input parameter type that can is used to
+pinpoint a specific file in a specific job.  It is described in more
+detail here in the typing chapter @@@.
+
+The basic functionality is as follow.  In a build script, a specific
+file in a job is input to a ``build()`` call like this
+
+
 
 
 
@@ -234,6 +261,49 @@ file is opened in read mode only.
 
 Sliced Files
 ------------
+
+Exax supports parallel execution using the ``analysis()`` call in job
+scripts.  A common case is to have all parallel slices performing
+similar operations but on different sets of data.  This is where the
+*sliced files* come in handy.  It might sound complicated, but really
+it is not.  The ``save()`` call takes an argument ``sliceno=``, and
+doing
+
+.. code-block::
+
+  job.save(data, 'filename', sliceno=3)
+
+will store ``data in a file named ``filename.3``.  This file is read
+back in a similar fashion
+
+.. code-block::
+
+  data = job.load('filename', sliceno=3)
+
+Now, extending this example to the ``analysis()`` function, where we
+have an input variable ``sliceno`` containing the number of the
+current parallel slice
+
+.. code-block::
+
+   jobs = ('datajob')
+
+   def analysis(sliceno, job):
+       data_in = jobs.datajob.load('data_in', sliceno=sliceno)
+       data_out = function(data_in)
+       job.write('data_out', sliceno=sliceno)
+
+In, say, slice number 3, where ``sliceno`` is equal to 3, the
+``load()`` line will read the file ``data_in.3`` from the
+``jobs.datajob`` job, process it, and write the result to a file
+``data_out.3``.  All other slices will do similar things with
+different ``sliceno``.
+
+The benefit here is that a single filename is used to represent a
+whole set of files, which simplifies programming complexity and
+reduces risk of error.  In addition, it is still plain files on disk,
+so there is no complicated "parallel storage layer" involved.
+
 
 
 Temporary Files
