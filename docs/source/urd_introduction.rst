@@ -194,9 +194,6 @@ the names differ, execution will stop and raise an error.
           ``production`` user and so on.
 
 
-@@@ alla urd-shell-kommandon
-@@@ med tilde och tak osv
-@@@ hur timestamp-förkortningar fungerar
 
 
 

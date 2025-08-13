@@ -243,7 +243,6 @@ all these are valid:
    a list of all sessions in an urdlist.
 
 
-@@@ ax job funkar direkt med urdlistor:  ax job :urdlist/timestamp:example_method
 
 
 
@@ -308,5 +307,3 @@ joblist is empty.
 The ``get()`` function will return the job id of the *last* match.  If
 there are several jobs of the same type, they can be found using the
 ``find()`` function that returns all matches in a joblist.
-Information about this function and more is found in the JobList
-documentation @@.

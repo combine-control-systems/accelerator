@@ -69,7 +69,7 @@ a more or less complete list of what is saved
 - any other files the job "depends extra" on
 
 (The build script has additional support functionality, such as
-JobLists (@), the Urd database (@), and result linking (@), to aid
+JobLists, the Urd database, and result linking, to aid
 development, whereas building a subjob has less decorations.)
 
 
@@ -131,7 +131,7 @@ Parameters are assigned by the build call like this:
           the kind of parameter using ``..., datasets={'source': ds},...`` and so on.
 
 .. note:: The ``build()``-call consumes a few parameters that are not
-          forwarded to the job script.  See section @@@.  The most
+          forwarded to the job script.  The most
           common one is ``name``.
 
           An input option can not have the name ``name`` for this reason!
@@ -187,7 +187,6 @@ value will be ``None``.
    - If the default value is a type and left unassigned, its value will become ``None``.
 
 
-More details in @@@@@@@@@@@@@
 
 
 
@@ -450,7 +449,7 @@ is a wrapper around Python's ``open()`` function:
   meaning that one "filename" in the program corresponds to a set of
   files on disk, one for each process.
 
-  This is handled using ``save(..., sliceno=sliceno)``, see @.
+  This is handled using ``save(..., sliceno=sliceno)``.
 
 In addition, it is possible to create *temporary files* that only
 exists during the execution of the job script and will be
@@ -474,7 +473,6 @@ make the file temporary.
                 job.save(data, 'filename', sliceno=sliceno)   # save per slice
                 data = job.load('filename', sliceno=sliceno)  # load per slice
 
-         read more about it here: @@@
 
 
 
@@ -546,7 +544,7 @@ into the running build script.  The example assumes the files are
 registered, but this is not a requirement.
 
 .. code-block::
-   :caption: Writing and reading files (see  currentjob@ ref for info about ``save()`` and more.
+   :caption: Writing and reading files
 
     # in the job script "a_methodthatsavefiles.py"
     def synthesis(job):
@@ -629,8 +627,8 @@ Adding a Description
 --------------------
 
 A text description is added to a job script using the ``description``
-variable.  This description is visible in *exax Board* (@) and using
-the ``ax method`` (@) command, and it looks like this
+variable.  This description is visible in *exax Board* and using
+the ``ax method`` command, and it looks like this
 
 .. code-block::
     :caption: Example of description
@@ -712,8 +710,6 @@ following examples
 Progress/status reporting
 -------------------------
 
-@@@ there is also a different version in "in misc_script.rst"!
-
 If a job takes a long time to complete, pressing CTRL+T will force
 exax to print a message on stdout.  This message can be tailored to
 the running program in the following way
@@ -749,7 +745,7 @@ or
 
 .. tip::
 
-   Exax Dataset iterators (@@@ ref) use status reporting to tell which Dataset
+   Exax Dataset iterators  use status reporting to tell which Dataset
    in a Dataset chain it is currently working on.
 
 
@@ -774,7 +770,7 @@ Subjobs are built in the ``synthesis()`` function like this
 
 The ``subjobs.build()`` call uses the same input parameters and syntax
 as the ``urd.build()`` call in a build scripts.  Similarly, the
-returned ``job`` object is an instance of the ``Job`` class (@) that
+returned ``job`` object is an instance of the ``Job`` class that
 contains some useful helper functionality.
 
 .. note :: Subjobs are *not* visible in build scripts and do not show

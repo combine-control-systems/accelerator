@@ -2,7 +2,7 @@ The configuration file
 ======================
 
 when exax server starts, it looks for a file named
-``accelerator.conf`` in these places...@@@
+``accelerator.conf`` that contains project wide settings.
 
 The configuration file specifies location of input data, results, and
 workdirs, as well as number of parallel processes, server connections,
@@ -91,7 +91,7 @@ method packages
    packages directly.
 
    The optional ``auto-discover`` makes all job scripts in the package
-   executable, see @.
+   executable.
 
 
 listen
@@ -151,7 +151,6 @@ urd
 
    The specification is otherwise similar to ``listen``.
 
-   See @ for more information on standalone Urd servers.
 
 
 result directory
@@ -161,7 +160,6 @@ result directory
 
       result directory: ./results/
 
-   Read more about result directory here @.
 
 
 input directory
@@ -171,7 +169,6 @@ input directory
 
       input directory: /path/to/the/data/
 
-   Read more about the input directory here @.
 
    .. tip:: This decouples the path of the input data from exax.  If
             the ``input directory`` is the only variable that "knows"
@@ -183,7 +180,7 @@ input directory
 interpreters
    This is where different Python interpreters are listed.  They can
    then be enabled independently for each job script using the
-   ``methods.conf`` file, see @.  Example
+   ``methods.conf`` file.
 
    .. code-block::
 

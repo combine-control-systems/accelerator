@@ -17,8 +17,6 @@ detailing all aspects of the execution of the script.  A job's files
 are easily accessible from other scripts using Python objects, so that
 they can be presented to the user or used as input to other scripts.
 
-This section gives and overview, see chapters @@, @@ for detailed
-information.
 
 
 
@@ -124,8 +122,6 @@ for each user.  The name and location of the workdirs are defined in
 the configuration file.
 
 **What is a method package**
-
-@@@SCRIPT PACKAGE
 
 This is where build and job scripts are stored.  As the name
 indicated, they are importable Python packages.

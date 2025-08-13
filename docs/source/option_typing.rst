@@ -133,8 +133,7 @@ The ``.withfile()`` function takes a filename argument, and in
 addition two optional arguments: ``sliced`` and ``extras``. The
 ``extras`` argument is used to pass any kind of information that is
 helpful when using the speciﬁed file, and ``sliced`` tells that the
-file is stored in parallel slices.  (Sliced files are described in
-section @@@.)
+file is stored in parallel slices.
 
 The files are loaded usinf ``.load()``, like this
 
@@ -239,8 +238,6 @@ example:
    ``int(3)``, ``int(3.3)``, and ``int('3')`` are okay, but
    ``int('3.3')`` is not.
 
-   @@@ but why is 3.3 okay for ``a=3``?
-
 3. Default values
 
      - If values are specified, like for ``a``, ``c``, and ``d``
@@ -260,4 +257,4 @@ example:
      - ``OptionEnum()`` without a default value.
      - ``OptionString``
 
-6. Containers.  ``{}`` specifies a ``dict`` etc.  @@ more on container formalia here...
+6. Containers.  ``{}`` specifies a ``dict`` etc.

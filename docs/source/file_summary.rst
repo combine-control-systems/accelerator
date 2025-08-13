@@ -1,10 +1,3 @@
-@@@ Job objects and job ids. BEHÖVER UTVECKLAS
-
-
-
-
-
-
 All About Files
 ===============
 
@@ -20,11 +13,9 @@ This chapter describes how to
 Writing and Reading data
 ------------------------
 
-@@@@@@@@@@@@@@@@@
-
 From a programmer's point of view, data is passed from job to job
 using job objects.  The job object provides functions for both reading
-and writing files.  See @@@
+and writing files.
 
 
 
@@ -122,8 +113,7 @@ Using ``JobWithFile()``
 .......................
 
 ``JobWithFile`` is an input parameter type that can is used to
-pinpoint a specific file in a specific job.  It is described in more
-detail here in the typing chapter @@@.
+pinpoint a specific file in a specific job.
 
 The basic functionality is as follow.  In a build script, a specific
 file in a job is input to a ``build()`` call like this
@@ -279,7 +269,7 @@ example
       data = ...
       job.save('data', temp=True)
 
-Temporary files are affected by file registration (see section @@@).
+Temporary files are affected by file registration.
 If a temporary file is registered, it ceases to be temporary.
 (Because registration implies that the file is of particular interest
 outside the job.)
