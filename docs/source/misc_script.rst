@@ -12,6 +12,7 @@ additional files using the ``depend_extra`` list early in the job
 script, as in this example
 
 .. code-block::
+
    from . import my_python_module
 
    depend_extra = (my_python_module, 'my_other_file',)
@@ -99,7 +100,7 @@ configuration file, and more
    print(job.params.jobs)
 
 
-   
+
 Accessing a Job's post data
 ---------------------------
 

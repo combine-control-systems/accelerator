@@ -39,7 +39,8 @@ Files and data in a job is typically accessed using Python objects and
 convenience functions, so although the file structure is human
 readable, there is little reason to know about the details of it.
 
-
+Jobs and job ids are almost interchangeable.  ``Job('dev-37')`` is the
+job object that corresponds to job id ``dev-37``.
 
 What is a Build Script?
 -----------------------
