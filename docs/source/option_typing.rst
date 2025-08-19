@@ -30,7 +30,7 @@ A common special case is to hava a mandatory string option.  The
        'name2': OptionString('example'),
    }
 
-Both rows mean the sam thing.  The string 'example` is just that: an
+Both rows mean the same thing.  The string ``'example'`` is just that: an
 example of what is expected.  It is not used as default
 value. ``OptionString`` does not accept None as input.
 
