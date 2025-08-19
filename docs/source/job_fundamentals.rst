@@ -48,7 +48,7 @@ provides a shorter summary about the basic concepts.
 
   Jobs are re-cycled, unless their pre-conditions have changed.  Among
   the meta information stored in the job directory is a hash digest of
-  the script’s source code (including `depend_extra``s).  This hash,
+  the script’s source code (including ``depend_extra``\s).  This hash,
   together with the input parameters, is used to figure out if a
   result could be re-used instead of re-computed.  This saves time and
   energy, and greatly improves transparency and reproducibility.
