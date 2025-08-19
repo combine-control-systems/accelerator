@@ -38,7 +38,7 @@ class Colour:
 	r"""Constants and functions for colouring output.
 
 	Available as constants named .COLOUR, functions named .colour and
-	as direct calls on the object taking (value, *attrs).
+	as direct calls on the object taking ``(value, *attrs)``.
 	Colours are BLACK, RED, GREEN, YELLOW, BLUE, MAGENTA, CYAN, WHITE,
 	These can be prefixed with BRIGHT and/or suffixed with BG.
 	DEFAULT[BG] restores the default colour.
@@ -50,10 +50,11 @@ class Colour:
 
 	>>> colour.RED + 'foo' + colour.DEFAULT == colour.red('foo') == colour('foo', 'red')
 
-	colour(v, 'red', 'bold') and similar produce shorter sequences than other
-	ways of combining several attributes.
+	``colour(v, 'red', 'bold')`` and similar produce shorter sequences than
+	other ways of combining several attributes.
 
-	You can also use:
+	You can also use::
+
 		colour(v, '#RGB[bg]') (0 - 5) ("256 colour" mode)
 		colour(v, '#GG[bg]') (00 - 1D) (grayscale from "256 colour" mode)
 		colour(v, 'XNN[bg]') (00 - FF) (directly specifying a "256 colour" index)
@@ -65,14 +66,16 @@ class Colour:
 	found in shell/__init__.py (search for "configuration defaults").
 
 	In the configuration file you can also use <pre >post to just put
-	those literal strings around the value. e.g.
-	[colour]
-		grep/header = <\e[4:3m >\e[24m
+	those literal strings around the value. e.g::
+
+		[colour]
+		    grep/header = <\e[4:3m >\e[24m
+
 	if your terminal supports such extended codes.
 
 	The functions take force=True to return escape sequences even if colour
 	is disabled and reset=True to reset all attributes before (and after)
-	this sequence. (By default only the changed attributes are reset.)
+	this sequence. By default only the changed attributes are reset.
 	"""
 
 	def __init__(self):
