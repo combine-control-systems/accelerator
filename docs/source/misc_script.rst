@@ -114,37 +114,14 @@ information (execution time) for ``prepare``, ``synthesis``, and all
    print(job.post)
 
 
+Creating Custom Status Messages
+-------------------------------
 
-
-
-
-
-Status and Progress Reporting
------------------------------
-
-Ideally, jobs should complete fast.  When they do not, it is easy to
-check the progress using the built in status functionality.  Status is
-invoked by pressing ``C-t`` in the server or build terminals.
-
-.. tip ::  Press C-t (That is CTRL + t) at any time to see status.
-
-It is also possible to issue the ``ax status`` command.
-
-.. tip :: The shell command ``ax status`` provides status information
-   *as well as the last error that has occured*.
-
-.. tip :: The status is also available in exax Board.
-
-Status messages are used by most built-in job scripts and functions,
-such as for example ``csvimport`` and ``json_load()``, and it is
-straightforward to design new ones.
-
-
-Creating Status Messages
-........................
-
-It is possible to create status messages using the status context
-manager.  Here's an example
+Most built-in job scripts and functions, such as for example ``csvimport``
+and ``json_load()``, provide their own status messages to be displayed
+when pressing ``CTRL+T`` (see :ref:`job_scripts:Progress/status reporting`).
+However, it is also possible to create custom status messages for your
+scripts using the status context manager. Here's an example:
 
 .. code-block ::
    :caption: Example of status context manager with static content.
@@ -171,4 +148,4 @@ the progress of the program
                update(msg % (ix,))
 
 The last created status message will be printed to ``stdout`` when
-``C-t`` is pressed.
+``CTRL+t`` is pressed.
