@@ -149,7 +149,7 @@ example
    options={'x': 37, 'name': 'myname',}
    datasets=('ds',)
    jobs=('previous',)
- 
+
    def synthesis():
        print(options.x, options.name)
        print(datasets.ds.columns)
@@ -535,7 +535,7 @@ registered manually, it stops being temporary.
 
 
 
-Find and Load Created Files 
+Find and Load Created Files
 ----------------------------
 
 Files in a job are easily accessible by other job scripts and build
@@ -710,12 +710,12 @@ following examples
 Progress/status reporting
 -------------------------
 
-If a job takes a long time to complete, pressing CTRL+T will force
+If a job takes a long time to complete, pressing ``CTRL+T`` will force
 exax to print a message on stdout.  This message can be tailored to
 the running program in the following way
 
 .. code-block:: python
-   :caption: custom status messages (show when pressing CTRL-T)
+   :caption: custom status messages (shown when pressing ``CTRL+T``)
 
    from accelerator import status
 
