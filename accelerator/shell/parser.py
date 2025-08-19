@@ -116,10 +116,9 @@ def name2job(url, urd, n, _want_ds=False):
 		else:
 			prefix_len = 0
 		# If workdir names have '.' in them we don't want to split there.
-		for prefix in sorted((name + '-' for name in cfg.workdirs), key=lambda name: -len(name)):
-			if n.startswith(prefix):
-				prefix_len = len(prefix)
-				break
+		wd = n.rsplit('-', 1)[0]
+		if '.' in wd:
+			prefix_len = len(wd) + 1
 		try:
 			prefix_len = n.index('.', prefix_len)
 			n, dotted = n[:prefix_len], iter(n[prefix_len + 1:].split('.'))
