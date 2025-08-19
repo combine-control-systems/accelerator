@@ -1,5 +1,5 @@
-Script Miscellaneous
-====================
+Advanced Script Features
+========================
 
 Depend on extra files
 ---------------------
