@@ -16,6 +16,7 @@ author = 'Anders Berkeman'
 extensions = ['sphinx.ext.autodoc',
 			  'sphinx.ext.autosummary',
 			  'sphinx.ext.autosectionlabel',
+			  'sphinxcontrib.fulltoc',
 			  'sphinxarg.ext']
 
 autosectionlabel_prefix_document = True  # Make sure the target is unique
@@ -26,10 +27,11 @@ exclude_patterns = []
 # -- Options for HTML output -------------------------------------------------
 # https://www.sphinx-doc.org/en/master/usage/configuration.html#options-for-html-output
 
-html_theme = 'sphinx_rtd_theme'
+html_theme = 'classic'
+
 html_static_path = ['_static',]
 html_theme_options = {
-	'prev_next_buttons_location': 'both',
+#	'prev_next_buttons_location': 'both',
 }
 html_css_files = [
 	'css/custom.css',
