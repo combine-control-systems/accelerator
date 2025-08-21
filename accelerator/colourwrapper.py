@@ -46,7 +46,7 @@ class Colour:
 	BOLD, FAINT, ITALIC, UNDERLINE, BLINK, INVERT, and STRIKE are also
 	available. These can be prefixed with NOT to turn them off.
 
-	When using the constants, you should usually end with .RESET.
+	When using the constants, you should usually end with .RESET or .DEFAULT.
 
 	>>> colour.RED + 'foo' + colour.DEFAULT == colour.red('foo') == colour('foo', 'red')
 
@@ -55,10 +55,10 @@ class Colour:
 
 	You can also use::
 
-		colour(v, '#RGB[bg]') (0 - 5) ("256 colour" mode)
-		colour(v, '#GG[bg]') (00 - 1D) (grayscale from "256 colour" mode)
-		colour(v, 'XNN[bg]') (00 - FF) (directly specifying a "256 colour" index)
-		colour(v, '#RRGGBB[bg]') (00 - FF) (but terminal support is not great)
+		colour(v, '#RGB[bg]')    # (0 - 5) ("256 colour" mode)
+		colour(v, '#GG[bg]')     # (00 - 1D) (grayscale from "256 colour" mode)
+		colour(v, 'XNN[bg]')     # (00 - FF) (directly specifying a "256 colour" index)
+		colour(v, '#RRGGBB[bg]') # (00 - FF) (but terminal support is not great)
 
 	Finally you can use names you put in the config file, some of which
 	have default values. This also has a fallback system, so 'foo/bar' will
