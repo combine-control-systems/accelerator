@@ -62,27 +62,8 @@ _cache = {}
 _nodefault = object()
 
 class Job(unicode):
-	"""
-	A string that is a jobid, but also has some extra properties:
-	.method The job method (can be the "name" when from build or urd).
-	.number The job number as an int.
-	.workdir The workdir name (the part before -number in the jobid)
-	.path The filesystem directory where the job is stored.
-	.params setup.json from this job.
-	.post post.json from this job.
-	.datasets list of Datasets in this job.
-	And some functions:
-	.withfile a JobWithFile with this job.
-	.filename to join .path with a filename.
-	.load to load a pickle.
-	.json_load to load a json file.
-	.open to open a file (like standard open)
-	.dataset to get a named Dataset.
-	.output to get what the job printed.
-	.link_result to put a link in result_directory that points to a file in this job.
-	.link_to_here to expose a subjob result in its parent.
-
-	Decays to a (unicode) string when pickled.
+	"""A string that is a jobid, decays to a plain (unicode) string
+       when pickled.
 	"""
 
 	__slots__ = ('workdir', 'number', '_cache')
@@ -109,6 +90,7 @@ class Job(unicode):
 
 	@_cachedprop
 	def method(self):
+		"""The job method. (Can be the "name" when from build or urd)."""
 		return self.params.method
 
 	@_cachedprop
@@ -133,11 +115,14 @@ class Job(unicode):
 
 	@property
 	def path(self):
+		"""The file system directory where the job is stored."""
 		if self.workdir not in WORKDIRS:
 			raise NoSuchWorkdirError('Not a valid workdir: "%s"' % (self.workdir,))
 		return os.path.join(WORKDIRS[self.workdir], self)
 
 	def filename(self, filename, sliceno=None):
+		"""To join .path with a filename.  Use this to get the absolute
+		path of a file in the job."""
 		if isinstance(filename, Path):
 			filename = str(filename)
 		if sliceno is not None:
@@ -145,12 +130,14 @@ class Job(unicode):
 		return os.path.join(self.path, filename)
 
 	def open(self, filename, mode='r', sliceno=None, encoding=None, errors=None):
+		"""Open a file (like standard open()) in this job for reading."""
 		assert 'r' in mode, "Don't write to other jobs"
 		if 'b' not in mode and encoding is None:
 			encoding = 'utf-8'
 		return open(self.filename(filename, sliceno), mode, encoding=encoding, errors=errors)
 
 	def files(self, pattern='*'):
+		"""List registered files in this job.  Filter by pattern using fnmatch()."""
 		from fnmatch import filter
 		try:
 			return set(filter(self.post.files, pattern))
@@ -158,10 +145,12 @@ class Job(unicode):
 			return set()
 
 	def withfile(self, filename, sliced=False, extra=None):
+		"""JobWithFile with this job."""
 		return JobWithFile(self, filename, sliced, extra)
 
 	@property # usually cached
 	def params(self):
+		"""setup.json from this job as a DotDict."""
 		if 'params' in self._cache:
 			return self._cache['params']
 		from accelerator.extras import job_params
@@ -183,11 +172,12 @@ class Job(unicode):
 
 	@_cachedprop
 	def post(self):
+		"""post.json from this job as a DotDict."""
 		from accelerator.extras import job_post
 		return job_post(self)
 
 	def load(self, filename='result.pickle', sliceno=None, encoding='bytes', default=_nodefault):
-		"""blob.load from this job"""
+		"""Load a pickle file from this job."""
 		from accelerator.extras import pickle_load
 		try:
 			return pickle_load(self.filename(filename, sliceno), encoding=encoding)
@@ -197,6 +187,7 @@ class Job(unicode):
 			return default
 
 	def json_load(self, filename='result.json', sliceno=None, unicode_as_utf8bytes=PY2, default=_nodefault):
+		"""Load a json file from this job."""
 		from accelerator.extras import json_load
 		try:
 			return json_load(self.filename(filename, sliceno), unicode_as_utf8bytes=unicode_as_utf8bytes)
@@ -206,15 +197,24 @@ class Job(unicode):
 			return default
 
 	def dataset(self, name='default'):
+		"""To get a named Dataset from this job."""
 		from accelerator.dataset import Dataset
 		return Dataset(self, name)
 
 	@_cachedprop
 	def datasets(self):
+		"""List of Datasets in this job."""
 		from accelerator.dataset import job_datasets
 		return job_datasets(self)
 
 	def output(self, what=None):
+		"""Return what the job printed to stdout and stderr.  Default
+		is everything, but may specify "prepare", "analysis",
+		"synthesis", or an integer corresponding to a specific
+		analysis slice.  All output can be returned in a dict using
+		"parts".
+
+		"""
 		if what == 'parts':
 			as_parts = True
 			what = None
@@ -242,7 +242,8 @@ class Job(unicode):
 			return ''.join(res.values())
 
 	def link_result(self, filename='result.pickle', linkname=None):
-		"""Put a symlink to filename in result_directory
+		"""Put a symlink to file (stored in this job) in result_directory.
+		Use linkname to change the name of the link.
 		Only use this in a build script."""
 		from accelerator.g import running
 		assert running == 'build', "Only link_result from a build script"
@@ -278,6 +279,7 @@ class Job(unicode):
 		os.rename(dest_fn + '_', dest_fn)
 
 	def link_to_here(self, filename='result.pickle'):
+		"""Exposes a file created in a subjob to this job using a soft link."""
 		from accelerator.g import job
 		src = self.filename(filename)
 		assert os.path.exists(src)

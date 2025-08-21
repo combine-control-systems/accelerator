@@ -4,8 +4,10 @@ Autodoc Job Classes
 .. autoclass:: accelerator.Job
    :members:
    :undoc-members:
-   :exclude-members: input_directory, is_build, build_job, method, number, params, parent, path, post, version, workdir
+   :exclude-members: version
    :member-order: alphabetical
+
+.. note:: This list is not complete, see source code for details.
 
 
 .. autoclass:: accelerator.job.CurrentJob
