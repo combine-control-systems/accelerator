@@ -321,15 +321,17 @@ class CurrentJob(Job):
 		return obj
 
 	def finish_early(self, result=None):
-		"""Finish job (successfully) without running later stages"""
+		"""Finish job (successfully) without running later stages."""
 		from accelerator.launch import _FinishJob
 		raise _FinishJob(result)
 
 	def save(self, obj, filename='result.pickle', sliceno=None, temp=None, background=False):
+		"""Save obj as a pickle file.  The created file will also be registered."""
 		from accelerator.extras import pickle_save
 		return pickle_save(obj, filename, sliceno, temp=temp, background=background)
 
 	def json_save(self, obj, filename='result.json', sliceno=None, sort_keys=True, temp=None, background=False):
+		"""Save obj as a JSON file.  The created file will also be registered."""
 		from accelerator.extras import json_save
 		return json_save(obj, filename, sliceno, sort_keys=sort_keys, temp=temp, background=background)
 
@@ -338,10 +340,10 @@ class CurrentJob(Job):
 		return DatasetWriter(columns=columns, filename=filename, hashlabel=hashlabel, hashlabel_override=hashlabel_override, caption=caption, previous=previous, name=name, parent=parent, meta_only=meta_only, for_single_slice=for_single_slice, copy_mode=copy_mode, allow_missing_slices=allow_missing_slices)
 
 	def open(self, filename, mode='r', sliceno=None, encoding=None, errors=None, temp=None):
-		"""Mostly like standard open with sliceno and temp,
-		but you must use it as context manager
-		with job.open(...) as fh:
-		and the file will have a temp name until the with block ends.
+		"""Mostly like standard open with sliceno and temp, but it
+		must be used as context manager with job.open(...) as fh: and
+		the file will have a temp name until the with block ends.
+		This function will also register the created file.
 		"""
 		if 'r' in mode:
 			return Job.open(self, filename, mode, sliceno, encoding, errors)
@@ -358,21 +360,22 @@ class CurrentJob(Job):
 		return fwm
 
 	def register_file(self, filename):
-		"""Record a file produced by this job. Normally you would use
-		job.open to have this happen automatically, but if the file was
-		produced in a way where that is not practical you can use this
-		to register it."""
+		"""Record a file produced by this job. Normally job.open
+		should be used to have this happen automatically, but if the
+		file was produced in a way where that is not practical, this
+		function can be used to register it.
+		"""
 		filename = self.filename(filename)
 		assert os.path.exists(filename)
 		from accelerator.extras import saved_files
 		saved_files[filename] = 0
 
 	def register_files(self, pattern='**/*' if PY3 else '*'):
-		"""Bulk register files matching a pattern.
-		Tries to exclude internal files automatically.
-		Does not register temp-files.
-		The default pattern registers everything (recursively, unless python 2).
-		Returns which files were registered.
+		"""Bulk register files matching a pattern.  Tries to exclude
+		internal files automatically.  Does not register temp-files.
+		The default pattern registers everything (recursively, unless
+		python 2).  Returns which files were registered.
+
 		"""
 		from accelerator.extras import saved_files
 		from glob import iglob
@@ -403,9 +406,13 @@ class CurrentJob(Job):
 		return res
 
 	def input_filename(self, *parts):
+		"""Path to file in input_directory.  parts could be a
+		filename or something that ends up as a filename after passing
+		os.join()."""
 		return os.path.join(self.input_directory, *parts)
 
 	def open_input(self, filename, mode='r', encoding=None, errors=None):
+		"""Open a file in input_directory for reading.  Based on open()."""
 		assert 'r' in mode, "Don't write to input files"
 		if 'b' not in mode and encoding is None:
 			encoding = 'utf-8'
