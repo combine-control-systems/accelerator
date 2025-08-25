@@ -170,13 +170,23 @@ set to all methods, or it could be set to a specific method only.
 
 If concurrency is set to a number, like this
 
-  concurrency=3
+.. code-block ::
+
+   ax run --concurrency=3 mybuild
+
+or
+
+.. code-block ::
+
+   urd.build('myscript', concurrency=3)
 
 the number of parallel processes is limited to this number for all
 methods. Alternatively, concurrency can be specified for a single
 method like this
 
-  concurrency="dataset_sort=3"
+.. code-block ::
+
+   ax run --concurrency="dataset_sort=3" mybuild
 
 
 .. note:: A job is not aware of, and does not store, the concurrency
