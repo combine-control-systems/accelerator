@@ -57,25 +57,25 @@ provides a shorter summary about the basic concepts.
 
   So they will always be re-built.
 
-5. Jobs may link to each other using job references.
+7. Jobs may link to each other using job references.
 
   Meaning that jobs may share results and parameters with each other.
 
-6. Jobs are stored in workdirs.
+8. Jobs are stored in workdirs.
 
   So it is clear *exactly* where on the disk that all work is being
   saved.  This simplifies computer and storage administration.
 
-7. There may be any number of workdirs.
+9. There may be any number of workdirs.
 
   This adds a layer of “physical separation”. All jobs relating to
   importing a set of data may be stored in one workdir, perhaps named
   "import", and development work may be stored in a workdir named
   "dev", etc.
 
-7. Job ids are created by appending a counter to the workdir name.
+10. Job ids are created by appending a counter to the workdir name.
 
-8. Jobs may dispatch other jobs.
+11. Jobs may dispatch other jobs.
 
   A job can dispatch any number of new jobs.  These jobs are then
   called *subjobs*.  A maximum allowed recursion depth is defined to
