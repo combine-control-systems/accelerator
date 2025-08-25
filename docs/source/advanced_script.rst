@@ -149,3 +149,35 @@ the progress of the program
 
 The last created status message will be printed to ``stdout`` when
 ``CTRL+t`` is pressed.
+
+
+
+Limiting Concurrency
+--------------------
+
+By default, a job containing the analysis() function will be forked
+into ``slices`` parallel processes, where ``slices``` is specified in
+the Accelerator’s configuration file. A standard method like
+``dataset_sort`` will sort in parallel in all slices for maximum
+performance, but for large datasets and systems with little RAM, this
+could lead to running out of memory.
+
+A simple solution to this problem is to limit the number of allowed
+parallel processes.  This could be done either in the build call,
+using the ``concurrency=`` parameter, or on the command line as an
+option to the ``ax run`` command. In both cases, the limit could be
+set to all methods, or it could be set to a specific method only.
+
+If concurrency is set to a number, like this
+
+  concurrency=3
+
+the number of parallel processes is limited to this number for all
+methods. Alternatively, concurrency can be specified for a single
+method like this
+
+  concurrency="dataset_sort=3"
+
+
+.. note:: A job is not aware of, and does not store, the concurrency
+          setting.
