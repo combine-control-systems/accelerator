@@ -123,13 +123,17 @@ When the build scrip terminates, the contents of the ``urd.joblist``
 variable is stored persistently in the Urd database under the key
 ``__auto__`` together with the timestamp when the execution started.
 
-.. tip:: Use the shell command ``ax urd __auto__/`` (with a slash) to
-   see existing entry timestamps in the ``__auto__`` urdlist.
+  .. tip:: Use the shell command ``ax urd __auto__`` to see the latest
+     entry containing references to all jobs from the latest ``ax
+     run`` call.
 
-.. tip:: Use ``ax urd __auto__/<timestamp>`` to see the joblist at a
-   specific timestamp.
+     Use the shell command ``ax urd __auto__/`` (with a slash) to
+     see existing entry timestamps in the ``__auto__`` urdlist.
+     There is one entry for every time an ``ax run`` command was issued.
 
-   Or just ``ax urd __auto__`` to see the latest entry.
+     Use ``ax urd __auto__/<timestamp>`` to see the joblist at a
+     specific timestamp.
+
 
 Since the automatic Urd list stores all build-calls performed by any
 build script, it can be used to recall any previous build call by
