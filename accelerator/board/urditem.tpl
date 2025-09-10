@@ -22,7 +22,7 @@
 	<table class="urd-table">
 		<tr><td>deps</td><td>
 			% for dep, depentry in sorted(entry.deps.items()):
-				<a href="/urd/{{ url_quote(dep) }}/{{ ! urd_ts_html(depentry.timestamp) }}">
+				<a href="/urd/{{ url_quote(dep) }}/{{ depentry.timestamp }}">
 					{{ dep }}/{{ ! urd_ts_html(depentry.timestamp) }}
 				</a>
 				<ol>
