@@ -10,10 +10,6 @@ and the CurrentJob for jobs that are currently executing.  The latter
 has additional functionality that makes sense while executing, for
 example for creating new files.
 
-|
-|
-|
-|
 
 .. autoclass:: accelerator.Job
    :members:
@@ -23,14 +19,9 @@ example for creating new files.
 
 .. note:: This list is not complete, see source code for details.
 
-|
-|
-|
-|
 
 .. autoclass:: accelerator.job.CurrentJob
    :members:
    :undoc-members:
    :exclude-members:
    :member-order: alphabetical
-
