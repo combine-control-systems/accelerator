@@ -17,6 +17,13 @@ detailing all aspects of the execution of the script.  A job's files
 are easily accessible from other scripts using Python objects, so that
 they can be presented to the user or used as input to other scripts.
 
+.. image:: figures/board_jobs.png
+   :width: 550px
+   :align: center
+
+Without going into any details at this point, the figure above shows
+four jobs and their relations.
+
 
 
 Block Diagram
@@ -30,7 +37,6 @@ database that is used to store more complex sequences of execution.
 
 .. image:: figures/input_results.svg
    :width: 600px
-   :height: 300px
    :align: center
 
 The urd transaction database will be explained later in chapter @@.
@@ -52,15 +58,19 @@ output files, profiling information, and anything printed to standard
 out and standard error during the execution.
 
 Each job is associated with a unique identifier, such as for example
-``dev-37``.  This called the *job id*, and the directory where the
-information is stored is called the *job directory*.
+``dev-37``.  This called the *job id*, and the directory (having the
+job id as its name) where the information is stored is called the *job
+directory*.  Relating to the block diagram above, job directories are
+stored in the workdir.
 
-Files and data in a job is typically accessed using Python objects and
-convenience functions, so although the file structure is human
+Files and data in a job are typically accessed using Python objects
+and convenience functions, so although the file structure is human
 readable, there is little reason to know about the details of it.
 
-Jobs and job ids are almost interchangeable.  ``Job('dev-37')`` is the
-job object that corresponds to job id ``dev-37``.
+Jobs and job ids are almost interchangeable.  A string containing a
+job id (e.g. ``dev-37``) can be converted to a Job object using
+``Job(dev-37)``.  Similarly, a Job object serialises as a ``str``.
+
 
 What is a Build Script?
 -----------------------
@@ -129,6 +139,22 @@ functions.
 All job scripts in a project can be listed using the ``ax method``
 command, or be browsed in a web browser using the built in Board web
 server.
+
+
+
+An Example
+----------
+
+Here is the image from the top of this document again.  To the left,
+it shows a job that was build by a build script.  The build script
+also built three jobs from job scripts, represented by the three jobs
+to the right.  The wide arrows point out of the build job to show the
+jobs it created.  The thin arrow from "another" to "second" shows that
+"another" is using some data created by "second".
+
+.. image:: figures/board_jobs.png
+   :width: 550px
+   :align: center
 
 
 
