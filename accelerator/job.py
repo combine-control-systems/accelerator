@@ -243,7 +243,9 @@ class Job(unicode):
 
 	def link_result(self, filename='result.pickle', linkname=None):
 		"""Put a symlink to file (stored in this job) in result_directory.
-		Use linkname to change the name of the link.
+		Use linkname to change the name of the link.  A linkname ending
+		with a slash is interpreted as directory in which the link will
+		be created (with no name change).
 		Only use this in a build script."""
 		from accelerator.g import running
 		assert running == 'build', "Only link_result from a build script"
