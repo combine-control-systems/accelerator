@@ -24,6 +24,24 @@ Read about more features below.
 
 
 
+Simplified Block Diagram
+------------------------
+
+The figure below shows a simplified block diagram, where data flows
+from left to right (from *input directory* to *result directory*), and
+user interfaces are at the bottom marked in blue colour.
+
+
+.. image:: figures/input_result_simple.svg
+   :width: 650px
+   :height: 270px
+   :align: center
+
+The *workdir* is a directory where data and meta data relating to
+executions are stored and retrieved from.
+
+
+
 Design Goals
 ------------
 

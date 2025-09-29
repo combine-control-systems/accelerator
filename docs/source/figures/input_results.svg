@@ -1,0 +1,170 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<!-- Creator: fig2dev Version 3.2.8b -->
+<!-- CreationDate: 2025-09-29 17:33:15 -->
+<!-- Magnification: 1.05 -->
+<svg	xmlns="http://www.w3.org/2000/svg"
+	xmlns:xlink="http://www.w3.org/1999/xlink"
+	width="413pt" height="246pt"
+	viewBox="9878 4343 6546 3902">
+<g fill="none">
+<!-- Text -->
+<text xml:space="preserve" x="12015" y="7875" fill="#00008f" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="216" text-anchor="middle">Python</text>
+<!-- Text -->
+<text xml:space="preserve" x="12015" y="8145" fill="#00008f" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="216" text-anchor="middle">scripts</text>
+<!-- Line -->
+<rect x="14355" y="5265" width="720" height="405"
+	stroke="#000000" stroke-width="30px"/>
+<!-- Text -->
+<text xml:space="preserve" x="14715" y="5535" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="216" text-anchor="middle">board</text>
+<!-- Line -->
+<rect x="11700" y="6030" width="1620" height="945"
+	stroke="#000000" stroke-width="30px"/>
+<!-- Text -->
+<text xml:space="preserve" x="12510" y="6570" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="216" text-anchor="middle">exax</text>
+<!-- Text -->
+<text xml:space="preserve" x="13050" y="7875" fill="#00008f" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="216" text-anchor="middle">shell</text>
+<!-- Text -->
+<text xml:space="preserve" x="13050" y="8145" fill="#00008f" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="216" text-anchor="middle">cmds</text>
+<!-- Line -->
+<polygon points=" 9900,6075 9900,6840 10800,6840 10800,6165 10125,6165 10080,6075"
+	stroke="#606c71" stroke-width="15px"/>
+<!-- Line -->
+<polygon points=" 10891,6435 11386,6390 11386,6300 11611,6480 11386,6660 11386,6570 10891,6525
+" fill="#606c71"
+	stroke="#606c71" stroke-width="8px"/>
+<!-- Line -->
+<polygon points=" 13410,6435 13905,6390 13905,6300 14130,6480 13905,6660 13905,6570 13410,6525
+" fill="#606c71"
+	stroke="#606c71" stroke-width="8px"/>
+<!-- Line -->
+<polygon points=" 14220,6075 14220,6840 15120,6840 15120,6165 14445,6165 14400,6075"
+	stroke="#606c71" stroke-width="15px"/>
+<!-- Line -->
+<defs>
+<clipPath id="cp0">
+	<path clip-rule="evenodd" d="M 9878,4343 H 16424 V 8245 H 9878 z
+		M 14219,5415 14219,5475 14362,5452 14362,5438z"/>
+</clipPath>
+</defs>
+<polyline points=" 14355,5445 13320,5445" clip-path="url(#cp0)"
+	stroke="#606c71" stroke-width="8px"/>
+<!-- Backward arrow to point 14355,5445 -->
+<polygon points=" 14219,5475 14339,5445 14219,5415 14219,5475"
+	stroke="#606c71" stroke-width="8px" stroke-miterlimit="8" fill="#606c71"/>
+<!-- Line -->
+<defs>
+<clipPath id="cp1">
+	<path clip-rule="evenodd" d="M 9878,4343 H 16424 V 8245 H 9878 z
+		M 12990,5894 12930,5894 12953,6037 12967,6037z
+		M 12930,5806 12990,5806 12967,5663 12953,5663z"/>
+</clipPath>
+</defs>
+<polyline points=" 12960,5670 12960,6030" clip-path="url(#cp1)"
+	stroke="#606c71" stroke-width="8px"/>
+<!-- Forward arrow to point 12960,6030 -->
+<polygon points=" 12930,5894 12960,6014 12990,5894 12930,5894"
+	stroke="#606c71" stroke-width="8px" stroke-miterlimit="8" fill="#606c71"/>
+<!-- Backward arrow to point 12960,5670 -->
+<polygon points=" 12990,5806 12960,5686 12930,5806 12990,5806"
+	stroke="#606c71" stroke-width="8px" stroke-miterlimit="8" fill="#606c71"/>
+<!-- Line -->
+<defs>
+<clipPath id="cp2">
+	<path clip-rule="evenodd" d="M 9878,4343 H 16424 V 8245 H 9878 z
+		M 12990,5894 12930,5894 12953,6037 12967,6037z
+		M 11985,7111 12045,7111 12022,6968 12008,6968z"/>
+</clipPath>
+</defs>
+<polyline points=" 12015,6975 12015,7605" clip-path="url(#cp2)"
+	stroke="#606c71" stroke-width="8px"/>
+<!-- Backward arrow to point 12015,6975 -->
+<polygon points=" 12045,7111 12015,6991 11985,7111 12045,7111"
+	stroke="#606c71" stroke-width="8px" stroke-miterlimit="8" fill="#606c71"/>
+<!-- Line -->
+<defs>
+<clipPath id="cp3">
+	<path clip-rule="evenodd" d="M 9878,4343 H 16424 V 8245 H 9878 z
+		M 14745,5129 14685,5129 14708,5272 14722,5272z
+		M 11985,7111 12045,7111 12022,6968 12008,6968z"/>
+</clipPath>
+</defs>
+<polyline points=" 12600,4815 14715,4815 14715,5265" clip-path="url(#cp3)"
+	stroke="#000000" stroke-width="8px"/>
+<!-- Forward arrow to point 14715,5265 -->
+<polygon points=" 14685,5129 14715,5249 14745,5129 14685,5129"
+	stroke="#000000" stroke-width="8px" stroke-miterlimit="8" fill="#000000"/>
+<!-- Line -->
+<polyline points=" 12060,5625 12060,5445 11970,5445 12150,5220 12330,5445 12240,5445 12240,5670
+" fill="#606c71"
+	stroke="#606c71" stroke-width="8px"/>
+<!-- Line -->
+<polyline points=" 12060,5580 12060,5715 11970,5715 12150,5940 12330,5715 12240,5715 12240,5580
+" fill="#606c71"
+	stroke="#606c71" stroke-width="8px"/>
+<!-- Line -->
+<polygon points=" 11700,4365 11700,5130 12600,5130 12600,4455 11925,4455 11880,4365"
+	stroke="#606c71" stroke-width="15px"/>
+<!-- Line -->
+<defs>
+<clipPath id="cp4">
+	<path clip-rule="evenodd" d="M 9878,4343 H 16424 V 8245 H 9878 z
+		M 14745,5129 14685,5129 14708,5272 14722,5272z
+		M 14685,5806 14745,5806 14722,5663 14708,5663z"/>
+</clipPath>
+</defs>
+<polyline points=" 14715,5670 14715,6165" clip-path="url(#cp4)"
+	stroke="#606c71" stroke-width="8px"/>
+<!-- Backward arrow to point 14715,5670 -->
+<polygon points=" 14745,5806 14715,5686 14685,5806 14745,5806"
+	stroke="#606c71" stroke-width="8px" stroke-miterlimit="8" fill="#606c71"/>
+<!-- Line -->
+<rect x="12600" y="5265" width="720" height="405"
+	stroke="#000000" stroke-width="30px"/>
+<!-- Line -->
+<defs>
+<clipPath id="cp5">
+	<path clip-rule="evenodd" d="M 9878,4343 H 16424 V 8245 H 9878 z
+		M 15555,7469 15495,7469 15518,7612 15532,7612z
+		M 15211,5475 15211,5415 15068,5438 15068,5452z"/>
+</clipPath>
+</defs>
+<polyline points=" 15075,5445 15525,5445 15525,7605" clip-path="url(#cp5)"
+	stroke="#606c71" stroke-width="8px"/>
+<!-- Forward arrow to point 15525,7605 -->
+<polygon points=" 15495,7469 15525,7589 15555,7469 15495,7469"
+	stroke="#606c71" stroke-width="8px" stroke-miterlimit="8" fill="#606c71"/>
+<!-- Backward arrow to point 15075,5445 -->
+<polygon points=" 15211,5415 15091,5445 15211,5475 15211,5415"
+	stroke="#606c71" stroke-width="8px" stroke-miterlimit="8" fill="#606c71"/>
+<!-- Line -->
+<defs>
+<clipPath id="cp6">
+	<path clip-rule="evenodd" d="M 9878,4343 H 16424 V 8245 H 9878 z
+		M 13035,7469 12975,7469 12998,7612 13012,7612z
+		M 12975,7111 13035,7111 13012,6968 12998,6968z"/>
+</clipPath>
+</defs>
+<polyline points=" 13005,6975 13005,7605" clip-path="url(#cp6)"
+	stroke="#606c71" stroke-width="8px"/>
+<!-- Forward arrow to point 13005,7605 -->
+<polygon points=" 12975,7469 13005,7589 13035,7469 12975,7469"
+	stroke="#606c71" stroke-width="8px" stroke-miterlimit="8" fill="#606c71"/>
+<!-- Backward arrow to point 13005,6975 -->
+<polygon points=" 13035,7111 13005,6991 12975,7111 13035,7111"
+	stroke="#606c71" stroke-width="8px" stroke-miterlimit="8" fill="#606c71"/>
+<!-- Text -->
+<text xml:space="preserve" x="9945" y="6660" fill="#606c71" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="216" text-anchor="start">directory</text>
+<!-- Text -->
+<text xml:space="preserve" x="14265" y="6660" fill="#606c71" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="216" text-anchor="start">directory</text>
+<!-- Text -->
+<text xml:space="preserve" x="9945" y="6435" fill="#606c71" font-family="Helvetica" font-style="normal" font-weight="bold" font-size="216" text-anchor="start">input</text>
+<!-- Text -->
+<text xml:space="preserve" x="14265" y="6435" fill="#606c71" font-family="Helvetica" font-style="normal" font-weight="bold" font-size="216" text-anchor="start">result</text>
+<!-- Text -->
+<text xml:space="preserve" x="12150" y="4815" fill="#606c71" font-family="Helvetica" font-style="normal" font-weight="bold" font-size="216" text-anchor="middle">workdir</text>
+<!-- Text -->
+<text xml:space="preserve" x="12960" y="5535" fill="#000000" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="216" text-anchor="middle">urd</text>
+<!-- Text -->
+<text xml:space="preserve" x="15525" y="7875" fill="#00008f" font-family="Helvetica" font-style="normal" font-weight="normal" font-size="216" text-anchor="middle">web browser</text>
+</g>
+</svg>

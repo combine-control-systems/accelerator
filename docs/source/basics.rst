@@ -19,6 +19,28 @@ they can be presented to the user or used as input to other scripts.
 
 
 
+Block Diagram
+-------------
+
+In the block diagram below, user "interfaces" are coloured blue.  The
+user can interact with exax using shell commands, and the *board*
+server provides access using a web browser.  (There are also APIs for
+interfacing machines.)  The figure also shows the *urd* transaction
+database that is used to store more complex sequences of execution.
+
+.. image:: figures/input_results.svg
+   :width: 600px
+   :height: 300px
+   :align: center
+
+The urd transaction database will be explained later in chapter @@.
+
+.. note :: While exax abstracts some interfaces using Python classes
+   for convenience, all intermediate storage is based on files,
+   directories, and soft links, basically making all data easy to
+   access by a human using conventional tools.  Similarly, the urd
+   transaction database stores entries in text format.
+
 
 What is a Job?
 --------------
