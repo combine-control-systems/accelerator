@@ -42,3 +42,14 @@ directory.
 The last line will print the full path to ``graph.png``, just to
 illustrate that exax is working with plain files, and they are always
 easy to find.
+
+The graph below illustrates the created jobs and their dependencies.
+
+.. image:: figures/board_example.png
+   :width: 650px
+   :align: center
+
+The "F" mark on the plot jobs indicate that they contain created
+files.  The "S" mark on the build script indicates that it has created
+other jobs.  Note that the thin arrows depicting dependencies between
+jobs have a text attached with the corresponding parameter it is passing.
