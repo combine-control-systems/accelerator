@@ -156,7 +156,7 @@
 		if (el.classList.contains('hidden')) {
 			el.remove();
 		} else {
-			setTimeout(el.remove, 1400);
+			setTimeout(() => el.remove(), 1400);
 			el.classList.add('hidden');
 			el.dataset.name = '';
 		}
