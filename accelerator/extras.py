@@ -3,7 +3,7 @@
 #                                                                          #
 # Copyright (c) 2017 eBay Inc.                                             #
 # Modifications copyright (c) 2019-2020 Anders Berkeman                    #
-# Modifications copyright (c) 2019-2024 Carl Drougge                       #
+# Modifications copyright (c) 2019-2025 Carl Drougge                       #
 # Modifications copyright (c) 2023-2024 Pablo Correa Gómez                 #
 #                                                                          #
 # Licensed under the Apache License, Version 2.0 (the "License");          #
@@ -28,7 +28,7 @@ import datetime
 import json
 import pathlib
 from traceback import print_exc
-from collections import OrderedDict
+from collections import OrderedDict, Counter
 from functools import partial
 import sys
 
@@ -460,13 +460,17 @@ class ResultIterMagic(object):
 				return data
 		depth = 0
 		to_check = data
+		to_check_parent = data
 		while hasattr(to_check, "values"):
 			if not to_check:
 				raise self._exc("Empty value at depth %d (index %d)" % (depth, ix,))
+			to_check_parent = to_check
 			to_check = first_value(to_check)
 			depth += 1
 		if hasattr(to_check, "update"): # like a set
 			depth += 1
+		if isinstance(to_check, set) or isinstance(to_check_parent, Counter):
+			allow_overwrite = True
 		if not depth:
 			raise self._exc("Top level has no .values (index %d)" % (ix,))
 		def upd(aggregate, part, level):
