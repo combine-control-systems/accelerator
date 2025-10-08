@@ -421,7 +421,7 @@ class ResultIterMagic(object):
 		return item
 	next = __next__
 
-	def merge_auto(self, allow_overwrite=False):
+	def merge_auto(self, allow_overwrite=None):
 		"""Merge values from iterator using magic.
 		Currenly supports data that has .update, .itervalues and .iteritems
 		methods.
@@ -434,6 +434,9 @@ class ResultIterMagic(object):
 		objects in multiple slices, the merging might only take the values from
 		one of them, without any kind of warranties. This was historical
 		behavior, and has a slightly greater performance.
+
+		If allow_overwrite is set to False, no leaf containers allow duplicate
+		keys, even for types where it's normally ok (set and Counter).
 		"""
 		if self._started:
 			raise self._exc("Will not merge after iteration started")
@@ -469,7 +472,7 @@ class ResultIterMagic(object):
 			depth += 1
 		if hasattr(to_check, "update"): # like a set
 			depth += 1
-		if isinstance(to_check, set) or isinstance(to_check_parent, Counter):
+		if allow_overwrite is None and (isinstance(to_check, set) or isinstance(to_check_parent, Counter)):
 			allow_overwrite = True
 		if not depth:
 			raise self._exc("Top level has no .values (index %d)" % (ix,))
