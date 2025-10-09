@@ -480,7 +480,8 @@ class ResultIterMagic(object):
 			if level == depth:
 				if not allow_overwrite:
 					for k in part:
-						assert k not in aggregate, "duplicate %s" % (k,)
+						if k in aggregate:
+							raise self._exc("Duplicate key %r (index %d)" % (k, ix,))
 				aggregate.update(part)
 			else:
 				for k, v in iteritems(part):
