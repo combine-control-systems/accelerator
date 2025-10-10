@@ -146,6 +146,48 @@ def main(urd):
 		else:
 			print("test_analysis_died took %.1f seconds to die, so death detection works" % (time_to_die,))
 
+	for tupled in (False, True):
+		print()
+		print("Testing analysis_res.merge_auto() with", "tupled result" if tupled else "a dict")
+		urd.build("test_merge_auto_dict", allow_overwrite=False, dups=False, tupled=tupled)
+		urd.build("test_merge_auto_dict", allow_overwrite=True, dups=True, tupled=tupled)
+		try:
+			urd.build("test_merge_auto_dict", allow_overwrite=False, dups=True, tupled=tupled)
+			raise Exception("Duplicates allowed in merge_auto(allow_overwrite=False)")
+		except JobError as e:
+			assert ': Duplicate key' in e.status.synthesis
+			print("Duplicates in merge_auto(allow_overwrite=False) failed as expected")
+	print("Testing analysis_res.merge_auto() with a dict in a dict in dict")
+	urd.build("test_merge_auto_deep_dict", allow_overwrite=False, dups=False)
+	urd.build("test_merge_auto_deep_dict", allow_overwrite=True, dups=True)
+	try:
+		urd.build("test_merge_auto_deep_dict", allow_overwrite=None, dups=True)
+		raise Exception("Duplicates allowed in merge_auto(allow_overwrite=False)")
+	except JobError as e:
+		assert ': Duplicate key' in e.status.synthesis
+		print("Duplicates in merge_auto(allow_overwrite=False) failed as expected")
+	print()
+	print("Testing analysis_res.merge_auto() with types that should allow_overwrite by default")
+	urd.build("test_merge_auto_set_and_counter", allow_overwrite=True)
+	urd.build("test_merge_auto_set_and_counter", allow_overwrite=None)
+	try:
+		urd.build("test_merge_auto_set_and_counter", allow_overwrite=False)
+		raise Exception("Duplicates allowed in merge_auto(allow_overwrite=False)")
+	except JobError as e:
+		assert ': Duplicate key' in e.status.synthesis
+		print("Duplicates in merge_auto(allow_overwrite=False) failed as expected")
+	print()
+	print("Testing analysis_res.merge_auto() with a mix of types that should and should not allow_overwrite by default")
+	urd.build("test_merge_auto_set_and_dict", allow_overwrite=True)
+	urd.build("test_merge_auto_set_and_dict", allow_overwrite=None)
+	try:
+		urd.build("test_merge_auto_set_and_dict", allow_overwrite=False)
+		raise Exception("Duplicates allowed in merge_auto(allow_overwrite=False)")
+	except JobError as e:
+		assert ': Duplicate key' in e.status.synthesis
+		print("Duplicates in merge_auto(allow_overwrite=False) failed as expected")
+	print()
+
 	print()
 	print("Testing dataset creation, export, import")
 	source = urd.build("test_datasetwriter")
