@@ -2,7 +2,7 @@
 ############################################################################
 #                                                                          #
 # Copyright (c) 2017 eBay Inc.                                             #
-# Modifications copyright (c) 2018-2024 Carl Drougge                       #
+# Modifications copyright (c) 2018-2025 Carl Drougge                       #
 # Modifications copyright (c) 2020 Anders Berkeman                         #
 # Modifications copyright (c) 2024 Pablo Correa Gómez                      #
 #                                                                          #
@@ -41,6 +41,7 @@ from accelerator import blob
 from accelerator import statmsg
 from accelerator import dataset
 from accelerator import iowrapper
+from accelerator import splitters
 
 
 # Raise this to finish job (successfully) without running later stages
@@ -100,6 +101,7 @@ def call_analysis(analysis_func, sliceno_, delayed_start, q, preserve_result, pa
 		for dw in dataset._datasetwriters.values():
 			if dw._for_single_slice is None:
 				dw._set_slice(sliceno_)
+		splitters._analysis_start(g.slices, sliceno_)
 		try:
 			res = analysis_func(**kw)
 			finishjob = False
