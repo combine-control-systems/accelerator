@@ -22,6 +22,7 @@ Welcome to exax's online documentation!
    urd_retrieval
    urd_admin
    configfile
+   troubleshooting
    autodoc_job
    autodoc_dataset
    autodoc_urd
