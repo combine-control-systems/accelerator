@@ -185,6 +185,10 @@ def main(urd):
 	print()
 
 	print()
+	print("Testing the splitters")
+	urd.build("test_splitters_deterministic")
+
+	print()
 	print("Testing dataset creation, export, import")
 	source = urd.build("test_datasetwriter")
 	urd.build("test_datasetwriter_verify", source=source)
