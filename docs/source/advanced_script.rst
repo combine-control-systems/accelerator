@@ -191,3 +191,116 @@ method like this
 
 .. note:: A job is not aware of, and does not store, the concurrency
           setting.
+
+
+Automatic Slice-Data Merging: merge_auto
+----------------------------------------
+
+When all ``analysis()`` processes have finished, their results are
+available to ``synthesis()`` using the ``analysis_res`` variable.
+This variable is actually an iterator, presenting one ``analysis()``
+result at a time.
+
+Merging these results has to be done with caution, it is easy to get
+it wrong.  In order to save development as well as debugging time, the
+``analysis_res`` object has a member function ``merge_auto()``, which
+merges the data from all slices into one object.  This section
+descripes more in deptht how it works.
+
+To start with, here is the basic setup
+
+.. code-block ::
+
+  def analysis(sliceno):
+     data = function(sliceno, ...)
+     return data
+
+  def synthesis(analysis_res):
+     total = analysis_res.merge_auto()
+
+where ``total`` will contain the merged data from all slices.
+
+The default operation of ``merge_auto()`` is as follows
+
+  - lists are concatenated
+
+    .. code-block ::
+
+      ([1, 2, 3], [4, 5, 6]).merge_auto() == [1, 2, 3, 4, 5, 6]
+
+  - integers are added
+
+    .. code-block ::
+
+      (1, 2, 3).merge_auto() == 6
+
+    This could for example be parallel counting of lines in a log file.
+
+  - types with an ``update()`` member will be updated
+
+    .. code-block ::
+
+      ({'lemon', 'apple'}, {'apple', 'pear'}).merge_auto() == {'lemon', 'apple', 'pear'}
+
+    .. code-block ::
+
+      ({'lemon': 3}, {'lemon': 4}) == {'lemon': 7}
+
+  - each item in a tuple is merged independently
+
+If two sets contain the same element this is considered by default to
+be okay, the item is a member of at least one of the input sets, like
+the lemon, apple, pear example above.
+
+But for dictionaries, the same key may have different values in
+different input sets, and the question is then what to do, like in
+this example
+
+  .. code-block ::
+
+    ({'skywalker': 'luke'}, {'skywalker': 'anakin'}.merge_auto() == ?
+
+To resolve the situation, ``merge_auto()`` takes an input argument
+``allow_overwrite`` that can be either of ``True``, ``False``, or
+``None``.
+
+  - ``True`` means that the last merged value will be output.
+
+  - ``False`` will raise an error if the same key exists in multiple
+    slices.  This will also cause an exception when merging two sets
+    or Counters that share at least one key.
+
+  - ``None`` Is inbetween.  It will raise an exception if there are
+    duplicate keys for dictionaries, but not for sets or Counters.
+    *This is the default.*
+
+Note that these rules applies to the *bottom* of the hierarcy only.
+For multi-level dictionaries keys can always overlap on the higher
+levels.  For example
+
+  .. code-block ::
+     (
+       {'sold_items': {'books': {'Moby Dick', 'Don Quixote'}}},
+       {'sold_items': {'books': {'Don Quixote', 'Lolita'}}}
+     ).merge_auto()
+
+This is okay, because the bottom level is a set and the default is
+``None``, meaning that duplicate set members is okay.  The two levels
+above, ``sold_items`` and ``books``, are not part of the duplicate
+check.  The merge will produce sets of sold items while maintaining
+the different category hierarcy.
+
+
+
+
+Forced Builds
+-------------
+
+In very rare circumstances a forced build may be wanted.  A re-build
+can be forced like this
+
+.. code-block ::
+
+   def main(urd):
+       urd.build('jobscript', force_build=True)
+
