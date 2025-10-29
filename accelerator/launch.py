@@ -101,7 +101,7 @@ def call_analysis(analysis_func, sliceno_, delayed_start, q, preserve_result, pa
 		for dw in dataset._datasetwriters.values():
 			if dw._for_single_slice is None:
 				dw._set_slice(sliceno_)
-		splitters._analysis_start(g.slices, sliceno_)
+		splitters._analysis_start(sliceno_)
 		try:
 			res = analysis_func(**kw)
 			finishjob = False

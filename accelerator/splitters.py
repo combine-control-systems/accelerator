@@ -20,20 +20,25 @@
 
 _analysis_todo = []
 
-def _analysis_start(slices, sliceno):
+def _analysis_start(sliceno):
 	for obj in _analysis_todo:
-		obj._analysis_start(slices, sliceno)
+		obj._analysis_start(sliceno)
 
 
 class _BaseSplitterList(list):
-	__slots__ = ()
+	__slots__ = ('_sliceno',)
 
 	def __init__(self, iterable=()):
 		list.__init__(self, iterable)
+		self._sliceno = None
 		_analysis_todo.append(self)
 
 	def __repr__(self):
 		return f'{self.__class__.__name__}({list.__repr__(self)})'
+
+	def _analysis_start(self, sliceno):
+		self[:] = self.for_slice(sliceno)
+		self._sliceno = sliceno
 
 
 class ChunkSplitter(_BaseSplitterList):
@@ -48,7 +53,9 @@ class ChunkSplitter(_BaseSplitterList):
 
 	__slots__ = ()
 
-	def _analysis_start(self, slices, sliceno):
+	def for_slice(self, sliceno):
+		assert self._sliceno is None, "for_slice() doesn't work in analysis"
+		from accelerator.g import slices
 		per_slice = len(self) // slices
 		left_over = len(self) % slices
 		# This is the sliceno where left_over elements start being added.
@@ -69,7 +76,7 @@ class ChunkSplitter(_BaseSplitterList):
 			start += min(sliceno, extra_at_start)
 			if sliceno < extra_at_start:
 				length += 1
-		self[:] = self[start:start + length]
+		return self[start:start + length]
 
 
 class RoundRobinSplitter(_BaseSplitterList):
@@ -83,8 +90,10 @@ class RoundRobinSplitter(_BaseSplitterList):
 
 	__slots__ = ()
 
-	def _analysis_start(self, slices, sliceno):
-		self[:] = self[sliceno::slices]
+	def for_slice(self, sliceno):
+		assert self._sliceno is None, "for_slice() doesn't work in analysis"
+		from accelerator.g import slices
+		return self[sliceno::slices]
 
 
 class FirstComeSplitter:
