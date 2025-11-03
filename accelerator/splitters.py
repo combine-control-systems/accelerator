@@ -18,11 +18,19 @@
 ############################################################################
 
 
+from accelerator.error import AcceleratorError
+
+
 _analysis_todo = []
+_synthesis_todo = []
 
 def _analysis_start(sliceno):
 	for obj in _analysis_todo:
 		obj._analysis_start(sliceno)
+
+def _synthesis_start():
+	for obj in _synthesis_todo:
+		obj._synthesis_start()
 
 
 class _BaseSplitterList(list):
@@ -113,21 +121,36 @@ class FirstComeSplitter:
 	FirstComeSplitter(range(n, n + 100) for n in range(0, 1000000, 100))
 	is better for quickly processed elements.
 
-	This splitter can only be used as an iterator.
+	Set continue_in_synthesis if you want to continue the (possibly
+	exhausted) iteration in synthesis.
+	The default is to provide all the data in synthesis, like the other
+	splitters.
+
+	This splitter can only be used as an iterator. If you don't set
+	continue_in_synthesis it is mostly tuple compatible in synthesis.
 	"""
 
-	__slots__ = ('_items', '_keys')
+	__slots__ = ('_items', '_keys', '_repeating_in_synthesis')
 
-	def __init__(self, items):
+	def __init__(self, items, continue_in_synthesis=False):
 		from accelerator.mp import MpSet
 		self._items = tuple(items)
 		self._keys = MpSet(initial=range(len(self._items) - 1, -1, -1), _set_cls=list)
+		self._repeating_in_synthesis = False
+		if not continue_in_synthesis:
+			_synthesis_todo.append(self)
 
 	def __repr__(self):
 		return f'{self.__class__.__name__}({self._items !r})'
 
+	def _synthesis_start(self):
+		self._repeating_in_synthesis = True
+
 	def __iter__(self):
-		return self
+		if self._repeating_in_synthesis:
+			return iter(self._items)
+		else:
+			return self
 
 	def __next__(self):
 		try:
@@ -136,3 +159,11 @@ class FirstComeSplitter:
 			pass
 		raise StopIteration
 	next = __next__
+
+	def __getitem__(self, item):
+		if not self._repeating_in_synthesis:
+			raise AcceleratorError("Item access only works without continue_in_synthesis (and only ever in synthesis)")
+		return self._items[item]
+
+	def __len__(self):
+		return len(self._items)

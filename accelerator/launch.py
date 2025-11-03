@@ -395,6 +395,7 @@ def execute_process(workdir, jobid, slices, concurrency, index=None, workdirs=No
 	g.subjob_cookie = subjob_cookie
 	setproctitle(g.running)
 	with statmsg.status(g.running):
+		splitters._synthesis_start()
 		try:
 			synthesis_res = synthesis_func(**args_for(synthesis_func))
 		except _FinishJob as finish:
