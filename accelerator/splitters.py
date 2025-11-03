@@ -56,10 +56,20 @@ class ChunkSplitter(_BaseSplitterList):
 	of elements the split is always the same, but in an attempt to balance
 	as perfectly as possible over slices it's not easily predictable.
 
+	You can set overlap_start and/or overlap_end to overlap that many items
+	between slices. Both are applied independently.
+
 	This splitter can be used as a list.
 	"""
 
-	__slots__ = ()
+	__slots__ = ('_overlap_start', '_overlap_end',)
+
+	def __init__(self, iterable=(), *, overlap_start=0, overlap_end=0):
+		assert isinstance(overlap_start, int) and overlap_start >= 0
+		assert isinstance(overlap_end, int) and overlap_end >= 0
+		self._overlap_start = overlap_start
+		self._overlap_end = overlap_end
+		_BaseSplitterList.__init__(self, iterable)
 
 	def for_slice(self, sliceno):
 		assert self._sliceno is None, "for_slice() doesn't work in analysis"
@@ -84,7 +94,9 @@ class ChunkSplitter(_BaseSplitterList):
 			start += min(sliceno, extra_at_start)
 			if sliceno < extra_at_start:
 				length += 1
-		return self[start:start + length]
+		end = start + length + self._overlap_end
+		start = max(0, start - self._overlap_start)
+		return self[start:end]
 
 
 class RoundRobinSplitter(_BaseSplitterList):
