@@ -52,10 +52,21 @@ def prepare(slices):
 		res['abcds'] = abcds
 		res['unpicklable'] = [typ([Unpicklable('foo'), Unpicklable('bar')])]
 		return res
+	def split(d):
+		# Split each entry as it would be for each slice.
+		return {
+			k: [
+				[inner.for_slice(sliceno) for sliceno in range(slices)]
+				for inner in v
+			]
+			for k, v in d.items()
+		}
 	return (
 		populate(list), # One without any magic, for comparing to
 		populate(RoundRobinSplitter),
+		split(populate(RoundRobinSplitter)),
 		populate(ChunkSplitter),
+		split(populate(ChunkSplitter)),
 		Unpicklable,
 	)
 
@@ -81,15 +92,27 @@ def reimplemented_chunk(slices, sliceno, lst):
 
 
 def analysis(sliceno, slices, prepare_res):
-	normal_lists, rrs, chunks, unpicklable_type = prepare_res
+	normal_lists, rrs, presplit_rrs, chunks, presplit_chunks, unpicklable_type = prepare_res
 	for d in (normal_lists, rrs, chunks):
 		assert all(type(item) is unpicklable_type for item in d['unpicklable'][0])
-	def chk(err_prefix, d, split_func):
+	def chk(err_prefix, d, presplit_d, split_func):
 		for k, got in d.items():
 			want = [split_func(slices, sliceno, v) for v in normal_lists[k]]
 			assert got == want, "%s:%s had wrong values in slice %d:\nwanted %r\ngot    %r" % (err_prefix, k, sliceno, want, got,)
-	chk("rrs", rrs, reimplemented_rr)
-	chk("chunks", chunks, reimplemented_chunk)
+			got_presplit = [v[sliceno] for v in presplit_d[k]]
+			assert got_presplit == want, "%s:%s had wrong presplit values in slice %d:\nwanted %r\ngot    %r" % (err_prefix, k, sliceno, want, got_presplit,)
+	chk("rrs", rrs, presplit_rrs, reimplemented_rr)
+	chk("chunks", chunks, presplit_chunks, reimplemented_chunk)
+
+	# Make sure for_slice() isn't allowed in analysis.
+	try:
+		rrs['left_overs'][0].for_slice(0)
+	except AssertionError:
+		pass
+	try:
+		chunks['left_overs'][0].for_slice(0)
+	except AssertionError:
+		pass
 
 	# left_overs covers all cases for how they split,
 	# so simplify synthesis and only check those.
@@ -110,7 +133,7 @@ def synthesis(slices, prepare_res, analysis_res):
 			assert d[k] == v, "%s:%s had wrong values in synthesis:\nwanted %r\ngot    %r" % (err_prefix, k, v, d[k],)
 
 	# They should all contain the full data in synthesis
-	normal_lists, rrs, chunks, _ = prepare_res
+	normal_lists, rrs, _, chunks, _, _ = prepare_res
 	chk("prepare:normal_lists", normal_lists)
 	chk("prepare:rrs", rrs)
 	chk("prepare:chunks", chunks)
@@ -121,6 +144,7 @@ def synthesis(slices, prepare_res, analysis_res):
 	want_rrs = []
 	for sliceno in range(slices):
 		want_rrs.append([lst[sliceno::slices] for lst in want_chunks])
+		assert [lst.for_slice(sliceno) for lst in rrs['left_overs']] == want_rrs[-1]
 	rrs, chunks = next(analysis_res)
 	rrs = [rrs]
 	for r, c in analysis_res:
