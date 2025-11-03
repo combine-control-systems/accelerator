@@ -25,6 +25,7 @@ It probably sleeps long enough for that not to happen in practice.
 '''
 
 
+from accelerator.error import AcceleratorError
 from accelerator.splitters import FirstComeSplitter
 from time import sleep
 
@@ -34,14 +35,15 @@ def prepare(slices):
 	class Unpicklable:
 		"This can't be pickled, because it's local to the function."
 	data_b = [Unpicklable(), Unpicklable()]
-	a = FirstComeSplitter(data_a)
-	a_partial = FirstComeSplitter(data_a) # will only be partially consumed in analysis
+	a = FirstComeSplitter(data_a, continue_in_synthesis=True)
+	a_partial = FirstComeSplitter(data_a, continue_in_synthesis=True) # will only be partially consumed in analysis
+	a_repeated = FirstComeSplitter(data_a)
 	b = FirstComeSplitter(data_b)
-	return a, a_partial, b, data_b
+	return a, a_partial, a_repeated, b, data_b
 
 
 def analysis(sliceno, slices, prepare_res):
-	a, a_partial, b, data_b = prepare_res
+	a, a_partial, a_repeated, b, data_b = prepare_res
 	if sliceno == 0:
 		assert next(a) == 0
 		assert next(a_partial) == 0
@@ -53,13 +55,20 @@ def analysis(sliceno, slices, prepare_res):
 		# Leave the rest of a_partial to be consumed in synthesis.
 		assert next(b) is data_b[1]
 	elif sliceno == 2:
+		assert list(a_repeated) == list(range(slices * 2 + 2))
 		sleep(0.30)
 		assert list(a) == list(range(2, slices * 2 + 2))
 		assert list(b) == []
 
 
 def synthesis(slices, prepare_res):
-	a, a_partial, b, _ = prepare_res
+	a, a_partial, a_repeated, b, _ = prepare_res
+	try:
+		a_partial[1]
+		raise Exception("a_partial set continue_in_synthesis, but allowed item access anyway.")
+	except AcceleratorError:
+		pass
 	assert list(a) == []
 	assert list(a_partial) == list(range(1, slices * 2 + 2))
-	assert list(b) == []
+	assert list(a_repeated) == list(range(slices * 2 + 2))
+	assert a_repeated[1] == 1
