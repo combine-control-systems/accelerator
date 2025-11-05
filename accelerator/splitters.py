@@ -179,3 +179,49 @@ class FirstComeSplitter:
 
 	def __len__(self):
 		return len(self._items)
+
+
+class HashSplitter(_BaseSplitterList):
+	"""
+	Splits a sequence of elements across slices based on element hashes.
+	You can provide your own hash function or you can provide the name of
+	a dataset type, to hash as writing to a dataset would.
+
+	Using a dataset type name is a more convenient way to do something like:
+	    for items in lst:
+	        if dw.hashcheck(items[0]):
+	            ....
+
+	If your items are tuples and you don't provide your own hash function,
+	the first item is passed to the hash function.
+
+	This splitter can be used as a list.
+	"""
+
+	__slots__ = ('_custom_hashfunc', '_hashfunc',)
+
+	def __init__(self, iterable=(), hashfunc=None):
+		if callable(hashfunc):
+			self._custom_hashfunc = True
+			self._hashfunc = hashfunc
+		else:
+			self._custom_hashfunc = False
+			from accelerator.dsutil import _convfuncs
+			if hashfunc not in _convfuncs:
+				raise AcceleratorError(f'Unknown column type {hashfunc !r}')
+			self._hashfunc = _convfuncs[hashfunc].hash
+		_BaseSplitterList.__init__(self, iterable)
+
+	def for_slice(self, sliceno):
+		assert self._sliceno is None, "for_slice() doesn't work in analysis"
+		from accelerator.g import slices
+		hashfunc = self._hashfunc
+		# Put this if outside the loop for performance.
+		if not self._custom_hashfunc and self and isinstance(self[0], tuple):
+			for item in self:
+				if hashfunc(item[0]) % slices == sliceno:
+					yield item
+		else:
+			for item in self:
+				if hashfunc(item) % slices == sliceno:
+					yield item
