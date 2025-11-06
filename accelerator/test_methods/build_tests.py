@@ -188,6 +188,7 @@ def main(urd):
 	print("Testing the splitters")
 	urd.build("test_splitters_deterministic")
 	urd.build("test_splitters_firstcome")
+	urd.build("test_splitters_hashsplitter")
 
 	print()
 	print("Testing dataset creation, export, import")
