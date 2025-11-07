@@ -159,6 +159,7 @@ setup(
 	long_description_content_type="text/markdown",
 	project_urls={
 		"Source": "https://github.com/exaxorg/accelerator",
+		"Documentation": "https://exax.readthedocs.io/",
 		"Reference manual": "https://berkeman.github.io/pdf/acc_manual.pdf",
 	},
 
