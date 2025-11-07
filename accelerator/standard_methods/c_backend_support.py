@@ -63,10 +63,6 @@ static PyMethodDef module_methods[] = {
 	{NULL, NULL, 0, NULL}
 };
 
-#if PY_MAJOR_VERSION < 3
-#  define INITERR
-#else
-#  define INITERR 0
 static struct PyModuleDef moduledef = {
 	PyModuleDef_HEAD_INIT,
 	"_%(name)s",        /*m_name*/
@@ -78,9 +74,7 @@ static struct PyModuleDef moduledef = {
 	0,                  /*m_clear*/
 	0,                  /*m_free*/
 };
-#endif
 
-#if PY_MAJOR_VERSION >= 3
 __attribute__ ((visibility("default"))) PyMODINIT_FUNC PyInit__%(name)s(void)
 {
 	PyObject *m = PyModule_Create(&moduledef);
@@ -88,14 +82,6 @@ __attribute__ ((visibility("default"))) PyMODINIT_FUNC PyInit__%(name)s(void)
 	PyModule_AddObject(m, "source_hash", PyUnicode_FromString(source_hash));
 	return m;
 }
-#else
-__attribute__ ((visibility("default"))) PyMODINIT_FUNC init_%(name)s(void)
-{
-	PyObject *m = Py_InitModule3("_%(name)s", module_methods, NULL);
-	if (!m) return;
-	PyModule_AddObject(m, "source_hash", PyUnicode_FromString(source_hash));
-}
-#endif
 '''
 
 _method_def_template = r'''{"%s", py_%s, METH_VARARGS, 0}'''
