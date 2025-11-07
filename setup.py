@@ -158,7 +158,7 @@ setup(
 	long_description=long_description,
 	long_description_content_type="text/markdown",
 	project_urls={
-		"Source": "https://github.com/eBay/accelerator",
+		"Source": "https://github.com/exaxorg/accelerator",
 		"Reference manual": "https://berkeman.github.io/pdf/acc_manual.pdf",
 	},
 
