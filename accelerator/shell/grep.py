@@ -613,8 +613,7 @@ def main(argv, cfg):
 			if hasattr(signal, signame):
 				sig = getattr(signal, signame)
 				signal.signal(sig, show)
-				if hasattr(signal, 'pthread_sigmask'):
-					signal.pthread_sigmask(signal.SIG_UNBLOCK, {sig})
+				signal.pthread_sigmask(signal.SIG_UNBLOCK, {sig})
 		tc_original = None
 		using_stdin = False
 		if not hasattr(signal, 'SIGINFO') and sys.stdin.isatty():

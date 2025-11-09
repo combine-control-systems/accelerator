@@ -440,11 +440,7 @@ def expand_aliases(main_argv, argv):
 def main():
 	# Several commands use SIGUSR1 which (naturally...) defaults to killing the
 	# process, so start by blocking that to minimise the race time.
-	if hasattr(signal, 'pthread_sigmask'):
-		signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGUSR1})
-	else:
-		# Or if we can't block it, just ignore it.
-		signal.signal(signal.SIGUSR1, signal.SIG_IGN)
+	signal.pthread_sigmask(signal.SIG_BLOCK, {signal.SIGUSR1})
 
 	# As of python 3.8 the default start_method is 'spawn' on macOS.
 	# This doesn't work for us. 'fork' is fairly unsafe on macOS,
