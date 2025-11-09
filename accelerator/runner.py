@@ -73,7 +73,7 @@ class MsgException(Exception):
 def check_picklable(desc, value):
 	from accelerator.compat import pickle
 	try:
-		pickle.dumps(value, 2)
+		pickle.dumps(value, 4)
 		return
 	except Exception as e:
 		msg = str(e)
@@ -350,7 +350,7 @@ def launch_start(data):
 
 def respond(cookie, data):
 	from accelerator.compat import pickle
-	res = pickle.dumps((cookie, data), 2)
+	res = pickle.dumps((cookie, data), 4)
 	header = struct.pack('<cI', op, len(res))
 	with sock_lock:
 		sock.sendall(header + res)
@@ -458,7 +458,7 @@ class Runner(object):
 			self.cookie += 1
 			# have to register waiter before we send packet (to avoid a race)
 			waiter = self._waiter(cookie)
-			data = pickle.dumps((cookie, data), 2)
+			data = pickle.dumps((cookie, data), 4)
 			header = struct.pack('<cI', op, len(data))
 			self.sock.sendall(header + data)
 		# must wait without the lock, otherwise all this threading gets us nothing.

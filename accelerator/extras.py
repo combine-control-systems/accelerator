@@ -191,8 +191,8 @@ def job_post(jobid):
 
 def _pickle_save(variable, filename, temp, _hidden):
 	with FileWriteMove(filename, temp, _hidden=_hidden) as fh:
-		# use protocol version 2 so python2 can read the pickles too.
-		pickle.dump(variable, fh, 2)
+		# use protocol version 4 so all supported versions can read the pickles.
+		pickle.dump(variable, fh, 4)
 
 def pickle_save(variable, filename='result.pickle', sliceno=None, temp=None, background=False, _hidden=False):
 	args = (variable, _fn(filename, None, sliceno), temp, _hidden)
