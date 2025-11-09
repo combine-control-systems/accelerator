@@ -829,12 +829,8 @@ static inline PyObject *unfmt_datetime(const uint32_t i0, const uint32_t i1)
 	const int M = i1 >> 26 & 0x3f;
 	const int S = i1 >> 20 & 0x3f;
 	const int u = i1 & 0xfffff;
-#if PY_VERSION_HEX >= 0x03060000
 	const int fold = !!(i0 & 0x10000000);
 	PyObject *res = PyDateTime_FromDateAndTimeAndFold(Y, m, d, H, M, S, u, fold);
-#else
-	PyObject *res = PyDateTime_FromDateAndTime(Y, m, d, H, M, S, u);
-#endif
 	if (i0 & 0x20000000) res = dt_set_utc(res);
 	return res;
 }
@@ -879,12 +875,8 @@ static inline PyObject *unfmt_time(const uint32_t i0, const uint32_t i1)
 	const int M = i1 >> 26 & 0x3f;
 	const int S = i1 >> 20 & 0x3f;
 	const int u = i1 & 0xfffff;
-#if PY_VERSION_HEX >= 0x03060000
 	const int fold = !!(i0 & 0x10000000);
 	PyObject *res = PyTime_FromTimeAndFold(H, M, S, u, fold);
-#else
-	PyObject *res = PyTime_FromTime(H, M, S, u);
-#endif
 	if (i0 & 0x20000000) res = dt_set_utc(res);
 	return res;
 }
@@ -1617,9 +1609,7 @@ static uint64_t fmt_datetime(PyObject *dt)
 	union { struct { int32_t i0, i1; } i; uint64_t res; } r;
 	r.i.i0 = (Y << 14) | (m << 10) | (d << 5) | H;
 	r.i.i1 = (M << 26) | (S << 20) | u;
-#if PY_VERSION_HEX > 0x03060000
 	if (PyDateTime_DATE_GET_FOLD(dt)) r.i.i0 |= 0x10000000;
-#endif
 #if PY_VERSION_HEX > 0x030a00b0
 	const int utc = check_utc(dt, PyDateTime_DATE_GET_TZINFO(dt));
 #else
@@ -1656,9 +1646,7 @@ static uint64_t fmt_time(PyObject *dt)
 	union { struct { int32_t i0, i1; } i; uint64_t res; } r;
 	r.i.i0 = 32277536 | H; // 1970 if read as DateTime
 	r.i.i1 = (M << 26) | (S << 20) | u;
-#if PY_VERSION_HEX > 0x03060000
 	if (PyDateTime_TIME_GET_FOLD(dt)) r.i.i0 |= 0x10000000;
-#endif
 #if PY_VERSION_HEX > 0x030a00b0
 	const int utc = check_utc(dt, PyDateTime_TIME_GET_TZINFO(dt));
 #else
