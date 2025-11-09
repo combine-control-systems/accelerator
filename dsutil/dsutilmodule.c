@@ -64,29 +64,14 @@
 #define err1(v) if (v) goto err
 
 // Py_FileSystemDefaultEncoding is deprecated in Python 3.12.
-// For consistency we use NULL (utf-8) on all python3 versions.
-#if PY_MAJOR_VERSION < 3
-#  define DEFAULT_ENCODING Py_FileSystemDefaultEncoding
-#else
-#  define DEFAULT_ENCODING NULL
-#endif
+// For consistency we use NULL (utf-8) on all versions.
+#define DEFAULT_ENCODING NULL
 
 static inline void add_extra_to_exc_msg(const char *extra) {
 	if (*extra) {
 		PyObject *old_type, *old_value, *old_traceback;
 		PyErr_Fetch(&old_type, &old_value, &old_traceback);
-#if PY_MAJOR_VERSION < 3
-		PyObject *strobj = PyObject_Bytes(old_value);
-		if (!strobj) {
-			PyErr_Restore(old_type, old_value, old_traceback);
-			return;
-		}
-		const char *strdata = PyBytes_AS_STRING(strobj);
-		PyErr_Format(old_type, "%s%s", strdata, extra);
-		Py_DECREF(strobj);
-#else
 		PyErr_Format(old_type, "%S%s", old_value, extra);
-#endif
 		Py_DECREF(old_type);
 		Py_DECREF(old_value);
 		Py_XDECREF(old_traceback);
@@ -235,22 +220,15 @@ static int Read_close_(Read *self)
 	return 1;
 }
 
-#if PY_MAJOR_VERSION < 3
-#  define BYTES_NAME      "str"
-#  define UNICODE_NAME    "unicode"
-#  define EITHER_NAME     "str or unicode"
-#  define INITFUNC        init_dsutil
-#  define Integer_Check(o) (PyInt_Check(o) || PyLong_Check(o))
-#else
-#  define BYTES_NAME      "bytes"
-#  define UNICODE_NAME    "str"
-#  define EITHER_NAME     "str or bytes"
-#  define PyInt_FromLong  PyLong_FromLong
-#  define PyInt_AsLong    PyLong_AsLong
-#  define PyNumber_Int    PyNumber_Long
-#  define INITFUNC        PyInit__dsutil
-#  define Integer_Check(o) PyLong_Check(o)
-#endif
+// Some of these look a little silly, because we used to have python 2 compatibility.
+#define BYTES_NAME       "bytes"
+#define UNICODE_NAME     "str"
+#define EITHER_NAME      "str or bytes"
+#define PyInt_FromLong   PyLong_FromLong
+#define PyInt_AsLong     PyLong_AsLong
+#define PyNumber_Int     PyNumber_Long
+#define INITFUNC         PyInit__dsutil
+#define Integer_Check(o) PyLong_Check(o)
 
 // Stupid forward declarations
 static int Read_read_(Read *self, int itemsize);
@@ -610,11 +588,7 @@ static inline int do_callback(Read *self)
 	}
 MKmkBlob(Bytes  , PyBytes_FromStringAndSize(ptr, len))
 MKmkBlob(Unicode, PyUnicode_DecodeUTF8(ptr, len, 0))
-#if PY_MAJOR_VERSION < 3
-  MKmkBlob(Ascii, PyBytes_FromStringAndSize(ptr, len))
-#else
-  MKmkBlob(Ascii, PyUnicode_DecodeASCII(ptr, len, 0))
-#endif
+MKmkBlob(Ascii, PyUnicode_DecodeASCII(ptr, len, 0))
 
 #define MKBLOBITER(name, typename) \
 	static PyObject *name ## _iternext(Read *self)                                   	\
@@ -1254,20 +1228,11 @@ static PyObject *Write_write_(Write *self, const char *data, Py_ssize_t len)
 	ASCIIVERIFY(cleanup, "");                                                     	\
 	HASHBLOBDO(cleanup);
 
-#if PY_MAJOR_VERSION < 3
-#  define UNICODEBLOB(WRITEMACRO) \
-	PyObject *strobj = PyUnicode_AsUTF8String(obj);              	\
-	if (!strobj) return 0;                                       	\
-	const char *data = PyBytes_AS_STRING(strobj);                	\
-	const Py_ssize_t len = PyBytes_GET_SIZE(strobj);             	\
-	WRITEMACRO(Py_DECREF(strobj));
-#else
-#  define UNICODEBLOB(WRITEMACRO) \
+#define UNICODEBLOB(WRITEMACRO) \
 	Py_ssize_t len;                                              	\
 	const char *data = PyUnicode_AsUTF8AndSize(obj, &len);       	\
 	if (!data) return 0;                                         	\
 	WRITEMACRO((void)data);
-#endif
 
 #define HASHBLOBPROLOGUE(checktype, errname) \
 	if (obj == Py_None) return PyInt_FromLong(0);                                         	\
@@ -1586,44 +1551,6 @@ is_none:                                                                        
 #define MKWRITER(tname, T, HT, conv, withnone, minmax_value, minmax_set, hash) \
 	MKWRITER_C(tname, T, HT, conv, withnone, value == (T)-1, MINMAX_STD, minmax_value, minmax_set, hash)
 
-#if PY_MAJOR_VERSION < 3
-// Passing a non-int object to some of the As functions in py2 gives
-// SystemError, but we want TypeError.
-// Sometimes passing an int to a function that wants a long also breaks.
-#  define MKpy2AsFix(T, TN, bitcnt) \
-	static T fix_pyLong_As ## TN(PyObject *l)                                        	\
-	{                                                                                	\
-		T value;                                                                 	\
-		if (PyInt_Check(l)) {                                                    	\
-			PyObject *ll = PyNumber_Long(l);                                 	\
-			if (!ll) return -1; /* "can't" happen */                         	\
-			value = pyLong_As ## TN(ll);                                     	\
-			Py_DECREF(ll);                                                   	\
-		} else {                                                                 	\
-			value = pyLong_As ## TN(l);                                      	\
-		}                                                                        	\
-		if (value == (T)-1 && PyErr_Occurred()) {                                	\
-			if (Integer_Check(l)) {                                          	\
-				PyErr_SetString(PyExc_OverflowError,                     	\
-					"Value doesn't fit in " #bitcnt " bits"          	\
-				);                                                       	\
-			} else {                                                         	\
-				PyErr_Format(PyExc_TypeError,                            	\
-					"%s is not an integer type.",                    	\
-					l->ob_type->tp_name                              	\
-				);                                                       	\
-			}                                                                	\
-		}                                                                        	\
-		return value;                                                            	\
-	}
-
-#  ifdef pyLong_AsS32
-     MKpy2AsFix(int32_t, S32, 32);
-#    undef pyLong_AsS32
-#    define pyLong_AsS32 fix_pyLong_AsS32
-#  endif
-#endif
-
 #ifndef pyLong_AsS32
 static int32_t pyLong_AsS32(PyObject *l)
 {
@@ -1807,13 +1734,6 @@ static int init_WriteNumber(PyObject *self_, PyObject *args, PyObject *kwds)
 	if (default_obj) {
 		Py_INCREF(default_obj);
 		self->default_obj = default_obj;
-#if PY_MAJOR_VERSION < 3
-		if (PyInt_Check(self->default_obj)) {
-			PyObject *lobj = PyLong_FromLong(PyInt_AS_LONG(self->default_obj));
-			Py_DECREF(self->default_obj);
-			self->default_obj = lobj;
-		}
-#endif
 		if (self->default_obj != Py_None || !self->none_support) {
 			if (!PyLong_Check(self->default_obj) && !PyFloat_Check(self->default_obj)) {
 				PyErr_Format(PyExc_ValueError, "Bad default value: Only integers/floats accepted%s", error_extra);
@@ -2064,12 +1984,10 @@ MKPARSEDNUMBERWRAPPER(hash, PyObject)
 
 static inline PyObject *pyComplex_parse(PyObject *obj)
 {
-#if PY_MAJOR_VERSION >= 3
 	if (PyBytes_Check(obj)) {
 		obj = PyUnicode_DecodeUTF8(PyBytes_AS_STRING(obj), PyBytes_GET_SIZE(obj), 0);
 		if (!obj) return 0;
 	}
-#endif
 	return PyObject_CallFunctionObjArgs((PyObject *)&PyComplex_Type, obj, 0);
 }
 
@@ -2222,10 +2140,9 @@ static PyMethodDef module_methods[] = {
 	{0}
 };
 
-#if PY_MAJOR_VERSION < 3
-#  define INITERR
-#else
-#  define INITERR 0
+// Used to be empty on Python 2.
+#define INITERR 0
+
 static struct PyModuleDef moduledef = {
 	PyModuleDef_HEAD_INIT,
 	"_dsutil",          /*m_name*/
@@ -2237,7 +2154,6 @@ static struct PyModuleDef moduledef = {
 	0,                  /*m_clear*/
 	0,                  /*m_free*/
 };
-#endif
 
 #define INIT(name) do {                                              	\
 	if (PyType_Ready(&name ## _Type) < 0) return INITERR;        	\
@@ -2298,11 +2214,7 @@ __attribute__ ((visibility("default"))) PyMODINIT_FUNC INITFUNC(void)
 	if (!pystr_tzinfo) return INITERR;
 	empty_tuple = PyTuple_New(0);
 	if (!empty_tuple) return INITERR;
-#if PY_MAJOR_VERSION >= 3
 	PyObject *m = PyModule_Create(&moduledef);
-#else
-	PyObject *m = Py_InitModule3("_dsutil", module_methods, NULL);
-#endif
 	if (!m) return INITERR;
 	INIT(ReadBytes);
 	INIT(ReadUnicode);
@@ -2344,7 +2256,5 @@ __attribute__ ((visibility("default"))) PyMODINIT_FUNC INITFUNC(void)
 	compression_funcs[1] = &dsu_gz;
 	compression_names[1] = PyUnicode_FromString("gzip");
 	if (PyDict_SetItem(compression_dict, compression_names[1], PyInt_FromLong(1))) return INITERR;
-#if PY_MAJOR_VERSION >= 3
 	return m;
-#endif
 }
