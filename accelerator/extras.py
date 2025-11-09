@@ -158,7 +158,7 @@ def _backgrounded_wait():
 		with status("Waiting for background save(s)"):
 			for bs in _backgrounded:
 				bs._wait()
-			_backgrounded[:] = ()
+			_backgrounded.clear()
 
 
 def job_params(jobid=None, default_empty=False):

@@ -1561,7 +1561,7 @@ class DatasetWriter(object):
 		if self._started == 2:
 			for sliceno, writers in enumerate(self._allwriters):
 				self._close(sliceno, writers)
-			self._allwriters_[:] = ()
+			self._allwriters_.clear()
 		else:
 			if hasattr(self, 'writers'):
 				self._close(self.sliceno, self.writers)
