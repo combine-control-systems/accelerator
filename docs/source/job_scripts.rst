@@ -286,8 +286,8 @@ results together, like this
     def synthesis(analysis_res):
         x = analysis_res.merge_auto()
 
-``merge_auto()`` typically does what is expected, but is of course not
-mandatory to use.  In the example above, the returned integers from
+``merge_auto()`` typically does what is expected (but is of course not
+mandatory to use).  In the example above, the returned integers from
 ``analysis()`` will be added together into one number.  It will merge
 sets or dictionaries, update Counters, etc.
 
