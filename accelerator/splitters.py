@@ -19,6 +19,7 @@
 
 
 from accelerator.error import AcceleratorError
+import weakref
 
 
 _analysis_todo = []
@@ -26,20 +27,24 @@ _synthesis_todo = []
 
 def _analysis_start(sliceno):
 	for obj in _analysis_todo:
-		obj._analysis_start(sliceno)
+		obj = obj() # dereference weakref
+		if obj:
+			obj._analysis_start(sliceno)
 
 def _synthesis_start():
 	for obj in _synthesis_todo:
-		obj._synthesis_start()
+		obj = obj() # dereference weakref
+		if obj:
+			obj._synthesis_start()
 
 
 class _BaseSplitterList(list):
-	__slots__ = ('_sliceno',)
+	__slots__ = ('_sliceno', '__weakref__',)
 
 	def __init__(self, iterable=()):
 		list.__init__(self, iterable)
 		self._sliceno = None
-		_analysis_todo.append(self)
+		_analysis_todo.append(weakref.ref(self))
 
 	def __repr__(self):
 		return f'{self.__class__.__name__}({list.__repr__(self)})'
@@ -142,7 +147,7 @@ class FirstComeSplitter:
 	continue_in_synthesis it is mostly tuple compatible in synthesis.
 	"""
 
-	__slots__ = ('_items', '_keys', '_repeating_in_synthesis')
+	__slots__ = ('_items', '_keys', '_repeating_in_synthesis', '__weakref__',)
 
 	def __init__(self, items, continue_in_synthesis=False):
 		from accelerator.mp import MpSet
@@ -150,7 +155,7 @@ class FirstComeSplitter:
 		self._keys = MpSet(initial=range(len(self._items) - 1, -1, -1), _set_cls=list)
 		self._repeating_in_synthesis = False
 		if not continue_in_synthesis:
-			_synthesis_todo.append(self)
+			_synthesis_todo.append(weakref.ref(self))
 
 	def __repr__(self):
 		return f'{self.__class__.__name__}({self._items !r})'
