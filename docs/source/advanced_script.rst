@@ -18,7 +18,7 @@ script, as in this example
    depend_extra = (my_python_module, 'my_other_file',)
 
 As seen above, it is possible to specify either imported Python module
-objects or filenames relative to the method's location.
+objects or filenames relative to the job script's location.
 
 If Exax suspects that a ``depend_extra``-statement is missing, it will
 suggest adding it by printing a message in the output log like this
@@ -52,7 +52,7 @@ specify which versions of the source code that are equivalent.  Exax
 helps creating this dictionary, if needed.  Here is how it works.
 
   1. Find the hash <old_hash> of the existing job in that job’s setup.json.
-  2. Add the following line to the updated method’s source code
+  2. Add the following line to the updated job script’s source code
 
      .. code-block::
 
@@ -157,18 +157,28 @@ Limiting Concurrency
 
 By default, a job containing the analysis() function will be forked
 into ``slices`` parallel processes, where ``slices``` is specified in
-the Accelerator’s configuration file. A standard method like
-``dataset_sort`` will sort in parallel in all slices for maximum
-performance, but for large datasets and systems with little RAM, this
-could lead to running out of memory.
+the Accelerator’s configuration file.  For a well written parallel
+program, this can maximise the usage of the computers CPU resources.
+On the other hand, there exists job scripts that use a large amount of
+memory, perhaps scaling with the number of slices, so unless the
+machine has plenty of RAM, these scripts may run out of memory.  One
+example of such a script is the standard job script ``dataset_sort``,
+which sorts datasets in parallel in all slices for maximum
+performance.  Reducing the number of slices globally in the
+configuration file to handle the worst case is not the optimal
+solution.
 
-A simple solution to this problem is to limit the number of allowed
-parallel processes.  This could be done either in the build call,
-using the ``concurrency=`` parameter, or on the command line as an
-option to the ``ax run`` command. In both cases, the limit could be
-set to all methods, or it could be set to a specific method only.
+Instead, Exax implements a ``concurrency`` parameter that can operate
+on a single build call or job script.  It can be set either in the
+build call, using the ``concurrency=`` parameter, or on the command
+line as an option to the ``ax run`` command.  In both cases, the limit
+could be set to all job scripts, or it could be set to a specific job
+script only.  While the default behaviour is to fork all
+``analysis()``-processes in parallel, the concurrency parameter will
+limit the number of forks and dispatch a new ``analysis()``-process as
+soon as a previous one is finished untill all slices are exhausted.
 
-If concurrency is set to a number, like this
+For example, if concurrency is set to a number, like this
 
 .. code-block ::
 
@@ -180,17 +190,20 @@ or
 
    urd.build('myscript', concurrency=3)
 
-the number of parallel processes is limited to this number for all
-methods. Alternatively, concurrency can be specified for a single
-method like this
+the number of parallel processes is limited to in this case three for
+all job scripts . Alternatively, concurrency can be specified for a
+single job script like this
 
 .. code-block ::
 
    ax run --concurrency="dataset_sort=3" mybuild
 
+and all scripts except the ``dataset_sort`` will run on all slices,
+while ``dataset_sort`` will run on three slices.
 
 .. note:: A job is not aware of, and does not store, the concurrency
-          setting.
+          setting.  There is no way to tell afterwards if the job was
+          created using full parallelisation or not.
 
 
 Automatic Slice-Data Merging: merge_auto
