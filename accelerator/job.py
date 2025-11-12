@@ -196,10 +196,10 @@ class Job(str):
 				raise
 			return default
 
-	def json_load(self, filename='result.json', sliceno=None, unicode_as_utf8bytes=False, default=_nodefault):
+	def json_load(self, filename='result.json', sliceno=None, default=_nodefault):
 		from accelerator.extras import json_load
 		try:
-			return json_load(self.filename(filename, sliceno), unicode_as_utf8bytes=unicode_as_utf8bytes)
+			return json_load(self.filename(filename, sliceno))
 		except FileNotFoundError:
 			if default is _nodefault:
 				raise
@@ -460,7 +460,7 @@ class NoJob(Job):
 			raise NoSuchJobError('Can not load named / sliced file on <NoJob>')
 		return None
 
-	def json_load(self, filename=None, sliceno=None, unicode_as_utf8bytes=False, default=_nodefault):
+	def json_load(self, filename=None, sliceno=None, default=_nodefault):
 		return self.load(filename, sliceno, default=default)
 
 	@property # so it can return the same instance as all other NoJob things
@@ -496,10 +496,10 @@ class JobWithFile(namedtuple('JobWithFile', 'job name sliced extra')):
 				raise
 			return default
 
-	def json_load(self, sliceno=None, unicode_as_utf8bytes=False, default=_nodefault):
+	def json_load(self, sliceno=None, default=_nodefault):
 		from accelerator.extras import json_load
 		try:
-			return json_load(self.filename(sliceno), unicode_as_utf8bytes=unicode_as_utf8bytes)
+			return json_load(self.filename(sliceno))
 		except FileNotFoundError:
 			if default is _nodefault:
 				raise

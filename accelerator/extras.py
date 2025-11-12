@@ -252,27 +252,14 @@ def json_save(variable, filename='result.json', sliceno=None, sort_keys=True, _e
 		_json_save(*args)
 		return _SavedFile(filename, sliceno, json_load)
 
-def _unicode_as_utf8bytes(obj):
-	if isinstance(obj, str):
-		return obj.encode('utf-8')
-	elif isinstance(obj, dict):
-		return DotDict((_unicode_as_utf8bytes(k), _unicode_as_utf8bytes(v)) for k, v in iteritems(obj))
-	elif isinstance(obj, list):
-		return [_unicode_as_utf8bytes(v) for v in obj]
-	else:
-		return obj
+def json_decode(s):
+	return json.loads(s, object_pairs_hook=DotDict)
 
-def json_decode(s, unicode_as_utf8bytes=False):
-	if unicode_as_utf8bytes:
-		return _unicode_as_utf8bytes(json.loads(s, object_pairs_hook=DotDict))
-	else:
-		return json.loads(s, object_pairs_hook=DotDict)
-
-def json_load(filename='result.json', jobid=None, sliceno=None, unicode_as_utf8bytes=False):
+def json_load(filename='result.json', jobid=None, sliceno=None):
 	filename = _fn(filename, jobid, sliceno)
 	with open(filename, 'r', encoding='utf-8') as fh:
 		data = fh.read()
-	return json_decode(data, unicode_as_utf8bytes)
+	return json_decode(data)
 
 
 def quote(s):
