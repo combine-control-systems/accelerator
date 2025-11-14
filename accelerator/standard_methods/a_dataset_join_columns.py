@@ -20,6 +20,7 @@ description = r'''
 Joins two or more columns with an optional separator.
 
 Supports string-like types and also date + time joining into a datetime column.
+If any of the joined values are None, the whole joined value is None.
 '''
 
 
@@ -68,7 +69,8 @@ def prepare(job):
 		desttype = ds.columns[options.columns[0]].type
 		if desttype in ('date', 'time'):
 			desttype = 'datetime'
-		columns[options.colname] = desttype
+		none_support = any(ds.columns[colname].none_support for colname in options.columns)
+		columns[options.colname] = (desttype, none_support)
 		dw = job.datasetwriter(name=name, previous=previous, parent=ds, columns=columns)
 		writers.append(dw)
 		previous = dw
@@ -90,5 +92,18 @@ def analysis(sliceno, prepare_res):
 		if typ == 'time':
 			typ = 'date'
 			columns = [columns[1], columns[0]]
-		for value in joiners[typ](ds.iterate(sliceno, columns)):
+		joiner = joiners[typ]
+		if any(ds.columns[colname].none_support for colname in columns):
+			joiner = noner(joiner)
+		for value in joiner(ds.iterate(sliceno, columns)):
 			write(value)
+
+
+def noner(joiner):
+	f = joiner.args[0]
+	def nonefilter(*a):
+		try:
+			return f(*a)
+		except TypeError:
+			return None
+	return partial(joiner.func, nonefilter)
