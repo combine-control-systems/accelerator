@@ -88,7 +88,7 @@ def synthesis(job):
 	assert list(chain.range('a', None, 22).iterate(0, 'a')) == [1, 2, 21, 22]
 	# test the chain column filter
 	assert list(chain.with_column('c').iterate(0, 'a')) == [21, 22, 301, 302]
-	assert list(chain.with_column('b', 'int64').iterate(0, 'a')) == [21, 22]
-	assert list(chain.with_column('b', ('int32', 'int64')).iterate(0, 'a')) == [1, 2, 21, 22]
+	assert list(chain.with_column('b', types='int64').iterate(0, 'a')) == [21, 22]
+	assert list(chain.with_column('b', types=('int32', 'int64')).iterate(0, 'a')) == [1, 2, 21, 22]
 	assert list(chain.with_column('c', none_support=False).iterate(0, 'a')) == [21, 22]
 	assert list(chain.with_column('c', none_support=True).iterate(0, 'a')) == [301, 302]

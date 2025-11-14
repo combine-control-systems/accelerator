@@ -314,7 +314,7 @@ class Dataset(str):
 	def max(self, column):
 		return self._minmax(column, 'max')
 
-	def link_to_here(self, name='default', column_filter=None, rename=None, override_previous=_no_override, filename=None):
+	def link_to_here(self, name='default', *, column_filter=None, rename=None, override_previous=_no_override, filename=None):
 		"""Use this to expose a subjob as a dataset in your job:
 		Dataset(subjid).link_to_here()
 		will allow access to the subjob dataset under your jid.
@@ -381,7 +381,7 @@ class Dataset(str):
 		_datasets_written.append(d.name)
 		return Dataset(d.job, d.name)
 
-	def merge(self, other, name='default', previous=None, allow_unrelated=False):
+	def merge(self, other, *, name='default', previous=None, allow_unrelated=False):
 		"""Merge this and other dataset. Columns from other take priority.
 		If datasets do not have a common ancestor you get an error unless
 		allow_unrelated is set. The new dataset always has the previous
@@ -431,7 +431,7 @@ class Dataset(str):
 		_datasets_written.append(name)
 		return job.dataset(name) # new_ds has the wrong string value, so we must make a new instance here.
 
-	def _column_iterator(self, sliceno, col, _type=None, _line_report=None, **kw):
+	def _column_iterator(self, sliceno, col, *, _type=None, _line_report=None, **kw):
 		if sliceno is not None and self.lines[sliceno] == 0:
 			return _dummy_iter
 		dc = self.columns[col]
@@ -459,7 +459,7 @@ class Dataset(str):
 		else:
 			return one_slice(sliceno)
 
-	def _iterator(self, sliceno, columns=None, copy_mode=False, _line_report=None):
+	def _iterator(self, sliceno, columns=None, *, copy_mode=False, _line_report=None):
 		res = []
 		not_found = []
 		for col in columns or sorted(self.columns):
@@ -501,7 +501,7 @@ class Dataset(str):
 			chain.reverse()
 		return chain
 
-	def chain(self, length=-1, reverse=False, stop_ds=None):
+	def chain(self, length=-1, *, reverse=False, stop_ds=None):
 		if stop_ds:
 			# resolve all formats to the same format
 			stop = Dataset(stop_ds).__eq__
@@ -514,17 +514,17 @@ class Dataset(str):
 			return ds.job != self.job
 		return self._chain(length, reverse, stop)
 
-	def iterate_chain(self, sliceno, columns=None, length=-1, range=None, sloppy_range=False, reverse=False, hashlabel=None, stop_ds=None, pre_callback=None, post_callback=None, filters=None, translators=None, status_reporting=True, rehash=False, slice=None, copy_mode=False):
+	def iterate_chain(self, sliceno, columns=None, length=-1, *, range=None, sloppy_range=False, reverse=False, hashlabel=None, stop_ds=None, pre_callback=None, post_callback=None, filters=None, translators=None, status_reporting=True, rehash=False, slice=None, copy_mode=False):
 		"""Iterate a list of datasets. See .chain and .iterate_list for details."""
-		chain = self.chain(length, reverse, stop_ds)
+		chain = self.chain(length, reverse=reverse, stop_ds=stop_ds)
 		return self.iterate_list(sliceno, columns, chain, range=range, sloppy_range=sloppy_range, hashlabel=hashlabel, pre_callback=pre_callback, post_callback=post_callback, filters=filters, translators=translators, status_reporting=status_reporting, rehash=rehash, slice=slice, copy_mode=copy_mode)
 
-	def iterate(self, sliceno, columns=None, range=None, sloppy_range=False, hashlabel=None, pre_callback=None, post_callback=None, filters=None, translators=None, status_reporting=True, rehash=False, slice=None, copy_mode=False):
+	def iterate(self, sliceno, columns=None, *, range=None, sloppy_range=False, hashlabel=None, pre_callback=None, post_callback=None, filters=None, translators=None, status_reporting=True, rehash=False, slice=None, copy_mode=False):
 		"""Iterate just this dataset. See .iterate_list for details."""
 		return self.iterate_list(sliceno, columns, [self], range=range, sloppy_range=sloppy_range, hashlabel=hashlabel, pre_callback=pre_callback, post_callback=post_callback, filters=filters, translators=translators, status_reporting=status_reporting, rehash=rehash, slice=slice, copy_mode=copy_mode)
 
 	@staticmethod
-	def iterate_list(sliceno, columns, datasets, range=None, sloppy_range=False, hashlabel=None, pre_callback=None, post_callback=None, filters=None, translators=None, status_reporting=True, rehash=False, slice=None, copy_mode=False):
+	def iterate_list(sliceno, columns, datasets, *, range=None, sloppy_range=False, hashlabel=None, pre_callback=None, post_callback=None, filters=None, translators=None, status_reporting=True, rehash=False, slice=None, copy_mode=False):
 		"""Iterator over the specified columns from datasets
 		(iterable of dataset-specifiers, or single dataset-specifier).
 		callbacks are called before and after each dataset is iterated.
@@ -826,7 +826,7 @@ class Dataset(str):
 			yield update_status
 
 	@staticmethod
-	def _iterate_datasets(to_iter, columns, pre_callback, post_callback, filter_func, translation_func, translators, want_tuple, range, status_reporting, copy_mode):
+	def _iterate_datasets(to_iter, columns, *, pre_callback, post_callback, filter_func, translation_func, translators, want_tuple, range, status_reporting, copy_mode):
 		skip_ds = None
 		def argfixup(func, is_post):
 			if func:
@@ -918,7 +918,7 @@ class Dataset(str):
 					return
 
 	@staticmethod
-	def new(columns, filenames, compressions, lines, minmax={}, filename=None, hashlabel=None, caption=None, previous=None, name='default'):
+	def new(*, columns, filenames, compressions, lines, minmax={}, filename=None, hashlabel=None, caption=None, previous=None, name='default'):
 		"""columns = {"colname": "type"}, lines = [n, ...] or {sliceno: n}"""
 		columns = {uni(k): (uni(v[0]), bool(v[1])) if isinstance(v, tuple) else (uni(v), False) for k, v in columns.items()}
 		if hashlabel is not None:
@@ -942,7 +942,7 @@ class Dataset(str):
 			raise DatasetUsageError("Lines must be specified for all slices")
 		return lines
 
-	def append(self, columns, filenames, compressions, lines, minmax={}, filename=None, hashlabel=None, hashlabel_override=False, caption=None, previous=None, column_filter=None, name='default'):
+	def append(self, *, columns, filenames, compressions, lines, minmax={}, filename=None, hashlabel=None, hashlabel_override=False, caption=None, previous=None, column_filter=None, name='default'):
 		hashlabel = uni(hashlabel)
 		if hashlabel_override:
 			self._data.hashlabel = hashlabel
@@ -1230,7 +1230,7 @@ class DatasetWriter(object):
 
 	_split = _split_dict = _split_list = _allwriters_ = None
 
-	def __new__(cls, columns={}, filename=None, hashlabel=None, hashlabel_override=False, caption=None, previous=None, name='default', parent=None, meta_only=False, for_single_slice=None, copy_mode=False, allow_missing_slices=False):
+	def __new__(cls, *, columns={}, filename=None, hashlabel=None, hashlabel_override=False, caption=None, previous=None, name='default', parent=None, meta_only=False, for_single_slice=None, copy_mode=False, allow_missing_slices=False):
 		"""columns can be {'name': 'type'} or {'name': ('type', none_support)}.
 		It can also be {'name': DatasetColumn} to simplify basing your dataset on another."""
 		name = _namechk(name)
@@ -1298,7 +1298,7 @@ class DatasetWriter(object):
 			_datasetwriters[name] = obj
 			return obj
 
-	def add(self, colname, coltype, default=_nodefault, none_support=_nodefault):
+	def add(self, colname, coltype, *, default=_nodefault, none_support=_nodefault):
 		from accelerator.g import running
 		if running != self._running:
 			raise DatasetUsageError("Add all columns in the same step as creation")
@@ -1687,18 +1687,18 @@ class DatasetList(_ListTypePreserver):
 		from itertools import chain
 		return Counter(chain.from_iterable(ds.columns.keys() for ds in self))
 
-	def column_count(self, column, types=None, none_support=None):
+	def column_count(self, column, *, types=None, none_support=None):
 		"""How many datasets in this chain contain column
 		Optionally only considers column to exists if it is of a desired type,
 		and/or has/lacks none support.
 		"""
-		return len(self.with_column(column, types, none_support))
+		return len(self.with_column(column, types=types, none_support=none_support))
 
 	def filter(self, predicate):
 		"""Same list but only with datasets for which predicate(ds) is true."""
 		return self.__class__(ds for ds in self if predicate(ds))
 
-	def with_column(self, column, types=None, none_support=None):
+	def with_column(self, column, *, types=None, none_support=None):
 		"""Chain without any datasets that don't contain column.
 		Optionally only considers column to exists if it is of a desired type,
 		and/or has/lacks none support.
@@ -1714,7 +1714,7 @@ class DatasetList(_ListTypePreserver):
 		"""If any dataset in the chain has None support for this column"""
 		return any(ds.columns[column].none_support for ds in self if column in ds.columns)
 
-	def iterate(self, sliceno, columns=None, range=None, sloppy_range=False, hashlabel=None, pre_callback=None, post_callback=None, filters=None, translators=None, status_reporting=True, rehash=False, slice=None, copy_mode=False):
+	def iterate(self, sliceno, columns=None, *, range=None, sloppy_range=False, hashlabel=None, pre_callback=None, post_callback=None, filters=None, translators=None, status_reporting=True, rehash=False, slice=None, copy_mode=False):
 		"""Iterate the datasets in this chain. See Dataset.iterate_list for usage"""
 		return Dataset.iterate_list(sliceno, columns, self, range=range, sloppy_range=sloppy_range, hashlabel=hashlabel, pre_callback=pre_callback, post_callback=post_callback, filters=filters, translators=translators, status_reporting=status_reporting, rehash=rehash, slice=slice, copy_mode=copy_mode)
 
@@ -1780,7 +1780,7 @@ def _fmt_range_value(name, value, d):
 	else:
 		return repr(value)
 
-def range_check_function(bottom, top, none_support=False, index=None):
+def range_check_function(bottom, top, *, none_support=False, index=None):
 	"""Returns a function that checks if bottom <= arg < top, allowing bottom
 	and/or top to be None. Skips None values if none_support is true."""
 	if_l = []
