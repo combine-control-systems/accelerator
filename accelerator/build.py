@@ -922,9 +922,6 @@ def print_user_part_traceback():
 	etype, e, tb = sys.exc_info()
 	fallback_tb = tb # everything if the skip logic fails
 	build_fn = __file__
-	if build_fn[-4:] in ('.pyc', '.pyo',):
-		# stupid python2
-		build_fn = build_fn[:-1]
 	# skip until this file
 	while tb is not None:
 		code = tb.tb_frame.f_code
@@ -957,9 +954,6 @@ def print_user_part_traceback():
 
 def print_minimal_traceback():
 	build_fn = __file__
-	if build_fn[-4:] in ('.pyc', '.pyo',):
-		# stupid python2
-		build_fn = build_fn[:-1]
 	blacklist_fns = {build_fn}
 	_, e, tb = sys.exc_info()
 	last_interesting = tb

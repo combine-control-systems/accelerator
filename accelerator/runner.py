@@ -48,10 +48,7 @@ archives = {}
 
 def mod2filename(mod):
 	if isinstance(mod, ModuleType):
-		filename = getattr(mod, '__file__', None)
-		if filename and filename[-4:] in ('.pyc', '.pyo',):
-			filename = filename[:-1]
-		return filename
+		return getattr(mod, '__file__', None)
 	else:
 		return mod
 
@@ -505,9 +502,6 @@ def new_runners(config, used_versions):
 		else:
 			sock_p, sock_c = socket.socketpair(socket.AF_UNIX, socket.SOCK_STREAM)
 			runner_fn = __file__
-			if runner_fn[-4:] in ('.pyc', '.pyo',):
-				# workaround for python 2 server running python 3 methods
-				runner_fn = runner_fn[:-1]
 			cmd = [py_exe, runner_fn, str(sock_c.fileno()), sys.path[0]]
 			pid = run(cmd, [sock_p.fileno()], [sock_c.fileno()], no_stdin=not config.debuggable)
 			sock_c.close()
