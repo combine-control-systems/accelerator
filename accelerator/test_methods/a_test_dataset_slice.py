@@ -24,7 +24,7 @@ Test dataset iteration slicing.
 from accelerator.error import DatasetError
 
 def synthesis(job, slices):
-	dw = job.datasetwriter({'a': 'int32'}, name='first', allow_missing_slices=True)
+	dw = job.datasetwriter(columns={'a': 'int32'}, name='first', allow_missing_slices=True)
 	dw.set_slice(0)
 	dw.write(0)
 	dw.write(1)
@@ -79,7 +79,7 @@ def synthesis(job, slices):
 	assert_fails(0, 4)
 	assert_fails(2, -98)
 	assert_fails('roundrobin', 101)
-	dw = job.datasetwriter({'a': 'int32', 'b': 'int32'}, previous=ds, name='second')
+	dw = job.datasetwriter(columns={'a': 'int32', 'b': 'int32'}, previous=ds, name='second')
 	write = dw.get_split_write()
 	write(100, -1)
 	write(101, -2)

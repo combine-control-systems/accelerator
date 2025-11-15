@@ -144,7 +144,7 @@ class Job(str):
 			filename = '%s.%d' % (filename, sliceno,)
 		return os.path.join(self.path, filename)
 
-	def open(self, filename, mode='r', sliceno=None, encoding=None, errors=None):
+	def open(self, filename, mode='r', sliceno=None, *, encoding=None, errors=None):
 		assert 'r' in mode, "Don't write to other jobs"
 		if 'b' not in mode and encoding is None:
 			encoding = 'utf-8'
@@ -186,7 +186,7 @@ class Job(str):
 		from accelerator.extras import job_post
 		return job_post(self)
 
-	def load(self, filename='result.pickle', sliceno=None, encoding='bytes', default=_nodefault):
+	def load(self, filename='result.pickle', sliceno=None, *, encoding='bytes', default=_nodefault):
 		"""blob.load from this job"""
 		from accelerator.extras import pickle_load
 		try:
@@ -196,7 +196,7 @@ class Job(str):
 				raise
 			return default
 
-	def json_load(self, filename='result.json', sliceno=None, default=_nodefault):
+	def json_load(self, filename='result.json', sliceno=None, *, default=_nodefault):
 		from accelerator.extras import json_load
 		try:
 			return json_load(self.filename(filename, sliceno))
@@ -241,7 +241,7 @@ class Job(str):
 		else:
 			return ''.join(res.values())
 
-	def link_result(self, filename='result.pickle', linkname=None, header=None, description=None):
+	def link_result(self, filename='result.pickle', linkname=None, *, header=None, description=None):
 		"""Put a symlink to filename in result_directory
 		Only use this in a build script."""
 		from accelerator.g import running, urd
@@ -300,7 +300,7 @@ class Job(str):
 		os.symlink(src, dst)
 		job.register_file(dst)
 
-	def chain(self, length=-1, reverse=False, stop_job=None):
+	def chain(self, length=-1, *, reverse=False, stop_job=None):
 		"""Like Dataset.chain but for jobs."""
 		if isinstance(stop_job, dict):
 			assert len(stop_job) == 1, "Only pass a single stop_job={job: name}"
@@ -338,26 +338,26 @@ class CurrentJob(Job):
 		from accelerator.launch import _FinishJob
 		raise _FinishJob(result)
 
-	def save(self, obj, filename='result.pickle', sliceno=None, temp=None, background=False):
+	def save(self, obj, filename='result.pickle', sliceno=None, *, temp=None, background=False):
 		from accelerator.extras import pickle_save
 		return pickle_save(obj, filename, sliceno, temp=temp, background=background)
 
-	def json_save(self, obj, filename='result.json', sliceno=None, sort_keys=True, temp=None, background=False):
+	def json_save(self, obj, filename='result.json', sliceno=None, *, sort_keys=True, temp=None, background=False):
 		from accelerator.extras import json_save
 		return json_save(obj, filename, sliceno, sort_keys=sort_keys, temp=temp, background=background)
 
-	def datasetwriter(self, columns={}, filename=None, hashlabel=None, hashlabel_override=False, caption=None, previous=None, name='default', parent=None, meta_only=False, for_single_slice=None, copy_mode=False, allow_missing_slices=False):
+	def datasetwriter(self, *, columns={}, filename=None, hashlabel=None, hashlabel_override=False, caption=None, previous=None, name='default', parent=None, meta_only=False, for_single_slice=None, copy_mode=False, allow_missing_slices=False):
 		from accelerator.dataset import DatasetWriter
 		return DatasetWriter(columns=columns, filename=filename, hashlabel=hashlabel, hashlabel_override=hashlabel_override, caption=caption, previous=previous, name=name, parent=parent, meta_only=meta_only, for_single_slice=for_single_slice, copy_mode=copy_mode, allow_missing_slices=allow_missing_slices)
 
-	def open(self, filename, mode='r', sliceno=None, encoding=None, errors=None, temp=None):
+	def open(self, filename, mode='r', sliceno=None, *, encoding=None, errors=None, temp=None):
 		"""Mostly like standard open with sliceno and temp,
 		but you must use it as context manager
 		with job.open(...) as fh:
 		and the file will have a temp name until the with block ends.
 		"""
 		if 'r' in mode:
-			return Job.open(self, filename, mode, sliceno, encoding, errors)
+			return Job.open(self, filename, mode, sliceno, encoding=encoding, errors=errors)
 		if 'b' not in mode and encoding is None:
 			encoding = 'utf-8'
 		if 'x' not in mode:
@@ -414,7 +414,7 @@ class CurrentJob(Job):
 	def input_filename(self, *parts):
 		return os.path.join(self.input_directory, *parts)
 
-	def open_input(self, filename, mode='r', encoding=None, errors=None):
+	def open_input(self, filename, mode='r', *, encoding=None, errors=None):
 		assert 'r' in mode, "Don't write to input files"
 		if 'b' not in mode and encoding is None:
 			encoding = 'utf-8'
@@ -453,14 +453,14 @@ class NoJob(Job):
 	def files(self, pattern='*'):
 		return set()
 
-	def load(self, filename=None, sliceno=None, encoding='bytes', default=_nodefault):
+	def load(self, filename=None, sliceno=None, *, encoding='bytes', default=_nodefault):
 		if default is not _nodefault:
 			return default
 		if filename is not None or sliceno is not None:
 			raise NoSuchJobError('Can not load named / sliced file on <NoJob>')
 		return None
 
-	def json_load(self, filename=None, sliceno=None, default=_nodefault):
+	def json_load(self, filename=None, sliceno=None, *, default=_nodefault):
 		return self.load(filename, sliceno, default=default)
 
 	@property # so it can return the same instance as all other NoJob things
@@ -486,7 +486,7 @@ class JobWithFile(namedtuple('JobWithFile', 'job name sliced extra')):
 			assert self.sliced, "An unsliced file can not have a sliceno"
 		return self.job.filename(self.name, sliceno)
 
-	def load(self, sliceno=None, encoding='bytes', default=_nodefault):
+	def load(self, sliceno=None, *, encoding='bytes', default=_nodefault):
 		"""blob.load this file"""
 		from accelerator.extras import pickle_load
 		try:
@@ -496,7 +496,7 @@ class JobWithFile(namedtuple('JobWithFile', 'job name sliced extra')):
 				raise
 			return default
 
-	def json_load(self, sliceno=None, default=_nodefault):
+	def json_load(self, sliceno=None, *, default=_nodefault):
 		from accelerator.extras import json_load
 		try:
 			return json_load(self.filename(sliceno))
@@ -505,5 +505,5 @@ class JobWithFile(namedtuple('JobWithFile', 'job name sliced extra')):
 				raise
 			return default
 
-	def open(self, mode='r', sliceno=None, encoding=None, errors=None):
-		return self.job.open(self.name, mode, sliceno, encoding, errors)
+	def open(self, mode='r', sliceno=None, *, encoding=None, errors=None):
+		return self.job.open(self.name, mode, sliceno, encoding=encoding, errors=errors)
