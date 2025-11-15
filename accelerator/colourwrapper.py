@@ -161,15 +161,11 @@ class Colour:
 		if have:
 			yield '\x1b[' + ';'.join(have) + 'm'
 
-	# When we drop python 2 we can change this to use normal keywords
-	def pre_post(self, *attrs, **kw):
-		bad_kw = set(kw) - {'force', 'reset'}
-		if bad_kw:
-			raise TypeError('Unknown keywords %r' % (bad_kw,))
+	def pre_post(self, *attrs, force=False, reset=False):
 		if not attrs:
 			raise TypeError('specify at least one attr')
-		if (self.enabled or kw.get('force')):
-			if kw.get('reset'):
+		if self.enabled or force:
+			if reset:
 				pre = ['0']
 			else:
 				pre = []
@@ -228,7 +224,7 @@ class Colour:
 					pre.append(self._all[want])
 					post.add(self._all.get('NOT' + want, default))
 			pre = ''.join(self._literal_split(pre))
-			if kw.get('reset'):
+			if reset:
 				post = '\x1b[m' + literal_post
 			elif post:
 				post = '\x1b[' + ';'.join(sorted(post)) + 'm' + literal_post
@@ -238,9 +234,8 @@ class Colour:
 			pre = post = ''
 		return pre, post
 
-	# When we drop python 2 we can change this to use normal keywords
-	def __call__(self, value, *attrs, **kw):
-		pre, post = self.pre_post(*attrs, **kw)
+	def __call__(self, value, *attrs, force=False, reset=False):
+		pre, post = self.pre_post(*attrs, force=force, reset=reset)
 		if isinstance(value, bytes):
 			return b'%s%s%s' % (pre.encode('utf-8'), value, post.encode('utf-8'),)
 		return '%s%s%s' % (pre, value, post,)
