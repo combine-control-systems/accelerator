@@ -60,7 +60,7 @@ class Automata:
 
 	method = '?' # fall-through case when we resume waiting for something
 
-	def __init__(self, server_url, verbose=False, flags=None, subjob_cookie=None, infoprints=False, print_full_jobpath=False, concurrency_map={}):
+	def __init__(self, server_url, *, verbose=False, flags=None, subjob_cookie=None, infoprints=False, print_full_jobpath=False, concurrency_map={}):
 		self.url = server_url
 		self.subjob_cookie = subjob_cookie
 		self.verbose = verbose
@@ -103,7 +103,7 @@ class Automata:
 	def config(self):
 		return self._url_json('config')
 
-	def _submit(self, method, options, datasets, jobs, caption=None, wait=True, why_build=False, force_build=False, workdir=None, concurrency=None):
+	def _submit(self, method, *, options, datasets, jobs, caption=None, wait=True, why_build=False, force_build=False, workdir=None, concurrency=None):
 		"""
 		Submit job to server and conditionaly wait for completion.
 		"""
@@ -133,7 +133,7 @@ class Automata:
 			self.monitor.done()
 		return self.jobid(method), self.job_retur
 
-	def wait(self, ignore_old_errors=False):
+	def wait(self, *, ignore_old_errors=False):
 		idle, now, status_stacks, current, last_time = self._server_idle(0, ignore_errors=ignore_old_errors)
 		if idle:
 			return
@@ -184,7 +184,7 @@ class Automata:
 		if 'jobs' in self.job_retur:
 			return self.job_retur.jobs[method].link
 
-	def _server_idle(self, timeout=0, ignore_errors=False):
+	def _server_idle(self, timeout=0, *, ignore_errors=False):
 		"""ask server if it is idle, return (idle, status_stacks)"""
 		path = ['status']
 		if self.verbose:
@@ -234,7 +234,7 @@ class Automata:
 	def methods_info(self):
 		return self._url_json('methods')
 
-	def update_methods(self, _override_py_exe=None):
+	def update_methods(self, *, _override_py_exe=None):
 		if _override_py_exe:
 			args = urlencode({'_override_py_exe': _override_py_exe})
 		else:
@@ -249,7 +249,7 @@ class Automata:
 	def list_workdirs(self):
 		return self._url_json('list_workdirs')
 
-	def call_method(self, method, options={}, datasets={}, jobs={}, record_as=None, why_build=False, force_build=False, caption=None, workdir=None, concurrency=None, **kw):
+	def call_method(self, method, *, options={}, datasets={}, jobs={}, record_as=None, why_build=False, force_build=False, caption=None, workdir=None, concurrency=None, **kw):
 		if method not in self._method_info:
 			raise BuildError('Unknown method %s' % (method,))
 		info = self._method_info[method]
@@ -490,7 +490,7 @@ class Urd(object):
 			path = '%s/%s' % (self._user, path,)
 		return path
 
-	def _call(self, url, data=None, fmt=_urd_typeify):
+	def _call(self, url, data=None, *, fmt=_urd_typeify):
 		from accelerator.unixhttp import call
 		assert self._url, "No urd configured for this server"
 		url = url.replace(' ', '%20')
@@ -559,7 +559,7 @@ class Urd(object):
 		self._link_result_finished.extend((key, v) for v in self._link_result_current)
 		self._link_result_current = []
 
-	def begin(self, path, timestamp=None, caption=None, update=False):
+	def begin(self, path, timestamp=None, *, caption=None, update=False):
 		assert not self._current, 'Tried to begin %s while running %s' % (path, self._current,)
 		if not self._test_auth():
 			raise BuildError('Urd says permission denied, did you forget to set URD_AUTH?')
@@ -576,7 +576,7 @@ class Urd(object):
 		self._current = None
 		self._move_link_result()
 
-	def finish(self, path, timestamp=None, caption=None):
+	def finish(self, path, timestamp=None, *, caption=None):
 		path = self._path(path)
 		assert self._current, 'Tried to finish %s with nothing running' % (path,)
 		assert path == self._current, 'Tried to finish %s while running %s' % (path, self._current,)
@@ -612,10 +612,10 @@ class Urd(object):
 		"""Build jobs in this workdir, None to restore default"""
 		self.workdir = workdir
 
-	def build(self, method, options={}, datasets={}, jobs={}, name=None, caption=None, why_build=False, force_build=False, workdir=None, concurrency=None, **kw):
+	def build(self, method, *, options={}, datasets={}, jobs={}, name=None, caption=None, why_build=False, force_build=False, workdir=None, concurrency=None, **kw):
 		return self._a.call_method(method, options=options, datasets=datasets, jobs=jobs, record_as=name, caption=caption, why_build=why_build, force_build=force_build, workdir=workdir or self.workdir or self.default_workdir, concurrency=concurrency, **kw)
 
-	def build_chained(self, method, options={}, datasets={}, jobs={}, name=None, caption=None, why_build=False, force_build=False, workdir=None, **kw):
+	def build_chained(self, method, *, options={}, datasets={}, jobs={}, name=None, caption=None, why_build=False, force_build=False, workdir=None, **kw):
 		assert 'previous' not in set(datasets) | set(jobs) | set(kw), "Don't specify previous to build_chained"
 		assert name, "build_chained must have 'name'"
 		assert self._latest_joblist is not None, "Can't build_chained without a dependency to chain from"
