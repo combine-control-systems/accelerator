@@ -60,7 +60,7 @@ def load_setup(jobid):
 	You probably want to use extras.job_params instead.
 	"""
 	try:
-		d = json_load('setup.json', jobid)
+		d = json_load('setup.json', jobid=jobid)
 	except IOError:
 		raise NoSuchJobError('Job %r not found' % (jobid,))
 	version = d.version

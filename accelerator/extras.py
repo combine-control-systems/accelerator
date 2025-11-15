@@ -161,7 +161,7 @@ def _backgrounded_wait():
 			_backgrounded.clear()
 
 
-def job_params(jobid=None, default_empty=False):
+def job_params(jobid=None, *, default_empty=False):
 	if default_empty and not jobid:
 		return DotDict(
 			options=DotDict(),
@@ -205,14 +205,14 @@ def pickle_save(variable, filename='result.pickle', sliceno=None, temp=None, bac
 # default to encoding='bytes' because datetime.* (and probably other types
 # too) saved in python 2 fail to unpickle in python 3 otherwise. (Official
 # default is 'ascii', which is pretty terrible too.)
-def pickle_load(filename='result.pickle', jobid=None, sliceno=None, encoding='bytes'):
+def pickle_load(filename='result.pickle', jobid=None, sliceno=None, *, encoding='bytes'):
 	filename = _fn(filename, jobid, sliceno)
 	with status('Loading ' + filename):
 		with open(filename, 'rb') as fh:
 			return pickle.load(fh, encoding=encoding)
 
 
-def json_encode(variable, sort_keys=True, as_str=False):
+def json_encode(variable, *, sort_keys=True, as_str=False):
 	"""Return variable serialised as json bytes (or str with as_str=True).
 
 	You can pass tuples and sets (saved as lists).
@@ -244,7 +244,7 @@ def _json_save(variable, filename, sort_keys, _encoder, temp):
 		fh.write(_encoder(variable, sort_keys=sort_keys))
 		fh.write(b'\n')
 
-def json_save(variable, filename='result.json', sliceno=None, sort_keys=True, _encoder=json_encode, temp=False, background=False):
+def json_save(variable, filename='result.json', sliceno=None, *, sort_keys=True, _encoder=json_encode, temp=False, background=False):
 	args = (variable, _fn(filename, None, sliceno), sort_keys, _encoder, temp)
 	if background:
 		return _BackgroundSavedFile(filename, sliceno, json_load, _json_save, args, temp)
@@ -255,7 +255,7 @@ def json_save(variable, filename='result.json', sliceno=None, sort_keys=True, _e
 def json_decode(s):
 	return json.loads(s, object_pairs_hook=DotDict)
 
-def json_load(filename='result.json', jobid=None, sliceno=None):
+def json_load(filename='result.json', *, jobid=None, sliceno=None):
 	filename = _fn(filename, jobid, sliceno)
 	with open(filename, 'r', encoding='utf-8') as fh:
 		data = fh.read()
@@ -303,7 +303,7 @@ class FileWriteMove(object):
 
 	__slots__ = ('filename', 'tmp_filename', 'temp', '_hidden', '_status', 'close', '_open')
 
-	def __init__(self, filename, temp=None, _hidden=False):
+	def __init__(self, filename, temp=None, *, _hidden=False):
 		from accelerator import g
 		job = getattr(g, 'job', None)
 		if job: # This is also used outside jobs
@@ -367,7 +367,7 @@ class ResultIterMagic(object):
 
 	__slots__ = ('_inner', '_reuse_msg', '_exc', '_done', '_started')
 
-	def __init__(self, slices, reuse_msg="Attempted to iterate past end of iterator.", exc=Exception):
+	def __init__(self, slices, *, reuse_msg="Attempted to iterate past end of iterator.", exc=Exception):
 		self._inner = ResultIter(slices)
 		self._reuse_msg = reuse_msg
 		self._exc = exc
@@ -389,7 +389,7 @@ class ResultIterMagic(object):
 				raise
 		return item
 
-	def merge_auto(self, allow_overwrite=None):
+	def merge_auto(self, *, allow_overwrite=None):
 		"""Merge values from iterator using magic.
 		Currenly supports data that has .update, .itervalues and .iteritems
 		methods.
@@ -644,7 +644,7 @@ class OptionDefault(object):
 
 	__slots__ = ('value', 'default')
 
-	def __init__(self, value, default=None):
+	def __init__(self, value, *, default=None):
 		self.value = value
 		self.default = default
 
