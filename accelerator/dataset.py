@@ -1012,6 +1012,12 @@ class Dataset(str):
 			if left_over:
 				raise DatasetUsageError("Columns in filter not available in dataset: %r" % (left_over,))
 			self._data.columns = filtered_columns
+			if (
+				self._data.hashlabel is not None
+				and self._data.hashlabel not in filtered_columns
+				and self._data.hashlabel not in columns
+			):
+				self._data.hashlabel = None
 		for n, (t, none_support) in sorted(columns.items()):
 			if t not in _type2iter:
 				raise DatasetUsageError('Unknown type %s on column %s' % (t, n,))
