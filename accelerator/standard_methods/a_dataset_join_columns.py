@@ -47,6 +47,7 @@ def prepare(job):
 		{'ascii'},
 		{'bytes'},
 		{'unicode'},
+		{'ascii', 'unicode'},
 	]
 	if len(options.columns) == 2:
 		allowed.append({'date', 'time'})
@@ -66,8 +67,9 @@ def prepare(job):
 	writers = []
 	columns = dict.fromkeys(options.columns) if options.discard_source_columns else {}
 	for ds, name in zip(chain, names):
-		desttype = ds.columns[options.columns[0]].type
-		if desttype in ('date', 'time'):
+		# unicode sorts after ascii, so this is the the right type.
+		desttype = sorted(ds.columns[n].type for n in options.columns)[-1]
+		if desttype == 'time':
 			desttype = 'datetime'
 		none_support = any(ds.columns[colname].none_support for colname in options.columns)
 		columns[options.colname] = (desttype, none_support)
