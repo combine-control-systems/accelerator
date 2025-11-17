@@ -352,7 +352,7 @@ class Dataset(str):
 				d._data.hashlabel = rename[d._data.hashlabel]
 			elif d._data.hashlabel in renamed:
 				d._data.hashlabel = None
-		if column_filter:
+		if column_filter is not None:
 			column_filter = set(column_filter)
 			if d._data.hashlabel not in column_filter:
 				d._data.hashlabel = None
@@ -1005,7 +1005,7 @@ class Dataset(str):
 		for n in ('cache', 'cache_distance'):
 			if n in self._data: del self._data[n]
 		minmax = self._minmax_merge(minmax)
-		if column_filter:
+		if column_filter is not None:
 			column_filter = set(column_filter)
 			filtered_columns = {k: v for k, v in self._data.columns.items() if k in column_filter}
 			left_over = column_filter - set(filtered_columns)
