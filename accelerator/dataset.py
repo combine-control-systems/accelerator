@@ -1304,6 +1304,15 @@ class DatasetWriter(object):
 			_datasetwriters[name] = obj
 			return obj
 
+	def __repr__(self):
+		if hasattr(self, 'sliceno'):
+			extrainfo = f'slice {self.sliceno}'
+		elif self._started:
+			extrainfo = 'splitting'
+		else:
+			extrainfo = 'not started'
+		return f'<{self.__class__.__name__} for {self.quoted_ds_name} ({extrainfo})>'
+
 	def add(self, colname, coltype, *, default=_nodefault, none_support=_nodefault):
 		from accelerator.g import running
 		if running != self._running:
