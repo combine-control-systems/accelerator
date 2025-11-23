@@ -413,6 +413,8 @@ def _urd_typeify(d):
 	for k, v in d.items():
 		if k == 'joblist':
 			v = JobList(Job(e[1], e[0]) for e in v)
+		elif k == 'build_job':
+			v = Job(v)
 		elif isinstance(v, dict):
 			v = _urd_typeify(v)
 		res[k] = v
