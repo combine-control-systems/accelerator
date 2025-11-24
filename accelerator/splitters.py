@@ -53,6 +53,9 @@ class _BaseSplitterList(list):
 		self[:] = self.for_slice(sliceno)
 		self._sliceno = sliceno
 
+	def __reduce__(self):
+		return list, (), None, iter(self)
+
 
 class ChunkSplitter(_BaseSplitterList):
 	"""
@@ -184,6 +187,10 @@ class FirstComeSplitter:
 
 	def __len__(self):
 		return len(self._items)
+
+	def __reduce__(self):
+		from pickle import PicklingError
+		raise PicklingError(f"Can't pickle {self.__class__.__name__}")
 
 
 class HashSplitter(_BaseSplitterList):
