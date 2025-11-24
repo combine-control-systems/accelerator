@@ -1,7 +1,7 @@
 The configuration file
 ======================
 
-when exax server starts, it looks for a file named
+When exax server starts, it looks for a file named
 ``accelerator.conf`` that contains project wide settings.
 
 The configuration file specifies location of input data, results, and
