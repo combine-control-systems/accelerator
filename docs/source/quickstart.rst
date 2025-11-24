@@ -157,12 +157,10 @@ which ports or sockets that the exax server and board server listens
 to, and how many parallel processes that should be forked in case of
 parallel processing.
 
-For example, to change listening port for the board server, the
-configuration file should have a line like this
-
-.. code-block::
-
-   board listen: localhost:8888
+To quickly get started, the ``ax init`` command has already automatically 
+generated this config with sensible defaults, allowing you to directly 
+run scripts. For more informations about these settings, see the 
+configuration file.
 
 .. note:: The exax server needs to be restarted for the configuration
           file changes to apply.
