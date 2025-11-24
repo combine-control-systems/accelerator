@@ -113,6 +113,12 @@ A job script is a Python file that is executed by a build script, or
 in some situations by another job script.  A project is typically
 partitioned into several job scripts controlled by a top level build script.
 
+.. note:: The naming of job script files is special.
+	 A job script has to start with the prefix ``a_``.
+
+	 For example, the job script ``myscript`` is stored in a
+	 file named ``a_myscript.py``.
+
 The first time a certain job script is executed, exax creates a job
 directory where it stores information throughout the script's
 execution.  When execution finishes, exax will return a pointer to the
