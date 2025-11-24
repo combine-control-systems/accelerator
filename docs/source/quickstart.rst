@@ -144,6 +144,8 @@ Job scripts are stored using the filename prefix ``a_``
 (e.g. ``a_mymethod.py``), and build scripts use the prefix ``build_``
 (e.g. ``build_myscript.py``).
 
+If you want to store job and build scripts in other folders, you need to 
+add them to the method packages in the configuration file.
 
 
 The Configuration File
