@@ -86,20 +86,6 @@ All build scripts will be listed by
 The examples will show up here if selected at project initialisation.
 
 
-Run the Tutorial and Other Examples
------------------------------------
-
-If initiated with examples, example files will be stored in the ``examples/``
-directory.  Run examples like this
-
-.. code-block::
-
-   ax run tutorial01
-
-.. note:: Build script filenames start with ``build_``.  Omit this
-          prefix (and the ``.py``-suffix) when running them using ``ax run``.
-
-
 Show available method directories, job scripts and descriptions
 ---------------------------------------------------------------
 
@@ -131,6 +117,19 @@ A script named ``build_myprogram.py`` is run by omitting the
    The default build script is just named ``build.py``, and executed
    simply using ``ax run``.
 
+
+Run the Tutorial and Other Examples
+-----------------------------------
+
+If initiated with examples, example files will be stored in the ``examples/``
+directory.  Run examples like this
+
+.. code-block::
+
+   ax run tutorial01
+
+.. note:: Build script filenames start with ``build_``.  Omit this
+          prefix (and the ``.py``-suffix) when running them using ``ax run``.
 
 
 Packages and Filename Prefixes
