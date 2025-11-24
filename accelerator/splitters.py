@@ -203,7 +203,7 @@ class HashSplitter(_BaseSplitterList):
 	This splitter can be used as a list.
 	"""
 
-	__slots__ = ('_custom_hashfunc', '_hashfunc',)
+	__slots__ = ('append', 'extend', '_custom_hashfunc', '_hashfunc',)
 
 	def __init__(self, iterable=(), hashfunc=None):
 		if callable(hashfunc):
@@ -215,7 +215,33 @@ class HashSplitter(_BaseSplitterList):
 			if hashfunc not in _convfuncs:
 				raise AcceleratorError(f'Unknown column type {hashfunc !r}')
 			self._hashfunc = _convfuncs[hashfunc].hash
+		self.append = self._append
+		self.extend = self._extend
 		_BaseSplitterList.__init__(self, iterable)
+		self._check()
+
+	def _append(self, item):
+		_BaseSplitterList.append(self, item)
+		self._check()
+
+	def _extend(self, items):
+		_BaseSplitterList.extend(self, items)
+		self._check()
+
+	def _check(self):
+		if self:
+			try:
+				value = self[0]
+				if not self._custom_hashfunc and isinstance(value, tuple):
+					value = value[0]
+				assert isinstance(self._hashfunc(value), int)
+				# This should only run once, replace functions with non-checking versions.
+				self.append = _BaseSplitterList.append.__get__(self)
+				self.extend = _BaseSplitterList.extend.__get__(self)
+			except Exception:
+				# In case the program continues, nothing should happen in _analysis_start
+				self.clear()
+				raise
 
 	def for_slice(self, sliceno):
 		assert self._sliceno is None, "for_slice() doesn't work in analysis"
