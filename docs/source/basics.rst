@@ -51,8 +51,8 @@ The urd transaction database will be explained later in chapter @@.
 What is a Job?
 --------------
 
-A *job* is a directory that was created when a build or job script was
-executed.  The directory contains a set of files containing input
+A *job* is a directory that was created when a build script was executed
+that calls upon a job script. The directory contains a set of files containing input
 parameters (including references to input data), source code, produced
 output files, profiling information, and anything printed to standard
 out and standard error during the execution.
