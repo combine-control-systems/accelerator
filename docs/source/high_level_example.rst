@@ -35,9 +35,9 @@ resulting job object output from the ``parse`` job script call on the
 line above.  And so on.
 
 The second to last line makes the ``graph.png`` file from the
-``plot_data`` script directly visible in the board web server (and
+``plot_train`` script directly visible in the board web server (and
 also in the ``results/``-directory in the project installation
-directory.
+directory).
 
 The last line will print the full path to ``graph.png``, just to
 illustrate that exax is working with plain files, and they are always
