@@ -186,11 +186,11 @@ any number of packages in the configuration file.
 
 **What is the result directory**
 
-This is where important results may be stored.  Defined in the configuration file
+This is where important results may be stored.  Defined in the configuration file.
 
 **What is the input directory**
 
 This is a path to where the input data files are stored.  Defining
 this in one place makes the path to the data relative, meaning that
 data can be moved around in the file system without causing changes to
-any job.  Defined in the configuration file
+any job.  Defined in the configuration file.
