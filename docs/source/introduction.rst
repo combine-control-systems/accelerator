@@ -3,12 +3,16 @@ What is Exax?
 
 Exax is a data processing framework designed to make development and
 operations *faster* and with *fewer mistakes*.  Although exax
-implements several novel ideas, there is one feature that stands out
-and as will be shown later provides a number of exciting advantages:
+implements several novel ideas, there are two features that stand out
+and, as will be shown later, provides a number of exciting advantages:
 
-**Things are computed only once.**
+**1. Things are computed only once.**
 
 *Exax remembers all program executions, and can instantly return a previously computed result given input data, parameters, and program source code.*
+
+**2. Bookkeeping of input, source code and resuluts.**
+
+*The remembered connections between input, code and results are eadily observable and tracable, enabling you to trace any result or bug back to its source.*
 
 In addition, a naive but simple to use parallell processing
 environment helps speeding up many practical use cases significantly.
