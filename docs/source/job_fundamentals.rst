@@ -63,7 +63,7 @@ provides a shorter summary about the basic concepts.
 
 8. Jobs are stored in workdirs.
 
-  So it is clear *exactly* where on the disk that all work is being
+  So it is clear *exactly* where on the disk all that work is being
   saved.  This simplifies computer and storage administration.
 
 9. There may be any number of workdirs.
