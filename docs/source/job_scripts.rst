@@ -68,6 +68,9 @@ a more or less complete list of what is saved
 - method package
 - any other files the job "depends extra" on
 
+All this information is manually accessible in the *job directory*, but 
+an easier way to access this information is via the *board*.
+
 (The build script has additional support functionality, such as
 JobLists, the Urd database, and result linking, to aid
 development, whereas building a subjob has less decorations.)
@@ -449,7 +452,8 @@ is a wrapper around Python's ``open()`` function:
   meaning that one "filename" in the program corresponds to a set of
   files on disk, one for each process.
 
-  This is handled using ``save(..., sliceno=sliceno)``.
+  This is handled using ``job.save(data, 'filename', sliceno=sliceno)``.
+  These files can be retrieved again by ``job.load('filename, sliceno=sliceno)``.
 
 In addition, it is possible to create *temporary files* that only
 exists during the execution of the job script and will be
@@ -457,21 +461,6 @@ automatically deleted upon job completion.  This *might* be useful for
 huge temporary files if disk space is a major concern.  Add the
 parameter ``temp=True`` to ``job.save()`` or ``job.json_save()`` to
 make the file temporary.
-
-
-.. tip:: It is possible to create "parallel" files in ``analysis``.  A
-         parallel file is a set of files, one per slice, that is
-         associated with a single filename by exax.
-
-         The basic idea is that one can do
-
-         .. code-block::
-
-            def analysis(sliceno):
-                data = ...
-
-                job.save(data, 'filename', sliceno=sliceno)   # save per slice
-                data = job.load('filename', sliceno=sliceno)  # load per slice
 
 
 
