@@ -187,4 +187,4 @@ This is where important results may be stored.  Defined in the configuration fil
 This is a path to where the input data files are stored.  Defining
 this in one place makes the path to the data relative, meaning that
 data can be moved around in the file system without causing changes to
-any job.  Defined in the configuration file
+any job.  Defined in the :ref:`configuration file <configfile>`.
