@@ -4,7 +4,7 @@
 # Copyright (c) 2017 eBay Inc.                                             #
 # Modifications copyright (c) 2019-2020 Anders Berkeman                    #
 # Modifications copyright (c) 2019-2026 Carl Drougge                       #
-# Modifications copyright (c) 2023-2024 Pablo Correa Gómez                 #
+# Modifications copyright (c) 2023-2025 Pablo Correa Gómez                 #
 #                                                                          #
 # Licensed under the Apache License, Version 2.0 (the "License");          #
 # you may not use this file except in compliance with the License.         #
@@ -20,6 +20,7 @@
 #                                                                          #
 ############################################################################
 
+import abc
 import os
 import datetime
 import json
@@ -67,22 +68,24 @@ def _job_params(jobid):
 # in the automatic pickling of analysis results.
 _SavedFile_allow_pickle = False
 
-class _SavedFile(object):
-	__slots__ = ('_filename', '_sliceno', '_loader',)
+class _SavedFile(abc.ABC):
+	__slots__ = ('_filename', '_sliceno',)
 
-	def __init__(self, filename, sliceno, loader):
+	def __init__(self, filename, sliceno):
 		if isinstance(filename, pathlib.Path):
 			filename = str(filename)
 		self._filename = filename
 		self._sliceno = sliceno
-		self._loader = loader
 
 	def wait(self):
 		pass
 
+	@abc.abstractmethod
+	def _loader(self, filename, sliceno): ...
+
 	def load(self):
 		self.wait()
-		return self._loader(self._filename, sliceno=self._sliceno)
+		return self._loader(self._filename, self._sliceno)
 
 	@property
 	def filename(self):
@@ -106,29 +109,36 @@ class _SavedFile(object):
 		saved_files[self.filename] = True
 
 	def __getstate__(self):
-		if _SavedFile_allow_pickle:
-			return self._filename, self._sliceno, self._loader
-		else:
-			raise TypeError('Cannot pickle _SavedFile')
+		return self._filename, self._sliceno
 
 	def __setstate__(self, state):
-		self._filename, self._sliceno, self._loader = state
+		self._filename, self._sliceno = state
 
+class _SavedJson(_SavedFile):
+	def _loader(self, filename, sliceno):
+		return json_load(filename, sliceno=sliceno)
+
+class _SavedPickle(_SavedFile):
+	def _loader(self, filename, sliceno):
+		return pickle_load(filename, sliceno=sliceno)
 
 _backgrounded = []
 
 class _BackgroundSavedFile(_SavedFile):
 	__slots__ = ('_ok', '_process',)
 
-	def __init__(self, filename, sliceno, loader, saver, args, temp, hidden=False):
-		_SavedFile.__init__(self, filename, sliceno, loader)
+	def __init__(self, filename, sliceno, args, temp, hidden=False):
+		super().__init__(filename, sliceno)
 		if hidden:
 			self._ok = bool # dummy function
 		else:
 			self._ok = partial(saved_files.__setitem__, self.filename, temp)
 		from accelerator.mp import SimplifiedProcess
-		self._process = SimplifiedProcess(target=self._run, args=(saver, args,))
+		self._process = SimplifiedProcess(target=self._run, args=(self._saver, args,))
 		_backgrounded.append(self)
+
+	@abc.abstractmethod
+	def _saver(self, *args): ...
 
 	def _run(self, func, args):
 		from accelerator import g
@@ -149,9 +159,22 @@ class _BackgroundSavedFile(_SavedFile):
 				raise IOError('Failed to save ' + self.filename)
 			self._ok()
 
+	def __getstate__(self):
+		self.wait()
+		return super().__getstate__()
+
 	def __setstate__(self, state):
-		_SavedFile.__setstate__(self, state)
+		super().__setstate__(state)
 		self._process = None
+
+class _BackgroundSavedJson(_BackgroundSavedFile, _SavedJson):
+	def _saver(self, *args):
+		_json_save(*args)
+
+class _BackgroundSavedPickle(_BackgroundSavedFile, _SavedPickle):
+	def _saver(self, *args):
+		_pickle_save(*args)
+
 
 def _backgrounded_wait():
 	if _backgrounded:
@@ -197,10 +220,10 @@ def _pickle_save(variable, filename, temp, _hidden):
 def pickle_save(variable, filename='result.pickle', sliceno=None, temp=None, background=False, _hidden=False):
 	args = (variable, _fn(filename, None, sliceno), temp, _hidden)
 	if background:
-		return _BackgroundSavedFile(filename, sliceno, pickle_load, _pickle_save, args, temp, _hidden)
+		return _BackgroundSavedPickle(filename, sliceno, args, temp, _hidden)
 	else:
 		_pickle_save(*args)
-		return _SavedFile(filename, sliceno, pickle_load)
+		return _SavedPickle(filename, sliceno)
 
 # default to encoding='bytes' because datetime.* (and probably other types
 # too) saved in python 2 fail to unpickle in python 3 otherwise. (Official
@@ -247,10 +270,10 @@ def _json_save(variable, filename, sort_keys, _encoder, temp):
 def json_save(variable, filename='result.json', sliceno=None, *, sort_keys=True, _encoder=json_encode, temp=False, background=False):
 	args = (variable, _fn(filename, None, sliceno), sort_keys, _encoder, temp)
 	if background:
-		return _BackgroundSavedFile(filename, sliceno, json_load, _json_save, args, temp)
+		return _BackgroundSavedJson(filename, sliceno, args, temp)
 	else:
 		_json_save(*args)
-		return _SavedFile(filename, sliceno, json_load)
+		return _SavedJson(filename, sliceno)
 
 def json_decode(s):
 	return json.loads(s, object_pairs_hook=DotDict)
@@ -260,7 +283,6 @@ def json_load(filename='result.json', *, jobid=None, sliceno=None):
 	with open(filename, 'r', encoding='utf-8') as fh:
 		data = fh.read()
 	return json_decode(data)
-
 
 def quote(s):
 	"""Quote s unless it looks fine without"""
