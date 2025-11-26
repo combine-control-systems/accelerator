@@ -39,7 +39,7 @@ database that is used to store more complex sequences of execution.
    :width: 600px
    :align: center
 
-The urd transaction database will be explained later in chapter @@.
+The urd transaction database will be explained later in the chapter: :doc:`urd_introduction`.
 
 .. note :: While exax abstracts some interfaces using Python classes
    for convenience, all intermediate storage is based on files,
