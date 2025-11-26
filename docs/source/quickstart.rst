@@ -135,7 +135,7 @@ directory.  Run examples like this
 Packages and Filename Prefixes
 ------------------------------
 
-By default, the ``ax init`` program creates a method package in a
+By default, the ``ax init`` program creates a :doc:`method package <script_packages>` in a
 directory named ``dev/``. This is where job and build scripts should
 be stored in the new project, otherwise they cannot be executed by
 exax.
@@ -145,7 +145,7 @@ Job scripts are stored using the filename prefix ``a_``
 (e.g. ``build_myscript.py``).
 
 If you want to store job and build scripts in other folders, you need to 
-add them to the method packages in the configuration file.
+add them to the :doc:`method packages <script_packages>` in the configuration file.
 
 
 The Configuration File
