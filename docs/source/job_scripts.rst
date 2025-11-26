@@ -102,6 +102,7 @@ source file, see the following example
 
 - The ``options`` parameter is a dictionary, that can take almost
   "anything", with or without default values and type definitions.
+  See :ref:`Options: Default values and typing <options-typing-short-ref>`.
 
 - The ``datasets`` parameter is a list or tuple of datasets
   references.
@@ -165,6 +166,7 @@ supporting dot-notation for accessing its values.
 .. tip :: Input parameters members can be accessed using dot notation,
           like ``options.x`` etc.
 
+.. _options-typing-short-ref:
 
 Options: Default Values and Typing
 ----------------------------------
@@ -179,6 +181,8 @@ If instead the option is specified using a *type*, (such as
 ``options=dict(f=float)``), the input parameter must be of the same type.
 If the input parameter is left unspecified in this case, the (default)
 value will be ``None``.
+
+For more detailed information, special types and examples, see :doc:`option_typing`.
 
 .. note::
    - If a default value is set, this value will be used if left unassigned.
