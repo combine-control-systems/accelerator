@@ -1,6 +1,8 @@
 Advanced Script Features
 ========================
 
+.. _depend-extra-ref:
+
 Depend on extra files
 ---------------------
 
