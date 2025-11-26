@@ -173,7 +173,7 @@ Job directories are stored in *workdirs*, which are just ordinary
 directories.  For most project, one workdir is enough, but for example
 in a collaborative environment it makes sense to have unique workdirs
 for each user.  The name and location of the workdirs are defined in
-the configuration file.
+the :doc:`configuration file <configfile>`.
 
 **What is a method package**
 
@@ -182,15 +182,15 @@ indicated, they are importable Python packages.
 
 The standard job scripts bundled with exax are stored in another
 package, and example files in yet another.  It is possible to define
-any number of packages in the configuration file.
+any number of packages in the :doc:`configuration file <configfile>`.
 
 **What is the result directory**
 
-This is where important results may be stored.  Defined in the configuration file.
+This is where important results may be stored.  Defined in the :doc:`configuration file <configfile>`.
 
 **What is the input directory**
 
 This is a path to where the input data files are stored.  Defining
 this in one place makes the path to the data relative, meaning that
 data can be moved around in the file system without causing changes to
-any job.  Defined in the configuration file.
+any job.  Defined in the :doc:`configuration file <configfile>`.
