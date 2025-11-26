@@ -339,7 +339,7 @@ As shown in the previous section,
 In addition, ``analysis()`` has access to the ``sliceno`` and
 ``slices`` parameters, and all three functions have access to the
 ``job`` object that contains a set of useful job-related helper
-functions.
+functions (see :doc:`autodoc_job`). 
 
 Return values from ``prepare()`` and ``analysis()`` are stored
 *temporarily* in the job directory by default, and removed upon job
@@ -764,7 +764,7 @@ Subjobs are built in the ``synthesis()`` function like this
 The ``subjobs.build()`` call uses the same input parameters and syntax
 as the ``urd.build()`` call in a build scripts.  Similarly, the
 returned ``job`` object is an instance of the ``Job`` class that
-contains some useful helper functionality.
+contains some useful helper functionality (see :doc:`autodoc_job`).
 
 .. note :: Subjobs are *not* visible in build scripts and do not show
    up in ``urd.joblist``!  Furthermore, they are not recorded in the
