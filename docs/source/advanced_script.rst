@@ -101,6 +101,8 @@ configuration file, and more
    print(job.params.options)
    print(job.params.jobs)
 
+.. tip:: All the job parameters are also available via the *board*.
+
 
 
 Accessing a Job's post data
