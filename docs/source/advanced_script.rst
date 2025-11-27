@@ -209,6 +209,7 @@ while ``dataset_sort`` will run on three slices.
           setting.  There is no way to tell afterwards if the job was
           created using full parallelisation or not.
 
+.. _merge-auto-ref:
 
 Automatic Slice-Data Merging: merge_auto
 ----------------------------------------

@@ -296,7 +296,8 @@ results together, like this
 ``merge_auto()`` typically does what is expected (but is of course not
 mandatory to use).  In the example above, the returned integers from
 ``analysis()`` will be added together into one number.  It will merge
-sets or dictionaries, update Counters, etc.
+sets or dictionaries, update Counters, etc. For more specifics, see
+:ref:`merge_auto <merge-auto-ref>`.
 
 
 
