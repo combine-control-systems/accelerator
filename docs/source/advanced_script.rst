@@ -297,6 +297,7 @@ For multi-level dictionaries keys can always overlap on the higher
 levels.  For example
 
   .. code-block ::
+
      (
        {'sold_items': {'books': {'Moby Dick', 'Don Quixote'}}},
        {'sold_items': {'books': {'Don Quixote', 'Lolita'}}}
