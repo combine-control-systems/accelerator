@@ -65,12 +65,12 @@ The command
 
    ax board-server localhost:8888
 
-will make the Board (web) server listen to port 8888.
+will make the Board (web) server listen to port 8888 for this session.
 
 Point a browser to http://localhost:8888 to connect.
 
 .. tip:: The board server starts automatically when the exax server
-         starts.  Modify the configuration file to set which port or
+         starts.  Modify the :doc:`configuration file <configfile>` to set which port or
          socket it should listen to by default.
 
 
