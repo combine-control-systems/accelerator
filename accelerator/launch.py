@@ -130,22 +130,15 @@ def call_analysis(analysis_func, sliceno_, delayed_start, q, preserve_result, pa
 						return dict(d)
 				else:
 					return d
-			def save(item, name):
-				from accelerator import extras
-				try:
-					extras._SavedFile_allow_pickle = True
-					blob.save(fixup(item), name, sliceno=sliceno_, temp=True)
-				finally:
-					extras._SavedFile_allow_pickle = False
 			if isinstance(res, tuple):
 				if sliceno_ == 0:
 					blob.save(len(res), "Analysis.tuple", temp=True)
 				for ix, item in enumerate(res):
-					save(item, "Analysis.%d." % (ix,))
+					blob.save(fixup(item), f"Analysis.{ix}.", sliceno=sliceno_, temp=True)
 			else:
 				if sliceno_ == 0:
 					blob.save(False, "Analysis.tuple", temp=True)
-				save(res, "Analysis.")
+				blob.save(fixup(res), "Analysis.", sliceno=sliceno_, temp=True)
 		dw_lens = {}
 		dw_minmax = {}
 		dw_compressions = {}

@@ -64,10 +64,6 @@ def _job_params(jobid):
 	return d
 
 
-# _SavedFile isn't really intended to pickle safely, so only allow it
-# in the automatic pickling of analysis results.
-_SavedFile_allow_pickle = False
-
 class _SavedFile(abc.ABC):
 	__slots__ = ('_filename', '_sliceno',)
 
