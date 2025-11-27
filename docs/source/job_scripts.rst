@@ -553,10 +553,10 @@ registered, but this is not a requirement.
             data[filename] = job.load(filename)
 
 There is also a ``job.json_load()`` function to directly load json
-content.  Note that exax has no idea what if it is json or pickle or
+content.  Note that exax has no idea whether a file is a json, a pickle or
 something else.  Make sure to use the proper functions.
 
-The names of a job's all registered files are available using
+The names of all files registered by a job are available using
 ``job.files()``.  This call will return a set of all filenames in the
 job.  The absolute path of a particular file can be retrieved using
 the ``job.filename()`` function, like this
@@ -611,8 +611,9 @@ There are three helper functions for input data:
 
 
 .. tip ::
-  Use the ``input_directory`` and corresponding helper
-  functions to avoid having absolute paths in your project code!
+  Use the ``input directory`` and corresponding helper
+  functions to avoid having absolute paths in your project code! The
+  input directory is set in the :doc:`configuration file <configfile>`.
 
 
 
