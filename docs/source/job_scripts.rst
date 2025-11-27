@@ -261,9 +261,9 @@ configuration file:
 This can be set to any number at project initialisation, and it is
 then the same fixed number for the whole project.  The ``ax init``
 command will by default initiate this to the number of available cores
-on the machine.  (It makes little sense to set it to a larger number,
-but in some cases a lower number is preferred in order to limit the
-max load on the machine.)
+on the machine.  (The greater the number (up to the maximum cores in the
+machine) the faster the processing will run, but the more resources will
+be used.)
 
 The number of slices, as well as the current fork number *sliceno*
 ranging from zero to *slices* minus one) are available as parameters
