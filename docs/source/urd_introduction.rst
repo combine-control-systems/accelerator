@@ -269,6 +269,36 @@ races possible when the Urd database is serving multiple users.
 
 
 
+.. _truncate-ref:
+
+Truncating Urd Lists
+--------------------
+
+Data can never be erased from the urd database, but a *restart marker*
+can be inserted at any time giving the appearance that everything
+after the marker timestamp is removed, like in this example:
+
+.. code-block::
+    :caption: Urd session with restart marker.
+
+    def main(urd):
+	urd.truncate('testlist', '2023')
+        ...
+
+The above ``truncate`` call makes all entries in ``testlist`` that
+are from 2023 or later inaccessible.
+
+.. tip :: Truncating to zero gives the appearance of a completely
+   empty urdlist.  Very useful during development.
+
+
+.. note :: Data is never erased in the Urd transaction database.
+   Furthermore, all data is stored in an *easily readable format*, so
+   if data is believed to be "lost", it is possible to find it by
+   looking in the database files.
+
+
+
 Urd Database Timestamps
 -----------------------
 
@@ -304,32 +334,3 @@ Note that
   - ``datetimes`` without ``ints`` sorts before ``datetimes`` with ``ints``,
   - shorter ``datetime`` strings sorts before longer ``datetime`` strings, and
   - timestamps must be > 0.
-
-
-.. _truncate-ref
-
-Truncating Urd Lists
---------------------
-
-Data can never be erased from the urd database, but a *restart marker*
-can be inserted at any time giving the appearance that everything
-after the marker timestamp is removed, like in this example:
-
-.. code-block::
-    :caption: Urd session with restart marker.
-
-    def main(urd):
-	urd.truncate('testlist', '2023')
-        ...
-
-The above ``truncate`` call makes all entries in ``testlist`` that
-are from 2023 or later inaccessible.
-
-.. tip :: Truncating to zero gives the appearance of a completely
-   empty urdlist.  Very useful during development.
-
-
-.. note :: Data is never erased in the Urd transaction database.
-   Furthermore, all data is stored in an *easily readable format*, so
-   if data is believed to be "lost", it is possible to find it by
-   looking in the database files.
