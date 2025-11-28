@@ -148,7 +148,7 @@ The ``__auto__`` urdlist stores all executions, but it is a bit hard
 to use.  Therefore it is possible to tailor urdlists for specific use.
 
 It is possible store just partial sequences of job ids to urdlists
-with used defined key names and timestamps.  The ``urd.begin()`` and
+with user defined key names and timestamps.  The ``urd.begin()`` and
 ``urd.finish()`` calls are used for this purpose.  Here is an example:
 
 .. code-block::
@@ -251,13 +251,18 @@ rules that applies
    current version of the source code corresponds to the jobs on disk.
 
  - A new entry can replace an old one by specifying ``update=True`` in
-   the ``build()``-call, like this example
+   the ``build()``-call, like the example below. Note that 'replace'
+   does not mean that the old entry is deleted. It is still there,
+   only ignored when checking if the key already exist.
 
    .. code-block::
 
      def main(urd):
        urd.begin('testlist', '2023-06-20', update=True)
        ...
+
+ - To ignore more than one line of history in the Urd, one can truncate
+   the list, see :ref:`Truncating Urd Lists <truncate-ref>`.
 
 The Urd server serves incoming requests one at a time, so there are no
 races possible when the Urd database is serving multiple users.
@@ -301,6 +306,7 @@ Note that
   - timestamps must be > 0.
 
 
+.. _truncate-ref
 
 Truncating Urd Lists
 --------------------
