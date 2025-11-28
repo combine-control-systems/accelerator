@@ -6,7 +6,7 @@ mode.  The ``ax init`` command will set up an empty database, and the
 Urd database server starts automatically when the exax server is
 started using ``ax server``.
 
-This chapter explains is to set up the Urd database server so that
+This chapter explains how the Urd database server can be set up so that
 its contents can be shared between different users or agents.
 
 
