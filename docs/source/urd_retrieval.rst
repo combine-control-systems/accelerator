@@ -106,7 +106,7 @@ At row ``#3``, the command returns all urd sessions recorded in the
 ``process`` urdlist.  Each session is represented by its timestamp.
 
 At row ``#4``, the session at timestamp 2023-02-1 of the *process*
-urdlist reveals a joblist with a ``process`_data` job, but also a
+urdlist reveals a joblist with a ``process_data`` job, but also a
 ``deps`` part where the ``alice/import/2023-02-01`` session is
 mentioned.  This session holds the ``csvimport`` job that the
 ``process_data`` job used as input.  This urd session was created by
@@ -142,7 +142,7 @@ Description of the Retrieval Functions
 
 - **Find the latest entries**, ``latest()`` and ``peek_latest()``:
 
-  These calls are probably he most commonly used functions for session
+  These calls are probably the most commonly used functions for session
   retrieval.  They will, for a given urdlist, return the session with
   most recent timestamp.  If there is no such session, an empty
   session is returned.  Empty sessions look like this
