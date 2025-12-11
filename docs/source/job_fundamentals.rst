@@ -3,7 +3,8 @@ Job Fundamentals
 
 
 The concepts relating to exax jobs are fundamental, and this section
-provides a shorter summary about the basic concepts.
+provides a shorter summary about the basic concepts. You can find a
+detailed description in the :ref:`Job scripts <job-scripts>` section.
 
 1. Data and metadata relating to a job is stored in a job directory.
 
