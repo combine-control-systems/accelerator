@@ -151,7 +151,7 @@ Here are some basic examples
         print(job.load())
 
 .. code-block::
-    :caption: Print what the job wrote on the terminal
+    :caption: Print again what the job already wrote on the terminal
 
     def main(urd):
         job = urd.build('my_script')

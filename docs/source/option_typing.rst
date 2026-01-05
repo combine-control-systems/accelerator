@@ -208,6 +208,7 @@ Typing Examples
       baz={str: {str: int}} # requires dicto of string to dict of string to int or None
       # Containers with types default to empty containers
 
+      # mandatory options
       frob=RequiredOption(int)                 # requires an int
       frob=RequiredOption(int, none_ok=True)   # requires an int or None
    )
