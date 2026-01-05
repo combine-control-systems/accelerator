@@ -757,6 +757,11 @@ job scripts can be built by other job scripts.  There is no difference
 from a built job's perspective, but the nomenclature is that when a
 job script is building a job it is called a *subjob*.
 
+Subjobs are mostly useful for re-using and organizing code. Jobs can
+avoid reimplementing features already implemented in other methods,
+and logical pieces can be grouped together in a job that calls other
+jobs, reducing the complexity in the main build scripts.
+
 Subjobs are built in the ``synthesis()`` function like this
 
 .. code-block::
