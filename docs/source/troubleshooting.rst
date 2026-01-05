@@ -146,7 +146,7 @@ independently on the same server.
 
   This will create a socket in the specified path below the project
   directory.  Next, find the absolute path to the socket file
-  (probably by issuing ``realpath .socket.dir/board), and create the
+  (probably by issuing ``realpath .socket.dir/board``), and create the
   ssh forwarding command like this
 
   .. code-block ::
@@ -191,7 +191,7 @@ run separately, for example
       ax board-server localhost:9999
 
 - To run a separate urd server, tell the server which urd it should
-  listen to in ``accelerator.conf
+  listen to in ``accelerator.conf``
 
   .. code-block ::
 
