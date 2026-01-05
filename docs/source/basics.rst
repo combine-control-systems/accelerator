@@ -186,7 +186,8 @@ any number of packages in the :doc:`configuration file <configfile>`.
 
 **What is the result directory**
 
-This is where important results may be stored.  Defined in the :doc:`configuration file <configfile>`.
+This is where important results may be stored.  Defined in the
+:doc:`configuration file <configfile>`.
 
 **What is the input directory**
 

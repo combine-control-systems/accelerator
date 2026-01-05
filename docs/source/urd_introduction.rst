@@ -62,7 +62,7 @@ using the ``ax urd`` command:
    )
 
 
-   
+
 How is Data Stored?
 -------------------
 
@@ -85,7 +85,7 @@ An example Urd database with six sessions, two users (``alice`` and
 .. code:: text
 
   :caption: examples of urdlist-timestamp keys
-	  
+
   # different time resolution
   alice/imports/2024-01-10
   alice/imports/2024-01-09T19
@@ -190,7 +190,7 @@ the names differ, execution will stop and raise an error.
 .. note:: The timestamp must be specified once, in *either* the
           ``begin()`` or ``finish()`` call.  Sometimes the timestamp
           is known at execution start, sometimes only when it ends.
-	  
+
 .. tip:: The user part of the urdlist name is convenient to use when
           several programmers work in the same project.  It also
           enables the use of "virtual" users for the sake of
@@ -206,8 +206,9 @@ Ending a Manual Urd Session
 
 There are three ways to end an urd session:
 
-- Execute the ``urd.finish()`` call.  One of three things will happen: *store*, *ignore*, or *fail*.  See next section for more information.
-  
+- Execute the ``urd.finish()`` call.  One of three things will happen:
+  *store*, *ignore*, or *fail*.  See next section for more information.
+
 - end the build script “prematurely” without a
   ``urd.finish()``-call. No data will be stored in Urd.
 

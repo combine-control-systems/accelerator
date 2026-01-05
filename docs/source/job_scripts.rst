@@ -70,7 +70,7 @@ a more or less complete list of what is saved
 - method package
 - any other files the job "depends extra" on
 
-All this information is manually accessible in the *job directory*, but 
+All this information is manually accessible in the *job directory*, but
 an easier way to access this information is via the *board*.
 
 (The build script has additional support functionality, such as
@@ -342,7 +342,7 @@ As shown in the previous section,
 In addition, ``analysis()`` has access to the ``sliceno`` and
 ``slices`` parameters, and all three functions have access to the
 ``job`` object that contains a set of useful job-related helper
-functions (see :doc:`autodoc_job`). 
+functions (see :doc:`autodoc_job`).
 
 Return values from ``prepare()`` and ``analysis()`` are stored
 *temporarily* in the job directory by default, and removed upon job
@@ -522,7 +522,9 @@ Several files could be registered at once using glob patterns, like this
        # create file "myfile1.txt", "myfile2.txt", ..., "myfile10.txt"
        job.register_files("myfile*.txt")
 
-.. note:: The call ``job.register_files()`` will return a set containing the names of all files that were registered!
+.. note::
+   The call ``job.register_files()`` will return a set containing the
+   names of all files that were registered!
 
 *Temporary files are not registered*, even though they are created by
 the helper functions.  On the other hand, if a temporary file is being

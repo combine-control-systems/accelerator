@@ -28,7 +28,8 @@ detailed description in the :ref:`Job scripts <job-scripts>` section.
   In addition, all code that is directly related to the job is also
   stored in the job directory in a compressed archive. This archive is
   typically limited to the script’s source, but any files that may
-  have been added manually (using ``depend_extra`` (see :ref:`Depend on extra files <depend-extra-ref>`)) are stored in the
+  have been added manually (using ``depend_extra`` (see
+  :ref:`Depend on extra files <depend-extra-ref>`)) are stored in the
   archive too.  This way, source code and results are always connected
   and conveniently stored in the same directory for future reference.
 
@@ -49,7 +50,8 @@ detailed description in the :ref:`Job scripts <job-scripts>` section.
 
   Jobs are re-cycled, unless their pre-conditions have changed.  Among
   the meta information stored in the job directory is a hash digest of
-  the script’s source code (including ``depend_extra``\s (see :ref:`Depend on extra files <depend-extra-ref>`)).  This hash,
+  the script’s source code (including ``depend_extra``\s (see
+  :ref:`Depend on extra files <depend-extra-ref>`)).  This hash,
   together with the input parameters, is used to figure out if a
   result could be re-used instead of re-computed.  This saves time and
   energy, and greatly improves transparency and reproducibility.
