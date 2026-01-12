@@ -48,6 +48,7 @@ options = dict(
 	labels            = [], # empty means all labels in (first) dataset
 	sliced            = False, # one output file per slice, you can put %02d or similar in filename (or get filename.%d)
 	compression       = 6,     # gzip level
+	float_precision   = None, # The amount of digits a float is saved with. None means all its digits.
 )
 
 datasets = (['source'],) # normally just one, but you can specify several
@@ -110,6 +111,12 @@ def csvexport(sliceno, filename, labelsonfirstline):
 			assert not bad_none, 'Unknown labels in none_as: %r' % (bad_none,)
 		else:
 			assert isinstance(options.none_as, str), "What did you pass as none_as?"
+	local_format = format.copy()
+	if options.float_precision:
+		prec_format = f"%.{options.float_precision}f"
+		float_formatter = lambda x: prec_format % x
+		local_format['float32'] = float_formatter
+		local_format['float64'] = float_formatter
 	def resolve_none(label, col):
 		d = options.none_as or {}
 		if col.type in ('json', 'pickle',):
@@ -165,7 +172,7 @@ def csvexport(sliceno, filename, labelsonfirstline):
 		return True
 	def column_iterator(d, label, first):
 		col = d.columns[label]
-		f = format.get(col.type, str)
+		f = local_format.get(col.type, str)
 		it = d.iterate(sliceno, label, status_reporting=first)
 		none_as = resolve_none(label, col)
 		if none_as is not None:

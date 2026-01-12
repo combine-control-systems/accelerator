@@ -65,7 +65,7 @@ def synthesis(job):
 		'a', True, b'hello',
 		42, 1e100+0.00000000000000001j,
 		date(2020, 6, 23), datetime(2020, 6, 23, 12, 13, 14),
-		1.0, float('-inf'), -10, -20,
+		1.012345, float('-inf'), -10, -20,
 		{'json': True}, 0xfedcba9876543210beef,
 		'...' if PY2 else 1+2j, time(12, 13, 14), 'bl\xe5',
 	)
@@ -89,8 +89,8 @@ def synthesis(job):
 	)
 	ds = dw.finish()
 	sep = '\x1e'
-	for sep, q, none_as, last_line in (
-		('\x1e', '', None, (
+	for sep, q, none_as, float_precision, last_line in (
+		('\x1e', '', None, None, (
 			'None', 'None', 'None',
 			'None', 'None',
 			'None', 'None',
@@ -98,7 +98,7 @@ def synthesis(job):
 			'null', 'None',
 			'None', 'None', 'None',
 		)),
-		('\x1e', 'a', '', (
+		('\x1e', 'a', '', None, (
 			'', '', '',
 			'', '',
 			'', '',
@@ -106,7 +106,7 @@ def synthesis(job):
 			'', '',
 			'', '', '',
 		)),
-		('\x00', '0', None, (
+		('\x00', '0', None, None, (
 			'None', 'None', 'None',
 			'None', 'None',
 			'None', 'None',
@@ -114,7 +114,7 @@ def synthesis(job):
 			'null', 'None',
 			'None', 'None', 'None',
 		)),
-		(':', '"', '"', (
+		(':', '"', '"', None, (
 			'"', '"', '"',
 			'"', '"',
 			'"', '"',
@@ -122,7 +122,15 @@ def synthesis(job):
 			'"', '"',
 			'"', '"', '"',
 		)),
-		(':', '"', {'time': 'never', 'float32': '"0"'}, (
+		(':', '"', '"', 3, (
+			'"', '"', '"',
+			'"', '"',
+			'"', '"',
+			'"', '"', '"', '"',
+			'"', '"',
+			'"', '"', '"',
+		)),
+		(':', '"', {'time': 'never', 'float32': '"0"'}, None, (
 			'None', 'None', 'None',
 			'None', 'None',
 			'None', 'None',
@@ -132,21 +140,31 @@ def synthesis(job):
 		)),
 	):
 		with status("Checking with sep=%r, q=%r, none_as=%r" % (sep, q, none_as,)):
-			exp = subjobs.build('csvexport', filename='test.csv', separator=sep, source=ds, quote_fields=q, none_as=none_as, lazy_quotes=False)
+			exp = subjobs.build('csvexport', filename='test.csv', separator=sep, source=ds, quote_fields=q, none_as=none_as, lazy_quotes=False, float_precision=float_precision)
 			with exp.open('test.csv', 'r', encoding='utf-8') as fh:
 				def expect(*a):
 					want = sep.join(q + v.replace(q, q + q) + q for v in a) + '\n'
 					got = next(fh)
 					assert want == got, 'wanted %r, got %r from %s (export of %s)' % (want, got, exp, ds,)
 				expect(*sorted(todo))
-				expect(
-					'a', 'True', 'hello',
-					'(42+0j)', '(1e+100+1e-17j)',
-					'2020-06-23', '2020-06-23 12:13:14',
-					'1.0', '-inf', '-10', '-20',
-					'{"json": true}', '1203552815971897489538799',
-					'...' if PY2 else '(1+2j)', '12:13:14', 'bl\xe5',
-				)
+				if float_precision:
+					expect(
+						'a', 'True', 'hello',
+						'(42+0j)', '(1e+100+1e-17j)',
+						'2020-06-23', '2020-06-23 12:13:14',
+						'1.012', '-inf', '-10', '-20',
+						'{"json": true}', '1203552815971897489538799',
+						'...' if PY2 else '(1+2j)', '12:13:14', 'bl\xe5',
+					)
+				else:
+					expect(
+						'a', 'True', 'hello',
+						'(42+0j)', '(1e+100+1e-17j)',
+						'2020-06-23', '2020-06-23 12:13:14',
+						'1.012345', '-inf', '-10', '-20',
+						'{"json": true}', '1203552815971897489538799',
+						'...' if PY2 else '(1+2j)', '12:13:14', 'bl\xe5',
+					)
 				expect(
 					'b', 'False', 'bye',
 					'(2-3j)', '(-7+0j)',
