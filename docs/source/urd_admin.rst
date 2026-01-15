@@ -78,7 +78,7 @@ To listen to an external shared Urd database server, change this to
 .. code-block::
     :caption: ``accelerator.conf``: Shared Urd server is on port 12345 on localhost.
 
-    urd localhost 12345
+    urd: remote localhost:12345
 
 As soon as the exax server is restarted, it will start using the external shared server.
 
