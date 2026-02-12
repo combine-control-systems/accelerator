@@ -42,8 +42,8 @@ from accelerator.compat import getarglist
 from accelerator import __version__ as ax_version
 from accelerator import iowrapper
 from accelerator import setupfile
+from accelerator.blob import json_encode, json_save
 from accelerator.colourwrapper import colour
-from accelerator.extras import json_encode, json_save
 from accelerator.job import Job, CurrentJob
 from accelerator.launch import _FinishJob
 from accelerator.shell.parser import ArgumentParser
@@ -782,7 +782,7 @@ def run_automata(urd, options, cfg, module_ref, main_args):
 
 	from accelerator import dataset
 	from accelerator.control import finish_job_files
-	from accelerator.extras import saved_files
+	from accelerator.blob import saved_files
 	saved_files.clear() # remove setup.json, we don't want to see it
 
 	g.job = job
@@ -833,7 +833,7 @@ def run_automata(urd, options, cfg, module_ref, main_args):
 	urd._move_link_result()
 	if urd._link_result_finished:
 		from accelerator import blob
-		blob.save((0, urd._link_result_finished), 'link_result.pickle', temp=False, _hidden=True)
+		blob.pickle_save((0, urd._link_result_finished), 'link_result.pickle', temp=False, _hidden=True)
 
 	if not res and urd.joblist_all:
 		if urd._test_auth():

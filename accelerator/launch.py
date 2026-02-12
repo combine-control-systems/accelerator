@@ -86,7 +86,7 @@ def call_analysis(analysis_func, sliceno_, delayed_start, q, preserve_result, pa
 		os.close(_prof_fd)
 		slicename = 'analysis(%d)' % (sliceno_,)
 		setproctitle(slicename)
-		from accelerator.extras import saved_files, _backgrounded_wait
+		from accelerator.blob import saved_files, _backgrounded_wait
 		saved_files.clear() # don't inherit (and then return) the files from prepare
 		if delayed_start:
 			os.close(delayed_start[1])
@@ -131,20 +131,19 @@ def call_analysis(analysis_func, sliceno_, delayed_start, q, preserve_result, pa
 				else:
 					return d
 			def save(item, name):
-				from accelerator import extras
 				try:
-					extras._SavedFile_allow_pickle = True
-					blob.save(fixup(item), name, sliceno=sliceno_, temp=True)
+					blob._SavedFile_allow_pickle = True
+					blob.pickle_save(fixup(item), name, sliceno=sliceno_, temp=True)
 				finally:
-					extras._SavedFile_allow_pickle = False
+					blob._SavedFile_allow_pickle = False
 			if isinstance(res, tuple):
 				if sliceno_ == 0:
-					blob.save(len(res), "Analysis.tuple", temp=True)
+					blob.pickle_save(len(res), "Analysis.tuple", temp=True)
 				for ix, item in enumerate(res):
 					save(item, "Analysis.%d." % (ix,))
 			else:
 				if sliceno_ == 0:
-					blob.save(False, "Analysis.tuple", temp=True)
+					blob.pickle_save(False, "Analysis.tuple", temp=True)
 				save(res, "Analysis.")
 		dw_lens = {}
 		dw_minmax = {}
@@ -295,7 +294,7 @@ def fmt_tb(skip_level):
 
 
 def execute_process(workdir, jobid, slices, concurrency, index=None, workdirs=None, server_url=None, subjob_cookie=None, parent_pid=0):
-	from accelerator.extras import _backgrounded_wait
+	from accelerator.blob import _backgrounded_wait
 
 	WORKDIRS.update(workdirs)
 
@@ -366,7 +365,7 @@ def execute_process(workdir, jobid, slices, concurrency, index=None, workdirs=No
 				analysis_func = synthesis_func = dummy
 				if finish.result is not None:
 					os.chdir(g.job.path)
-					blob.save(finish.result, temp=False)
+					blob.pickle_save(finish.result, temp=False)
 			os.chdir(g.job.path)
 			dataset.finish_datasets(final=False)
 		c_fflush()
@@ -374,7 +373,7 @@ def execute_process(workdir, jobid, slices, concurrency, index=None, workdirs=No
 		prof['prepare'] = monotonic() - t
 	switch_output()
 	setproctitle('launch')
-	from accelerator.extras import saved_files
+	from accelerator.blob import saved_files
 	if analysis_func is dummy:
 		prof['per_slice'] = []
 		prof['analysis'] = 0
@@ -405,7 +404,7 @@ def execute_process(workdir, jobid, slices, concurrency, index=None, workdirs=No
 		if all(saved_files.values()):
 			g.job.register_files('*')
 		if synthesis_res is not None:
-			blob.save(synthesis_res, temp=False)
+			blob.pickle_save(synthesis_res, temp=False)
 		dataset.finish_datasets()
 	c_fflush()
 	_backgrounded_wait()

@@ -36,7 +36,7 @@ def analysis(sliceno, job):
 		if options.file.sliced:
 			value = options.file.load(sliceno)
 			assert value == data
-			value = blob.load(options.file.filename(sliceno))
+			value = blob.pickle_load(options.file.filename(sliceno))
 			assert value == data
 		else:
 			try:
@@ -74,7 +74,7 @@ def synthesis(params, job):
 		else:
 			value = options.file.load()
 			assert value == data
-			value = blob.load(options.file.filename())
+			value = blob.pickle_load(options.file.filename())
 			assert value == data
 		job.save({'inner': None}, 'inner.pickle', temp=False)
 		job.json_save({'inner': None}, 'inner.json', temp=False)

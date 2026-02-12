@@ -27,8 +27,8 @@ from pathlib import PosixPath, PurePosixPath
 
 from accelerator.compat import iteritems
 
+from accelerator.blob import json_load, json_save, json_encode
 from accelerator.error import AcceleratorError, NoSuchJobError
-from accelerator.extras import json_load, json_save, json_encode
 from accelerator.job import Job
 from accelerator.types import DotDict
 

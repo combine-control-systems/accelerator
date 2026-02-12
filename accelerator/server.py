@@ -39,7 +39,7 @@ from accelerator.web import ThreadedHTTPServer, ThreadedUnixHTTPServer, BaseWebH
 
 from accelerator import autoflush
 from accelerator import control
-from accelerator.extras import json_encode, json_decode
+from accelerator.blob import json_encode, json_decode
 from accelerator.build import JobError
 from accelerator.job import Job
 from accelerator.setupfile import load_setup

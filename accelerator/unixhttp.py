@@ -19,8 +19,8 @@
 #                                                                          #
 ############################################################################
 
+from accelerator.blob import json_encode, json_decode
 from accelerator.compat import urlopen, Request, URLError, HTTPError
-from accelerator.extras import json_encode, json_decode
 from accelerator.error import ServerError, UrdError, UrdPermissionError, UrdConflictError
 from accelerator import g, __version__ as ax_version
 

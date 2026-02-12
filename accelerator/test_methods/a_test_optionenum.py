@@ -55,7 +55,7 @@ def check(**options):
 	want_res = dict(defaults)
 	want_res.update(pass_options)
 	jid = subjobs.build("test_optionenum", options=pass_options)
-	res = blob.load(jobid=jid)
+	res = blob.pickle_load(jobid=jid)
 	assert res == want_res, "%r != %r from %r" % (res, want_res, options,)
 
 def check_unbuildable(**options):

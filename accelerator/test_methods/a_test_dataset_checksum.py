@@ -72,7 +72,7 @@ def analysis(sliceno, prepare_res):
 
 def ck(jid, method="dataset_checksum", **kw):
 	jid = subjobs.build(method, datasets=dict(source=jid), options=kw)
-	return blob.load(jobid=jid).sum
+	return blob.pickle_load(jobid=jid).sum
 
 def synthesis(prepare_res):
 	a, b, c, _ = prepare_res

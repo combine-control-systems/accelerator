@@ -24,7 +24,7 @@ Verify a few corner cases in the json functions in extras.
 from collections import OrderedDict
 from itertools import permutations
 
-from accelerator.extras import json_save, json_load, json_encode
+from accelerator.blob import json_save, json_load, json_encode
 
 def test(name, input, want_obj, want_bytes, **kw):
 	json_save(input, name, **kw)

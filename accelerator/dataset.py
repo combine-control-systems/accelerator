@@ -169,7 +169,7 @@ def _ds_load(obj):
 				# We don't want to accidentally give an unrelated exception
 				pass
 			raise NoSuchDatasetError('Dataset %s does not exist%s' % (obj.quoted, extra,))
-		_ds_cache[n] = blob.load(fn)
+		_ds_cache[n] = blob.pickle_load(fn)
 		_ds_cache.update(_ds_cache[n].get('cache', ()))
 	return _ds_cache[n]
 
@@ -1162,7 +1162,7 @@ class Dataset(str):
 	def _save(self):
 		if not os.path.exists('DS'):
 			os.mkdir('DS')
-		blob.save(dict(self._data), self._name('pickle'), temp=False, _hidden=True)
+		blob.pickle_save(dict(self._data), self._name('pickle'), temp=False, _hidden=True)
 
 	def _name(self, thing):
 		if self._job_version < 4:
@@ -1921,4 +1921,4 @@ def finish_datasets(final=True):
 				_datasetwriters[name].finish()
 
 	if final and _datasets_written:
-		blob.save(_datasets_written, 'DS/LIST', temp=False, _hidden=True)
+		blob.pickle_save(_datasets_written, 'DS/LIST', temp=False, _hidden=True)

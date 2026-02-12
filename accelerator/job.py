@@ -187,8 +187,8 @@ class Job(str):
 		return job_post(self)
 
 	def load(self, filename='result.pickle', sliceno=None, *, encoding='bytes', default=_nodefault):
-		"""blob.load from this job"""
-		from accelerator.extras import pickle_load
+		"""blob.pickle_load from this job"""
+		from accelerator.blob import pickle_load
 		try:
 			return pickle_load(self.filename(filename, sliceno), encoding=encoding)
 		except FileNotFoundError:
@@ -197,7 +197,7 @@ class Job(str):
 			return default
 
 	def json_load(self, filename='result.json', sliceno=None, *, default=_nodefault):
-		from accelerator.extras import json_load
+		from accelerator.blob import json_load
 		try:
 			return json_load(self.filename(filename, sliceno))
 		except FileNotFoundError:
@@ -339,11 +339,11 @@ class CurrentJob(Job):
 		raise _FinishJob(result)
 
 	def save(self, obj, filename='result.pickle', sliceno=None, *, temp=None, background=False):
-		from accelerator.extras import pickle_save
+		from accelerator.blob import pickle_save
 		return pickle_save(obj, filename, sliceno, temp=temp, background=background)
 
 	def json_save(self, obj, filename='result.json', sliceno=None, *, sort_keys=True, temp=None, background=False):
-		from accelerator.extras import json_save
+		from accelerator.blob import json_save
 		return json_save(obj, filename, sliceno, sort_keys=sort_keys, temp=temp, background=background)
 
 	def datasetwriter(self, *, columns={}, filename=None, hashlabel=None, hashlabel_override=False, caption=None, previous=None, name='default', parent=None, meta_only=False, for_single_slice=None, copy_mode=False, allow_missing_slices=False):
@@ -365,7 +365,7 @@ class CurrentJob(Job):
 		def _open(fn, _mode):
 			# ignore the passed mode, use the one we have
 			return open(fn, mode, encoding=encoding, errors=errors)
-		from accelerator.extras import FileWriteMove
+		from accelerator.blob import FileWriteMove
 		fwm = FileWriteMove(self.filename(filename, sliceno), temp=temp)
 		fwm._open = _open
 		return fwm
@@ -377,7 +377,7 @@ class CurrentJob(Job):
 		to register it."""
 		filename = self.filename(filename)
 		assert os.path.exists(filename)
-		from accelerator.extras import saved_files
+		from accelerator.blob import saved_files
 		saved_files[filename] = 0
 
 	def register_files(self, pattern='**/*'):
@@ -387,7 +387,7 @@ class CurrentJob(Job):
 		The default pattern registers everything, recursively.
 		Returns which files were registered.
 		"""
-		from accelerator.extras import saved_files
+		from accelerator.blob import saved_files
 		from glob import iglob
 		pattern = os.path.normpath(pattern)
 		assert not pattern.startswith('/')
@@ -487,8 +487,8 @@ class JobWithFile(namedtuple('JobWithFile', 'job name sliced extra')):
 		return self.job.filename(self.name, sliceno)
 
 	def load(self, sliceno=None, *, encoding='bytes', default=_nodefault):
-		"""blob.load this file"""
-		from accelerator.extras import pickle_load
+		"""blob.pickle_load this file"""
+		from accelerator.blob import pickle_load
 		try:
 			return pickle_load(self.filename(sliceno), encoding=encoding)
 		except FileNotFoundError:
@@ -497,7 +497,7 @@ class JobWithFile(namedtuple('JobWithFile', 'job name sliced extra')):
 			return default
 
 	def json_load(self, sliceno=None, *, default=_nodefault):
-		from accelerator.extras import json_load
+		from accelerator.blob import json_load
 		try:
 			return json_load(self.filename(sliceno))
 		except FileNotFoundError:

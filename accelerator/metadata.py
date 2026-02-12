@@ -28,8 +28,8 @@ import sys
 import traceback
 import zlib
 
+from accelerator.blob import json_decode
 from accelerator.compat import FileNotFoundError
-from accelerator.extras import json_decode
 
 crc32 = zlib.crc32
 
