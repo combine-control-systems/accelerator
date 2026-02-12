@@ -27,8 +27,9 @@ import sys
 
 from accelerator.compat import iteritems, itervalues, first_value, str_types, int_types, num_types
 
-from accelerator.extras import OptionEnum, OptionEnumValue, _OptionString, OptionDefault, RequiredOption, typing_conv
+from accelerator.extras import typing_conv
 from accelerator.job import JobWithFile
+from accelerator.types import OptionEnum, OptionEnumValue, _OptionString, OptionDefault, RequiredOption
 
 class OptionException(Exception):
 	__slots__ = ()

@@ -43,11 +43,12 @@ from accelerator import __version__ as ax_version
 from accelerator import iowrapper
 from accelerator import setupfile
 from accelerator.colourwrapper import colour
-from accelerator.extras import json_encode, json_save, DotDict, _ListTypePreserver
+from accelerator.extras import json_encode, json_save
 from accelerator.job import Job, CurrentJob
 from accelerator.launch import _FinishJob
 from accelerator.shell.parser import ArgumentParser
 from accelerator.statmsg import print_status_stacks
+from accelerator.types import DotDict, _ListTypePreserver
 from accelerator.error import BuildError, JobError, ServerError, UrdPermissionError, UrdError
 from accelerator import g
 

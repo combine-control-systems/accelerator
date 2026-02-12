@@ -22,7 +22,7 @@ description = r'''
 Test OptionEnum construction and enforcement.
 '''
 
-from accelerator.extras import OptionEnum
+from accelerator import OptionEnum
 from accelerator import subjobs
 from accelerator import blob
 

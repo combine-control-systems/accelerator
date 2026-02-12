@@ -32,7 +32,7 @@ from datetime import date, time, datetime
 
 from accelerator.compat import unicode
 from accelerator import subjobs
-from accelerator.extras import DotDict
+from accelerator import DotDict
 from accelerator.dsutil import typed_writer
 
 def synthesis(job, slices):

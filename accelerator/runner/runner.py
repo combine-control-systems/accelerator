@@ -78,8 +78,8 @@ def check_picklable(desc, value):
 
 def load_methods(all_packages, data):
 	from accelerator.compat import str_types, iteritems
-	from accelerator.extras import DotDict, OptionEnum, OptionEnumValue
-	from accelerator.extras import RequiredOption, OptionDefault
+	from accelerator.types import DotDict, OptionEnum, OptionEnumValue
+	from accelerator.types import RequiredOption, OptionDefault
 	from accelerator import __version__ as ax_version
 	res_warnings = []
 	res_failed = []

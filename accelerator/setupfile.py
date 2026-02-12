@@ -28,8 +28,9 @@ from pathlib import PosixPath, PurePosixPath
 from accelerator.compat import iteritems
 
 from accelerator.error import AcceleratorError, NoSuchJobError
-from accelerator.extras import DotDict, json_load, json_save, json_encode
+from accelerator.extras import json_load, json_save, json_encode
 from accelerator.job import Job
+from accelerator.types import DotDict
 
 def generate(caption, method, options=None, datasets=None, jobs=None, package=None, description=None, why_build=False, force_build=False, input_directory=None, parent=None):
 	data = DotDict()

@@ -24,7 +24,7 @@ including callbacks with SkipDataset.
 '''
 
 from accelerator.dataset import DatasetWriter, SkipDataset
-from accelerator.extras import DotDict
+from accelerator import DotDict
 
 datasets = ('previous',)
 

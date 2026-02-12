@@ -25,7 +25,7 @@ import shlex
 
 from accelerator.compat import url_quote_more
 
-from accelerator.extras import DotDict
+from accelerator.types import DotDict
 
 
 _re_var = re.compile(r'(?<!\\)\$\{([^\}=]*)(?:=([^\}]*))?\}')

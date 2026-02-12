@@ -21,7 +21,7 @@
 
 description = r"""Make only some columns from a dataset visible."""
 
-from accelerator.extras import OptionDefault
+from accelerator import OptionDefault
 
 options = dict(
 	# Specify only one of these options

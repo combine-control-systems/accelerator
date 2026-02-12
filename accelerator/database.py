@@ -26,7 +26,8 @@ import sys
 
 from accelerator.compat import iteritems, itervalues
 
-from accelerator.extras import _job_params, job_post, OptionEnum, OptionDefault
+from accelerator.extras import _job_params, job_post
+from accelerator.types import OptionEnum, OptionDefault
 
 
 Job = namedtuple('Job', 'id method optset hash time total')

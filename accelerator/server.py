@@ -39,12 +39,13 @@ from accelerator.web import ThreadedHTTPServer, ThreadedUnixHTTPServer, BaseWebH
 
 from accelerator import autoflush
 from accelerator import control
-from accelerator.extras import json_encode, json_decode, DotDict
+from accelerator.extras import json_encode, json_decode
 from accelerator.build import JobError
 from accelerator.job import Job
 from accelerator.setupfile import load_setup
 from accelerator.shell.parser import ArgumentParser
 from accelerator.statmsg import statmsg_sink, children, print_status_stacks, status_stacks_export
+from accelerator.types import DotDict
 from accelerator import iowrapper, board, g, __version__ as ax_version
 import accelerator
 

@@ -162,7 +162,7 @@ def main(argv, cfg):
 	from accelerator.shell.parser import ArgumentParser
 	from accelerator.compat import shell_quote
 	from accelerator.error import UserError
-	from accelerator.extras import DotDict
+	from accelerator.types import DotDict
 	import accelerator
 
 	parser = ArgumentParser(

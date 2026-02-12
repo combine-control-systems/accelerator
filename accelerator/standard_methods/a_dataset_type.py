@@ -27,9 +27,10 @@ from struct import Struct
 
 from accelerator.compat import itervalues
 
-from accelerator.extras import OptionEnum, DotDict, quote
+from accelerator.extras import quote
 from accelerator.dsutil import typed_writer, typed_reader
 from accelerator.error import NoSuchDatasetError
+from accelerator import OptionEnum, DotDict
 from . import dataset_type
 
 depend_extra = (dataset_type,)

@@ -36,8 +36,9 @@ from accelerator.colourwrapper import colour
 from accelerator.compat import FileNotFoundError
 from accelerator.setupfile import update_setup
 from accelerator.job import WORKDIRS, Job
-from accelerator.extras import json_save, DotDict
 from accelerator.error import BuildError
+from accelerator.extras import json_save
+from accelerator.types import DotDict
 
 
 

@@ -47,6 +47,7 @@ import sys
 
 from accelerator.compat import str_types, iteritems, monotonic
 from accelerator.colourwrapper import colour
+from accelerator.types import DotDict
 from accelerator import g
 
 
@@ -191,7 +192,6 @@ def _find(pid, cookie):
 	return stack, None
 
 def statmsg_sink(sock):
-	from accelerator.extras import DotDict
 	wrong_pops = 0
 	while True:
 		data = None

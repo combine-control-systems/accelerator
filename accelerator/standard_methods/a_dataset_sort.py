@@ -39,7 +39,7 @@ from math import isnan
 
 from accelerator.compat import izip
 
-from accelerator.extras import OptionEnum, OptionString
+from accelerator import OptionEnum, OptionString
 from accelerator.statmsg import status
 
 OrderEnum = OptionEnum('ascending descending')

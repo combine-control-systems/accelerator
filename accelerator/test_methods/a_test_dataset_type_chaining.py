@@ -25,7 +25,7 @@ Using the chain_slices option to get one dataset per slice.
 '''
 
 from accelerator.dataset import Dataset
-from accelerator.extras import DotDict
+from accelerator import DotDict
 from accelerator import subjobs
 
 def synthesis(job, slices):

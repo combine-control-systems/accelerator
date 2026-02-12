@@ -24,7 +24,7 @@ Test the datetime types in options.
 from datetime import datetime, date, time, timedelta
 
 from accelerator import subjobs
-from accelerator.extras import DotDict
+from accelerator import DotDict
 
 options = dict(
 	datetime=datetime,

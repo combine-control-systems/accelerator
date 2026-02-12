@@ -35,10 +35,11 @@ from accelerator.compat import builtins, getarglist, izip, izip_longest
 from accelerator.compat import str_types, int_types, FileNotFoundError
 
 from accelerator import blob
-from accelerator.extras import DotDict, job_params, _ListTypePreserver, quote
+from accelerator.extras import job_params, quote
 from accelerator.job import Job, NoJob
 from accelerator.dsutil import typed_writer, _type2iter
 from accelerator.error import NoSuchDatasetError, DatasetUsageError, DatasetError
+from accelerator.types import DotDict, _ListTypePreserver
 
 kwlist = set(kwlist)
 # Add some keywords that are not in all versions

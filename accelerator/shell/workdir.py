@@ -24,7 +24,7 @@ from accelerator.compat import url_quote
 from accelerator.unixhttp import call
 from accelerator.setupfile import load_setup
 from accelerator.build import fmttime
-from accelerator.extras import DotDict
+from accelerator.types import DotDict
 from accelerator.job import Job
 from accelerator.shell.parser import ArgumentParser
 

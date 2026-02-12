@@ -33,9 +33,9 @@ from accelerator.compat import NoneType, monotonic
 
 from accelerator.colourwrapper import colour
 from accelerator.error import AcceleratorError
-from accelerator.extras import DotDict, _OptionString, OptionEnum, OptionDefault, RequiredOption
 from accelerator.runner import new_runners
 from accelerator.setupfile import _sorted_set
+from accelerator.types import DotDict, _OptionString, OptionEnum, OptionDefault, RequiredOption
 
 from accelerator import __version__ as ax_version
 

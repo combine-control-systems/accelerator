@@ -42,7 +42,7 @@ from accelerator.compat import QueueEmpty
 from accelerator.colourwrapper import colour
 from .parser import name2ds, ArgumentParser
 from accelerator.error import NoSuchWhateverError
-from accelerator.extras import DotDict
+from accelerator.types import DotDict
 from accelerator import g
 from accelerator import mp
 

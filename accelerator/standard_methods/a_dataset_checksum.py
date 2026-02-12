@@ -38,7 +38,7 @@ from itertools import chain
 from json import JSONEncoder
 from heapq import merge
 
-from accelerator.extras import DotDict
+from accelerator import DotDict
 
 options = dict(
 	columns      = set(),
