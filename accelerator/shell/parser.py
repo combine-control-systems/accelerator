@@ -110,7 +110,7 @@ def name2job(cfg, n, _want_ds=False):
 	dotted = None
 	if '.' in n:
 		if n.startswith(':') and ':' in n[1:]: # :urd:-list
-			prefix_len = n.index(':', 1) + 1
+			prefix_len = n.rindex(':') + 1
 		else:
 			prefix_len = 0
 		# If workdir names have '.' in them we don't want to split there.
