@@ -278,6 +278,11 @@ def run(cfg, from_shell=False, development=False):
 		bottle.default_app.push()
 	bottle.default_app[0].router.add_filter('path', pathfilter)
 
+	# Like a path (with / in it), but only when between ::
+	def jobidfilter(config):
+		return r'(?:[^/:][^/]*|:.+:[^/]*)', None, None
+	bottle.default_app[0].router.add_filter('jobid', jobidfilter)
+
 	populate_hashed()
 
 	def call_s(*path, **kw):
@@ -498,8 +503,8 @@ def run(cfg, from_shell=False, development=False):
 	def last_error():
 		return call_s('last_error')
 
-	@bottle.get('/job/<jobid>/method.tar.gz/')
-	@bottle.get('/job/<jobid>/method.tar.gz/<name:path>')
+	@bottle.get('/job/<jobid:jobid>/method.tar.gz/')
+	@bottle.get('/job/<jobid:jobid>/method.tar.gz/<name:path>')
 	def job_method(jobid, name=None):
 		job = name2job(cfg, jobid)
 		with tarfile.open(job.filename('method.tar.gz'), 'r:gz') as tar:
@@ -524,7 +529,7 @@ def run(cfg, from_shell=False, development=False):
 						pass
 			return code
 
-	@bottle.get('/job/<jobid>/<name:path>')
+	@bottle.get('/job/<jobid:jobid>/<name:path>')
 	def job_file(jobid, name):
 		job = name2job(cfg, jobid)
 		if os.path.isdir(job.filename(name)):
@@ -544,8 +549,8 @@ def run(cfg, from_shell=False, development=False):
 			res.content_type = 'text/plain'
 		return res
 
-	@bottle.get('/job/<jobid>')
-	@bottle.get('/job/<jobid>/')
+	@bottle.get('/job/<jobid:jobid>')
+	@bottle.get('/job/<jobid:jobid>/')
 	@view('job')
 	def job(jobid):
 		job = name2job(cfg, jobid)
@@ -610,7 +615,7 @@ def run(cfg, from_shell=False, development=False):
 		else:
 			return dict(ds=ds)
 
-	@bottle.get('/graph/job/<jobid>')
+	@bottle.get('/graph/job/<jobid:jobid>')
 	@view('rendergraph', prefer_ctype='image/svg+xml')
 	def job_graph(jobid):
 		job = name2job(cfg, jobid)
