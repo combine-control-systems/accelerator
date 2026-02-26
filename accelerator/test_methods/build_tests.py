@@ -379,7 +379,7 @@ def main(urd):
 	urd.begin("tests.urd", "2021-09-27T03:14")
 	d = urd.build('test_shell_data', datasets={'previous': c, 'parent': a + '/j'}, jobs={'previous': b, 'extra': c})
 	urd.finish("tests.urd")
-	urd.begin("tests.urd", "2021-09-27T03:14+1")
+	urd.begin("tests.urd", "2021-09-27T03:14:15.926+5+3+5")
 	e = urd.build('test_shell_data', jobs={'previous': d, 'extra': a})
 	urd.finish("tests.urd")
 	urd.build('test_shell_commands', command_prefix=command_prefix)
@@ -396,22 +396,22 @@ def main(urd):
 		':tests.urd/1:1': b, # 1 is the second entry
 		':tests.urd/1:-3': a, # third entry from the end
 		':tests.urd:^': d,
-		':tests.urd/2021-09-27T03:14+1^^:0': a, # ^ in :: goes to earlier entries
+		':tests.urd/2021-09-27T03:14:15.926+5+3+5^^:0': a, # ^ in :: goes to earlier entries
 		':tests.urd/1~:': d, # ~ in :: goes to later entries
 		':tests.urd/2021-09-27T03:14:.extra': c,
-		':tests.urd/2021-09-27T03:14+1:.extra': a,
-		':tests.urd/2021-09-27T03:14+1:.jobs.previous': d,
-		':tests.urd/2021-09-27T03:14+1:.jobs.previous.extra': c,
-		':tests.urd/2021-09-27T03:14+1:.jobs.previous.jobs.extra.datasets.previous': a,
-		':tests.urd/2021-09-27T03:14+1:.jobs.previous.parent': a, # will be different as a ds
-		':tests.urd/2021-09-27T03:14+1:.jobs.previous~.datasets.previous': a,
+		':tests.urd/2021-09-27T03:14:15.926+5+3+5:.extra': a,
+		':tests.urd/2021-09-27T03:14:15.926+5+3+5:.jobs.previous': d,
+		':tests.urd/2021-09-27T03:14:15.926+5+3+5:.jobs.previous.extra': c,
+		':tests.urd/2021-09-27T03:14:15.926+5+3+5:.jobs.previous.jobs.extra.datasets.previous': a,
+		':tests.urd/2021-09-27T03:14:15.926+5+3+5:.jobs.previous.parent': a, # will be different as a ds
+		':tests.urd/2021-09-27T03:14:15.926+5+3+5:.jobs.previous~.datasets.previous': a,
 	}
 	urd.build('test_shell_job', command_prefix=command_prefix, want=want)
 	# most of the old specs give the same results
 	want = {spec: job + '/default' for spec, job in want.items()}
 	want.update({
 		d + '.parent': a + '/j', # this changes as a ds
-		':tests.urd/2021-09-27T03:14+1:.jobs.previous.parent': a + '/j', # and this too
+		':tests.urd/2021-09-27T03:14:15.926+5+3+5:.jobs.previous.parent': a + '/j', # and this too
 		# below here are new things, not overrides.
 		d + '/j^': a + '/j', # .parent
 		d + '/j~': b + '/j', # .previous
@@ -423,7 +423,7 @@ def main(urd):
 		':tests.urd:^/j': d + '/j',
 		':tests.urd/2021-09-27T03:14:/j': d + '/j',
 		# finally one with : in the list and / in the ds name
-		':tests.urd/2021-09-27T03:14+1:0/name/with/slash': e + '/name/with/slash',
+		':tests.urd/2021-09-27T03:14:15.926+5+3+5:0/name/with/slash': e + '/name/with/slash',
 	})
 	urd.build('test_shell_ds', command_prefix=command_prefix, want=want)
 	urd.truncate("tests.urd", 0)
