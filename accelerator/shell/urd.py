@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ############################################################################
 #                                                                          #
-# Copyright (c) 2021-2024 Carl Drougge                                     #
+# Copyright (c) 2021-2026 Carl Drougge                                     #
 #                                                                          #
 # Licensed under the Apache License, Version 2.0 (the "License");          #
 # you may not use this file except in compliance with the License.         #
@@ -21,6 +21,7 @@ import sys
 from os import environ
 from argparse import RawDescriptionHelpFormatter
 from accelerator.build import JobList
+from accelerator.extras import ascii_int
 from accelerator.job import Job
 from accelerator.shell.parser import ArgumentParser
 from accelerator.shell.parser import split_tildes, urd_call_w_tildes
@@ -91,7 +92,7 @@ def main(argv, cfg):
 				return None, None
 			path = a[0]
 			try:
-				entry = int(a[1], 10)
+				entry = ascii_int(a[1])
 			except ValueError:
 				entry = a[1] or None
 			path, tildes = split_tildes(path)

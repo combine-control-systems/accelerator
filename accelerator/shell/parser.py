@@ -2,7 +2,7 @@
 ############################################################################
 #                                                                          #
 # Copyright (c) 2017 eBay Inc.                                             #
-# Modifications copyright (c) 2019-2024 Carl Drougge                       #
+# Modifications copyright (c) 2019-2026 Carl Drougge                       #
 # Modifications copyright (c) 2019 Anders Berkeman                         #
 #                                                                          #
 # Licensed under the Apache License, Version 2.0 (the "License");          #
@@ -29,6 +29,7 @@ from os import readlink, environ
 import re
 
 from accelerator.dataset import Dataset
+from accelerator.extras import ascii_int
 from accelerator.job import WORKDIRS
 from accelerator.job import Job
 from accelerator.error import NoSuchJobError, NoSuchDatasetError, NoSuchWorkdirError, UrdError
@@ -43,7 +44,7 @@ class DatasetNotFound(NoSuchDatasetError):
 
 def _groups(tildes):
 	def char_and_count(buf):
-		char, count = re.match(r'([~+<>^]+)(\d*)$', ''.join(buf)).groups()
+		char, count = re.match(r'([~+<>^]+)(\d*)$', ''.join(buf), re.A).groups()
 		count = int(count or 1) - 1
 		return char[0], len(char) + count
 	i = iter(tildes)
@@ -59,9 +60,9 @@ def _groups(tildes):
 # "foo~~^3" -> "foo", [("~", 2), ("^", 3)]
 def split_tildes(n, allow_empty=False, extended=False):
 	if extended:
-		m = re.match(r'(.*?)([~+<>^][~+<>^\d]*)$', n)
+		m = re.match(r'(.*?)([~+<>^][~+<>^\d]*)$', n, re.A)
 	else:
-		m = re.match(r'(.*?)([~^][~^\d]*)$', n)
+		m = re.match(r'(.*?)([~^][~^\d]*)$', n, re.A)
 	if m:
 		n, tildes = m.groups()
 		lst = list(_groups(tildes))
@@ -210,7 +211,7 @@ def _name2job(cfg, n, current):
 			raise JobNotFound('looks like a partial :urdlist:[entry] spec')
 		entry = a[1] or '-1'
 		try:
-			entry = int(entry, 10)
+			entry = ascii_int(entry)
 		except ValueError:
 			pass
 		path, tildes = split_tildes(a[0])
@@ -233,7 +234,7 @@ def _name2job(cfg, n, current):
 		if not res:
 			raise JobNotFound('%r not found in %s' % (entry, path,))
 		return res
-	if re.match(r'[^/]+-\d+$', n):
+	if re.match(r'[^/]+-\d+$', n, re.A):
 		# Looks like a jobid
 		return Job(n)
 	m = re.match(r'([^/]+)-LATEST$', n)
@@ -265,7 +266,7 @@ def split_ds_dir(n):
 	"""try to split a path at the jid/ds boundary"""
 	orig_n = n
 	jid_cand, name = n.split('/', 1)
-	if re.match(r'.+-\d+(?:[~^][~^\d]*)?$', jid_cand):
+	if re.match(r'.+-\d+(?:[~^][~^\d]*)?$', jid_cand, re.A):
 		# looks like a JID, so assume it is. start with ./ to avoid this.
 		return jid_cand, name
 	name_bits = []

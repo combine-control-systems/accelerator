@@ -2,7 +2,7 @@
 ############################################################################
 #                                                                          #
 # Copyright (c) 2017 eBay Inc.                                             #
-# Modifications copyright (c) 2018-2024 Carl Drougge                       #
+# Modifications copyright (c) 2018-2026 Carl Drougge                       #
 # Modifications copyright (c) 2020 Anders Berkeman                         #
 #                                                                          #
 # Licensed under the Apache License, Version 2.0 (the "License");          #
@@ -36,6 +36,7 @@ import signal
 
 from accelerator.compat import iteritems, itervalues
 from accelerator.colourwrapper import colour
+from accelerator.extras import ascii_int
 from accelerator.shell.parser import ArgumentParser
 from accelerator.unixhttp import WaitressServer
 
@@ -78,14 +79,14 @@ class TimeStamp(str):
 		str_parts = []
 		for part in ts.split('+'):
 			try:
-				integer = int(part, 10)
+				integer = ascii_int(part)
 				assert integer >= 0, 'Invalid timestamp %d' % (part,)
 				parts.append((0, integer,))
 				str_parts.append(str(integer))
 				continue
 			except ValueError:
 				pass
-			m = re.match(r'(\d{4}-\d{2}(?:-\d{2}(?:[T ]\d{2}(?::\d{2}(?::\d{2}(?:\.\d{1,6})?)?)?)?)?)$', part)
+			m = re.match(r'(\d{4}-\d{2}(?:-\d{2}(?:[T ]\d{2}(?::\d{2}(?::\d{2}(?:\.\d{1,6})?)?)?)?)?)$', part, re.A)
 			assert m, 'Invalid timestamp %s' % (part,)
 			part = part.replace(' ', 'T')
 			parts.append((1, part,))

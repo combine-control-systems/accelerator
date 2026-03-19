@@ -3,7 +3,7 @@
 #                                                                          #
 # Copyright (c) 2017 eBay Inc.                                             #
 # Modifications copyright (c) 2019-2020 Anders Berkeman                    #
-# Modifications copyright (c) 2019-2025 Carl Drougge                       #
+# Modifications copyright (c) 2019-2026 Carl Drougge                       #
 # Modifications copyright (c) 2023-2024 Pablo Correa Gómez                 #
 #                                                                          #
 # Licensed under the Apache License, Version 2.0 (the "License");          #
@@ -684,3 +684,14 @@ def _apply_typing(options, tl):
 			if v is not None:
 				v = t(v)
 			d[k] = v
+
+
+# The modern python int() constructor accepts a lot of stuff we often don't want.
+# (Like _ and ３.)
+def ascii_int(s, *, whitespace_ok=False):
+	if whitespace_ok:
+		s = s.strip(' \t\n\r\f\v')
+	if all(c in '0123456789-' for c in s):
+		return int(s, 10)
+	else:
+		raise ValueError('invalid literal for int() with base 10: {s!r}')
