@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ############################################################################
 #                                                                          #
-# Copyright (c) 2025 Carl Drougge                                          #
+# Copyright (c) 2025-2026 Carl Drougge                                     #
 #                                                                          #
 # Licensed under the Apache License, Version 2.0 (the "License");          #
 # you may not use this file except in compliance with the License.         #
@@ -68,6 +68,7 @@ def prepare(slices):
 			ChunkSplitter(range(slices * 6 - 2), overlap_end=n),
 			ChunkSplitter(range(slices * 6 - 2), overlap_start=n, overlap_end=n),
 			ChunkSplitter(range(slices * 6 - 2), overlap_start=n, overlap_end=4),
+			ChunkSplitter(range(slices), overlap_start=n, overlap_end=n),
 		)
 		for n in (1, 2, 5)
 	]
@@ -119,17 +120,34 @@ def analysis(sliceno, slices, prepare_res):
 		return lst == list(range(lst[0], lst[0] + len(lst)))
 	for n, versions in zip((1, 2, 5), overlapped):
 		assert all(sequential(v) for v in versions)
-		std, ostart, oend, oboth, oboth4 = versions
+		std, ostart, oend, oboth, oboth4, short_on = versions
 		n_start = n
 		n_end = -n
 		if sliceno == 0:
 			n_start = 0
 		if sliceno == slices - 1:
 			n_end = None
+		o_end = -(n_end or 0)
 		assert ostart[n_start:] == std
+		assert ostart.overlap_start == n_start
+		assert ostart.overlap_end == 0
 		assert oend[:n_end] == std
+		assert oend.overlap_start == 0
+		assert oend.overlap_end == o_end
 		assert oboth[n_start:n_end] == std
-		assert oboth4[n_start:-4 if n_end else None] == std
+		assert oboth.overlap_start == n_start
+		assert oboth.overlap_end == o_end
+		n_end = -4 if n_end else None
+		o_end = -(n_end or 0)
+		assert oboth4[n_start:n_end] == std
+		assert oboth4.overlap_start == n_start
+		assert oboth4.overlap_end == o_end
+		o_start = min(sliceno, n)
+		o_end = min(slices - sliceno - 1, n)
+		want_short = list(range(slices))[sliceno - o_start:sliceno + o_end + 1]
+		assert short_on == want_short
+		assert short_on.overlap_start == o_start
+		assert short_on.overlap_end == o_end
 
 	# Make sure for_slice() isn't allowed in analysis.
 	try:
