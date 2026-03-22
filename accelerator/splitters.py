@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ############################################################################
 #                                                                          #
-# Copyright (c) 2025 Carl Drougge                                          #
+# Copyright (c) 2025-2026 Carl Drougge                                     #
 #                                                                          #
 # Licensed under the Apache License, Version 2.0 (the "License");          #
 # you may not use this file except in compliance with the License.         #
@@ -41,10 +41,11 @@ def _synthesis_start():
 class _BaseSplitterList(list):
 	__slots__ = ('_sliceno', '__weakref__',)
 
-	def __init__(self, iterable=()):
+	def __init__(self, iterable=(), *, _register=True):
 		list.__init__(self, iterable)
 		self._sliceno = None
-		_analysis_todo.append(weakref.ref(self))
+		if _register:
+			_analysis_todo.append(weakref.ref(self))
 
 	def __repr__(self):
 		return f'{self.__class__.__name__}({list.__repr__(self)})'
@@ -67,20 +68,22 @@ class ChunkSplitter(_BaseSplitterList):
 	You can set overlap_start and/or overlap_end to overlap that many items
 	between slices. Both are applied independently.
 
+	In analysis() (and from .for_slice()) the actual overlap is stored
+	in .overlap_start and .overlap_end.
+
 	This splitter can be used as a list.
 	"""
 
 	__slots__ = ('_overlap_start', '_overlap_end',)
 
-	def __init__(self, iterable=(), *, overlap_start=0, overlap_end=0):
+	def __init__(self, iterable=(), *, overlap_start=0, overlap_end=0, _register=True):
 		assert isinstance(overlap_start, int) and overlap_start >= 0
 		assert isinstance(overlap_end, int) and overlap_end >= 0
 		self._overlap_start = overlap_start
 		self._overlap_end = overlap_end
-		_BaseSplitterList.__init__(self, iterable)
+		_BaseSplitterList.__init__(self, iterable, _register=_register)
 
-	def for_slice(self, sliceno):
-		assert self._sliceno is None, "for_slice() doesn't work in analysis"
+	def _ranges_for_slice(self, sliceno):
 		from accelerator.g import slices
 		per_slice = len(self) // slices
 		left_over = len(self) % slices
@@ -102,9 +105,30 @@ class ChunkSplitter(_BaseSplitterList):
 			start += min(sliceno, extra_at_start)
 			if sliceno < extra_at_start:
 				length += 1
-		end = start + length + self._overlap_end
-		start = max(0, start - self._overlap_start)
-		return self[start:end]
+		end = start + length
+		full_end = min(len(self), end + self._overlap_end)
+		full_start = max(0, start - self._overlap_start)
+		return full_start, full_end, start - full_start, full_end - end
+
+	@property
+	def overlap_start(self):
+		return self._overlap_start
+
+	@property
+	def overlap_end(self):
+		return self._overlap_end
+
+	def _analysis_start(self, sliceno):
+		start, end, self._overlap_start, self._overlap_end = self._ranges_for_slice(sliceno)
+		self._sliceno = sliceno
+		self[:] = self[start:end]
+
+	def for_slice(self, sliceno):
+		assert self._sliceno is None, "for_slice() doesn't work in analysis"
+		start, end, overlap_start, overlap_end = self._ranges_for_slice(sliceno)
+		res = self.__class__(self[start:end], overlap_start=overlap_start, overlap_end=overlap_end, _register=False)
+		res._sliceno = sliceno
+		return res
 
 
 class RoundRobinSplitter(_BaseSplitterList):
