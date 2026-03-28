@@ -80,7 +80,7 @@ class TimeStamp(str):
 		for part in ts.split('+'):
 			try:
 				integer = ascii_int(part)
-				assert integer >= 0, 'Invalid timestamp %d' % (part,)
+				assert integer >= 0, f'Invalid timestamp {integer}'
 				parts.append((0, integer,))
 				str_parts.append(str(integer))
 				continue
