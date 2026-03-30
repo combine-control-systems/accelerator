@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ############################################################################
 #                                                                          #
-# Copyright (c) 2019-2024 Carl Drougge                                     #
+# Copyright (c) 2019-2026 Carl Drougge                                     #
 # Modifications copyright (c) 2020 Anders Berkeman                         #
 #                                                                          #
 # Licensed under the Apache License, Version 2.0 (the "License");          #
@@ -236,6 +236,7 @@ def main(urd):
 	urd.build('test_dataset_overwrite')
 	urd.build('test_dataset_rename_columns')
 	urd.build('test_dataset_concat')
+	urd.build('test_dataset_join_columns')
 
 	print()
 	print("Testing order preservation in dicts in options")
