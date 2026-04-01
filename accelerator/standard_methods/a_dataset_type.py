@@ -2,7 +2,7 @@
 ############################################################################
 #                                                                          #
 # Copyright (c) 2017 eBay Inc.                                             #
-# Modifications copyright (c) 2018-2024 Carl Drougge                       #
+# Modifications copyright (c) 2018-2026 Carl Drougge                       #
 #                                                                          #
 # Licensed under the Apache License, Version 2.0 (the "License");          #
 # you may not use this file except in compliance with the License.         #
@@ -150,20 +150,21 @@ def prepare_one(ix, source, chain, job, slices, previous_res):
 		source = source.link_to_here(name='rename.%d' % (ix,), rename=just_rename)
 	if dup_rename:
 		source = source.merge(dup_ds, name='merge.%d' % (ix,))
-	none_support = set()
 	for colname, coltype in column2type.items():
 		if colname not in source.columns:
 			raise Exception("Dataset %s doesn't have a column named %r (has %r)" % (source_name, colname, set(source.columns),))
 		dc = source.columns[colname]
+		none_support = dc.none_support
 		if dc.type not in byteslike_types:
 			raise Exception("Dataset %s column %r is type %s, must be one of %r" % (source_name, colname, dc.type, byteslike_types,))
 		coltype = coltype.split(':', 1)[0]
 		if coltype.endswith('+None'):
 			coltype = coltype[:-5]
-			none_support.add(colname)
-		columns[colname] = dataset_type.typerename.get(coltype, coltype)
-		if options.defaults.get(colname, False) is None or dc.none_support:
-			none_support.add(colname)
+			none_support = True
+		if options.defaults.get(colname, False) is None:
+			none_support = True
+		coltype = dataset_type.typerename.get(coltype, coltype)
+		columns[colname] = dc.replace(type=coltype, none_support=none_support)
 	if options.hashlabel is None:
 		hashlabel_override = False
 		hashlabel = source.hashlabel
@@ -177,10 +178,8 @@ def prepare_one(ix, source, chain, job, slices, previous_res):
 		untyped_columns -= set(columns) # anything renamed over is irrelevant
 		for colname in sorted(untyped_columns):
 			dc = source.columns[colname]
-			columns[colname] = dc.type
+			columns[colname] = dc
 			column2type[colname] = dataset_type.copy_types[dc.type]
-			if dc.none_support:
-				none_support.add(colname)
 	if options.filter_bad or rehashing or options.discard_untyped:
 		parent = None
 	else:
@@ -190,10 +189,6 @@ def prepare_one(ix, source, chain, job, slices, previous_res):
 			raise Exception("Can't rehash %s on discarded column %r." % (source_name, hashlabel,))
 		hashlabel = None # it gets inherited from the parent if we're keeping it.
 		hashlabel_override = False
-	columns = {
-		colname: (typ, colname in none_support)
-		for colname, typ in columns.items()
-	}
 	dws = []
 	if previous_res:
 		# dw or last in dws[] for previous source
@@ -243,11 +238,8 @@ def prepare_one(ix, source, chain, job, slices, previous_res):
 				previous = datasets.previous.job.dataset('bad')
 			except NoSuchDatasetError:
 				previous = None
-		def best_bad_type(colname):
-			dc = source.columns[colname]
-			assert dc.type in byteslike_types
-			return (dc.type, dc.none_support)
-		bad_columns = {name: best_bad_type(name) for name in options.column2type}
+		bad_columns = {name: source.columns[name] for name in options.column2type}
+		assert all(dc.type in byteslike_types for dc in bad_columns.values())
 		dw_bad = job.datasetwriter(
 			name='bad' if ds_name == 'default' else ds_name + '.bad',
 			columns=bad_columns,
