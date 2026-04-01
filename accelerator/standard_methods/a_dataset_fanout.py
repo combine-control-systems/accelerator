@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ############################################################################
 #                                                                          #
-# Copyright (c) 2021-2024 Carl Drougge                                     #
+# Copyright (c) 2021-2026 Carl Drougge                                     #
 #                                                                          #
 # Licensed under the Apache License, Version 2.0 (the "License");          #
 # you may not use this file except in compliance with the License.         #
@@ -87,7 +87,8 @@ def prepare(job):
 			types = {'number'}
 		if len(types) > 1:
 			raise Exception("Column %r has incompatible types: %r" % (name, types,))
-		columns[name] = (types.pop(), none_support[name],)
+		dc = datasets.source.columns[name]
+		columns[name] = dc.replace(type=types.pop(), none_support=none_support[name])
 
 	collect = subjobs.build(
 		'dataset_fanout_collect',
