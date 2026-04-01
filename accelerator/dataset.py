@@ -3,7 +3,7 @@
 ############################################################################
 #                                                                          #
 # Copyright (c) 2017 eBay Inc.                                             #
-# Modifications copyright (c) 2018-2023 Carl Drougge                       #
+# Modifications copyright (c) 2018-2026 Carl Drougge                       #
 # Modifications copyright (c) 2019-2020 Anders Berkeman                    #
 #                                                                          #
 # Licensed under the Apache License, Version 2.0 (the "License");          #
@@ -70,6 +70,7 @@ iskeyword = frozenset(kwlist).__contains__
 #     max = maximum value in this dataset or None
 #     offsets = (offset, per, slice) or None for non-merged slices.
 #     none_support = bool # not present in version 3.0, implicitly True there except for bits-types.
+#     caption = "caption" or None
 #
 # Going from a DatasetColumn to a filename:
 #     jid, path = dc.location.split('/', 1)
@@ -109,16 +110,18 @@ def _dsid(t):
 
 # If we want to add fields to later versions, using a versioned name will
 # allow still loading the old versions without messing with the constructor.
-_dscol_3_3 = namedtuple('_DatasetColumn_3_3', 'type compression location min max offsets none_support')
-class _DatasetColumn_3_3(_dscol_3_3):
+_DatasetColumn_3_4 = namedtuple('_DatasetColumn_3_4', 'type compression location min max offsets none_support caption')
+DatasetColumn = _DatasetColumn_3_4
+
+# It's probably usually best to generate the new type so the rest of the code needs no special handling.
+class _DatasetColumn_3_3(object):
+	__slots__ = ()
 	def __new__(cls, type, compression, location, min, max, offsets, none_support):
 		# Older dataset_3_3-releases (up to 2022.6.30.dev1) can sometimes write
 		# .compression as a bytes-str on PY2, this is a workaround for that.
 		if isinstance(compression, bytes):
 			compression = compression.decode('ascii')
-		return _dscol_3_3.__new__(cls, type, compression, location, min, max, offsets, none_support)
-DatasetColumn = _DatasetColumn_3_3
-# It's probably usually best to generate the new type so the rest of the code needs no special handling.
+		return _DatasetColumn_3_4(type, compression, location, min, max, offsets, none_support, None)
 class _DatasetColumn_3_2(object):
 	__slots__ = ()
 	def __new__(cls, type, backing_type, location, min, max, offsets, none_support):
@@ -920,7 +923,6 @@ class Dataset(str):
 	@staticmethod
 	def new(*, columns, filenames, compressions, lines, minmax={}, filename=None, hashlabel=None, caption=None, previous=None, name='default'):
 		"""columns = {"colname": "type"}, lines = [n, ...] or {sliceno: n}"""
-		columns = {uni(k): (uni(v[0]), bool(v[1])) if isinstance(v, tuple) else (uni(v), False) for k, v in columns.items()}
 		if hashlabel is not None:
 			hashlabel = uni(hashlabel)
 			if hashlabel not in columns:
@@ -951,7 +953,14 @@ class Dataset(str):
 		if self._linefixup(lines) != self.lines:
 			from accelerator.g import job
 			raise DatasetUsageError("New columns don't have the same number of lines as parent columns (trying to append %s to %s, expected %r but got %r)" % (quote('%s/%s' % (job, name,)), self.quoted, self.lines, self._linefixup(lines),))
-		columns = {uni(k): (uni(v[0]), bool(v[1])) if isinstance(v, tuple) else (uni(v), False) for k, v in columns.items()}
+		def colfix(v):
+			if isinstance(v, tuple):
+				assert 1 <= len(v) <= 3, f"Bad column type {v}"
+				v = v + (None, None)
+				return (uni(v[0]), bool(v[1]), uni(v[2]))
+			else:
+				return (uni(v), False, None)
+		columns = {uni(k): colfix(v) for k, v in columns.items()}
 		self._append(columns, filenames, compressions, minmax, filename, caption, previous, column_filter, name)
 
 	def _minmax_merge(self, minmax):
@@ -1018,7 +1027,7 @@ class Dataset(str):
 				and self._data.hashlabel not in columns
 			):
 				self._data.hashlabel = None
-		for n, (t, none_support) in sorted(columns.items()):
+		for n, (t, none_support, caption) in sorted(columns.items()):
 			if t not in _type2iter:
 				raise DatasetUsageError('Unknown type %s on column %s' % (t, n,))
 			mm = minmax.get(n, (None, None,))
@@ -1031,6 +1040,7 @@ class Dataset(str):
 				max=mm[1],
 				offsets=None,
 				none_support=none_support,
+				caption=caption,
 			)
 			self._maybe_merge(n)
 		if sum(self.lines) == 0:
@@ -1313,32 +1323,37 @@ class DatasetWriter(object):
 			extrainfo = 'not started'
 		return f'<{self.__class__.__name__} for {self.quoted_ds_name} ({extrainfo})>'
 
-	def add(self, colname, coltype, *, default=_nodefault, none_support=_nodefault):
+	def add(self, colname, coltype, *, default=_nodefault, none_support=_nodefault, caption=_nodefault):
 		from accelerator.g import running
 		if running != self._running:
 			raise DatasetUsageError("Add all columns in the same step as creation")
 		if self._started:
 			raise DatasetUsageError("Add all columns before setting slice")
+		none_support_fb = False
+		caption_fb = None
 		if isinstance(coltype, tuple):
 			if hasattr(coltype, 'type'):
-				coltype, none_support_fb = coltype.type, coltype.none_support
-			else:
+				coltype, none_support_fb, caption_fb = coltype.type, coltype.none_support, coltype.caption
+			elif len(coltype) == 2:
 				coltype, none_support_fb = coltype
-		else:
-			none_support_fb = False
+			else:
+				coltype, none_support_fb, caption_fb = coltype
 		if none_support is _nodefault:
 			none_support = none_support_fb
 		else:
 			none_support = bool(none_support)
+		if caption is _nodefault:
+			caption = caption_fb
 		colname = uni(colname)
 		coltype = uni(coltype)
+		caption = uni(caption)
 		if colname in self.columns:
 			raise DatasetUsageError("Column %s already exists" % (colname,))
 		try:
 			typed_writer(coltype) # gives error for unknown types
 		except ValueError as e:
 			raise DatasetUsageError(str(e))
-		self.columns[colname] = (coltype, default, none_support)
+		self.columns[colname] = (coltype, default, none_support, caption)
 		self._order.append(colname)
 		self._filenames[colname] = next(self._fngen)
 
@@ -1395,7 +1410,7 @@ class DatasetWriter(object):
 		if self.meta_only:
 			return
 		writers = {}
-		for colname, (coltype, default, none_support) in self.columns.items():
+		for colname, (coltype, default, none_support, _) in self.columns.items():
 			if self._copy_mode:
 				coltype = _copy_mode_overrides.get(coltype, coltype)
 			wt = typed_writer(coltype)
@@ -1631,7 +1646,7 @@ class DatasetWriter(object):
 			else:
 				raise DatasetUsageError("Not all slices written, missing %r" % (set(range(slices)) - set(self._lens),))
 		args = dict(
-			columns={k: (v[0].split(':')[-1], v[2]) for k, v in self.columns.items()},
+			columns={k: (v[0].split(':')[-1], v[2], v[3]) for k, v in self.columns.items()},
 			filenames=self._filenames,
 			compressions=self._compressions,
 			lines=self._lens,
