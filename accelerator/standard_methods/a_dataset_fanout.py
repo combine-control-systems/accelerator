@@ -27,10 +27,9 @@ All datasets in previous get a dataset here, even if empty.
 
 from collections import defaultdict
 import itertools
-import re
 
 from accelerator.compat import izip
-from accelerator import OptionString, NoSuchDatasetError
+from accelerator import OptionString
 from accelerator import subjobs, status
 
 
