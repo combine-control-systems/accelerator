@@ -323,7 +323,7 @@ class Dataset(str):
 	def max(self, column):
 		return self._minmax(column, 'max')
 
-	def link_to_here(self, name='default', *, column_filter=None, rename=None, override_previous=_no_override, filename=None):
+	def link_to_here(self, name='default', *, column_filter=None, rename=None, override_previous=_no_override, filename=None, captions={}):
 		"""Use this to expose a subjob as a dataset in your job:
 		Dataset(subjid).link_to_here()
 		will allow access to the subjob dataset under your jid.
@@ -333,6 +333,7 @@ class Dataset(str):
 		rename.
 		Use override_previous to rechain (or unchain) the dataset.
 		You can change the filename too, or clear it by setting ''.
+		You can set column captions using captions={colname: caption}.
 		"""
 		if name in _datasetwriters or os.path.exists(_fs_name(name) + '.p'):
 			raise DatasetUsageError('Duplicate dataset name "%s"' % (name,))
@@ -372,6 +373,11 @@ class Dataset(str):
 			if not filtered_columns:
 				raise DatasetUsageError("Filter produced no desired columns.")
 			d._data.columns = filtered_columns
+		for colname, caption in captions.items():
+			dc = d._data.columns.get(colname)
+			if not dc:
+				raise DatasetUsageError(f"Re-captioned column {colname !r} not in dataset")
+			d._data.columns[colname] = dc.replace(caption=uni(caption))
 		from accelerator.g import job
 		if override_previous is not _no_override:
 			override_previous = _dsid(override_previous)
