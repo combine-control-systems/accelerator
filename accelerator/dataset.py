@@ -136,6 +136,10 @@ class _DatasetColumn_3_0(object):
 		none_support = not backing_type.startswith('bits')
 		return _DatasetColumn_3_1(type, backing_type, name, location, min, max, offsets, none_support)
 
+# namedtuple underscores _replace to avoid clashing with field names.
+# We have no replace-field, so we can expose it as a normal method.
+DatasetColumn.replace = DatasetColumn._replace
+
 class _New_dataset_marker(str): pass
 _new_dataset_marker = _New_dataset_marker('new')
 _no_override = object()
@@ -1082,7 +1086,7 @@ class Dataset(str):
 			return
 		if sum(bare_sizes) == 0:
 			# dataset is empty, so it needs no location
-			self._data.columns[n] = self._data.columns[n]._replace(location=None)
+			self._data.columns[n] = self._data.columns[n].replace(location=None)
 			return
 		offsets = []
 		pos = 0
@@ -1102,7 +1106,7 @@ class Dataset(str):
 					pos += size
 		c = self._data.columns[n]
 		location = c.location.split('/', 1) # the jobid might have % in it, so split it off
-		self._data.columns[n] = c._replace(
+		self._data.columns[n] = c.replace(
 			offsets=tuple(offsets),
 			location='%s/%s' % (location[0], location[1] % ('m',)),
 		)
@@ -1134,7 +1138,7 @@ class Dataset(str):
 				os.unlink(c_fn)
 				pos = m_fh.tell()
 				m_offsets = tuple(False if o is False else o + pos for o in dc.offsets)
-				self._data.columns[n] = dc._replace(location=m_location, offsets=m_offsets)
+				self._data.columns[n] = dc.replace(location=m_location, offsets=m_offsets)
 				m_fh.write(data)
 		os.rmdir(self._name('dir'))
 
