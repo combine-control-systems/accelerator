@@ -116,6 +116,8 @@ class _DatasetColumn_3_3(_dscol_3_3):
 		# .compression as a bytes-str on PY2, this is a workaround for that.
 		if isinstance(compression, bytes):
 			compression = compression.decode('ascii')
+		if offsets:
+			offsets = tuple(offsets)
 		return _dscol_3_3.__new__(cls, type, compression, location, min, max, offsets, none_support)
 DatasetColumn = _DatasetColumn_3_3
 # It's probably usually best to generate the new type so the rest of the code needs no special handling.
@@ -1101,7 +1103,7 @@ class Dataset(str):
 		c = self._data.columns[n]
 		location = c.location.split('/', 1) # the jobid might have % in it, so split it off
 		self._data.columns[n] = c._replace(
-			offsets=offsets,
+			offsets=tuple(offsets),
 			location='%s/%s' % (location[0], location[1] % ('m',)),
 		)
 
@@ -1131,7 +1133,7 @@ class Dataset(str):
 				assert len(data) > max(dc.offsets), '%s is too short' % (c_fn,)
 				os.unlink(c_fn)
 				pos = m_fh.tell()
-				m_offsets = [False if o is False else o + pos for o in dc.offsets]
+				m_offsets = tuple(False if o is False else o + pos for o in dc.offsets)
 				self._data.columns[n] = dc._replace(location=m_location, offsets=m_offsets)
 				m_fh.write(data)
 		os.rmdir(self._name('dir'))
