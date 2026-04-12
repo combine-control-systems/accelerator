@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ############################################################################
 #                                                                          #
-# Copyright (c) 2023-2024 Carl Drougge                                     #
+# Copyright (c) 2023-2026 Carl Drougge                                     #
 #                                                                          #
 # Licensed under the Apache License, Version 2.0 (the "License");          #
 # you may not use this file except in compliance with the License.         #
@@ -92,7 +92,7 @@ def synthesis(job):
 	assert len(numbered) == 10
 
 	# Verify contents, chaining and types (including none_support)
-	def chk(source, previous, want_in_chain, want, do_sort=True, none_support=()):
+	def chk(source, previous, want_in_chain, want, do_sort=True, none_support=(), captions={}):
 		ds = subjobs.build('dataset_concat', source=source, previous=previous).dataset()
 		assert ds.chain() == want_in_chain + [ds]
 		want = list(chain(*[w.iterate(None) for w in want]))
@@ -101,8 +101,8 @@ def synthesis(job):
 			got.sort()
 			want.sort()
 		assert want == got, source
-		want_types = {k: (v, k in none_support) for k, v in types.items()}
-		got_types = {k: (v.type, v.none_support) for k, v in ds.columns.items()}
+		want_types = {k: (v, k in none_support, captions.get(k)) for k, v in types.items()}
+		got_types = {k: (v.type, v.none_support, v.caption) for k, v in ds.columns.items()}
 		assert want_types == got_types, source
 		return ds
 
@@ -149,3 +149,11 @@ def synthesis(job):
 	types['k'] = 'int64'
 	without_none = mk_ds('without_none', 9, previous=with_none)
 	chk(without_none, c, [a, b, c], [with_none, without_none], none_support="k")
+
+	# Test that caption is preserved, but only from the last dataset
+	types['k'] = ('int64', False, "it's a caption")
+	with_caption = mk_ds('with_caption', 0)
+	types['k'] = 'int64'
+	chk(with_caption, None, [], [with_caption], captions={'k': "it's a caption"})
+	without_caption = mk_ds('without_caption', 1, previous=with_caption)
+	chk(without_caption, None, [], [with_caption, without_caption])
