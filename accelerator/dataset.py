@@ -113,6 +113,10 @@ def _dsid(t):
 _DatasetColumn_3_4 = namedtuple('_DatasetColumn_3_4', 'type compression location min max offsets none_support caption')
 DatasetColumn = _DatasetColumn_3_4
 
+# namedtuple underscores _replace to avoid clashing with field names.
+# We have no replace-field, so we can expose it as a normal method.
+DatasetColumn.replace = DatasetColumn._replace
+
 # It's probably usually best to generate the new type so the rest of the code needs no special handling.
 class _DatasetColumn_3_3(object):
 	__slots__ = ()
@@ -1092,7 +1096,7 @@ class Dataset(str):
 			return
 		if sum(bare_sizes) == 0:
 			# dataset is empty, so it needs no location
-			self._data.columns[n] = self._data.columns[n]._replace(location=None)
+			self._data.columns[n] = self._data.columns[n].replace(location=None)
 			return
 		offsets = []
 		pos = 0
@@ -1112,7 +1116,7 @@ class Dataset(str):
 					pos += size
 		c = self._data.columns[n]
 		location = c.location.split('/', 1) # the jobid might have % in it, so split it off
-		self._data.columns[n] = c._replace(
+		self._data.columns[n] = c.replace(
 			offsets=tuple(offsets),
 			location='%s/%s' % (location[0], location[1] % ('m',)),
 		)
@@ -1144,7 +1148,7 @@ class Dataset(str):
 				os.unlink(c_fn)
 				pos = m_fh.tell()
 				m_offsets = tuple(False if o is False else o + pos for o in dc.offsets)
-				self._data.columns[n] = dc._replace(location=m_location, offsets=m_offsets)
+				self._data.columns[n] = dc.replace(location=m_location, offsets=m_offsets)
 				m_fh.write(data)
 		os.rmdir(self._name('dir'))
 
