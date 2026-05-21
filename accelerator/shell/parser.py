@@ -229,7 +229,7 @@ def _name2job(cfg, n, current):
 		if not urdres:
 			raise JobNotFound('urd list %r not found' % (a[0],))
 		from accelerator.build import JobList
-		joblist = JobList(Job(e[1], e[0]) for e in urdres.joblist)
+		joblist = JobList(urdres.joblist)
 		res = joblist.get(entry)
 		if not res:
 			raise JobNotFound('%r not found in %s' % (entry, path,))

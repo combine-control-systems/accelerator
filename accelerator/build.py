@@ -3,7 +3,7 @@
 #                                                                          #
 # Copyright (c) 2017 eBay Inc.                                             #
 # Modifications copyright (c) 2019-2020 Anders Berkeman                    #
-# Modifications copyright (c) 2018-2024 Carl Drougge                       #
+# Modifications copyright (c) 2018-2026 Carl Drougge                       #
 # Modifications copyright (c) 2023 Pablo Correa Gómez                      #
 #                                                                          #
 # Licensed under the Apache License, Version 2.0 (the "License");          #
@@ -319,6 +319,16 @@ class JobList(_ListTypePreserver):
 
 	__slots__ = ()
 
+	def __init__(self, items=()):
+		if not isinstance(items, (list, tuple)):
+			items = list(items)
+		if items:
+			if isinstance(items[0], (list, tuple)) and len(items[0]) == 2:
+				items = (Job(e[1], e[0]) for e in items)
+			elif isinstance(items[0], str) and not isinstance(items[0], Job):
+				items = map(Job, items)
+		_ListTypePreserver.__init__(self, items)
+
 	def __getitem__(self, item):
 		if isinstance(item, slice):
 			return self.__class__(list.__getitem__(self, item))
@@ -413,7 +423,7 @@ def _urd_typeify(d):
 	res = DotDict()
 	for k, v in d.items():
 		if k == 'joblist':
-			v = JobList(Job(e[1], e[0]) for e in v)
+			v = JobList(v)
 		elif k == 'build_job':
 			v = Job(v)
 		elif isinstance(v, dict):

@@ -22,7 +22,6 @@ from os import environ
 from argparse import RawDescriptionHelpFormatter
 from accelerator.build import JobList
 from accelerator.extras import ascii_int
-from accelerator.job import Job
 from accelerator.shell.parser import ArgumentParser
 from accelerator.shell.parser import split_tildes, urd_call_w_tildes
 from accelerator.error import UrdError
@@ -135,7 +134,7 @@ def fmt(res, entry):
 			return '\n'.join(fmt_caption(*item, indent=tlen + 3) for item in res)
 		else:
 			return '\n'.join(res)
-	joblist = JobList(Job(j, m) for m, j in res['joblist'])
+	joblist = JobList(res['joblist'])
 	if entry is not None:
 		return joblist.get(entry, '')
 	if res['deps']:
