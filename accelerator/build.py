@@ -537,11 +537,12 @@ class Urd(object):
 		url = url.replace(' ', '%20')
 		return call(url, data=data, fmt=fmt, headers=self._headers, server_name='urd')
 
-	def _get(self, path, *a):
+	def get(self, path, timestamp):
 		assert self._current, "Can't record dependency with nothing running"
 		path = self._path(path)
+		timestamp = _tsfix(timestamp)
 		assert path not in self._deps, 'Duplicate ' + path
-		url = '/'.join((self._url, path,) + a)
+		url = '/'.join((self._url, path, timestamp))
 		res = self._call(url, fmt=UrdResponse)
 		if res:
 			self._deps[path] = res.as_dep
@@ -553,9 +554,6 @@ class Urd(object):
 			return '<=' + self.horizon
 		else:
 			return 'latest'
-
-	def get(self, path, timestamp):
-		return self._get(path, _tsfix(timestamp))
 
 	def latest(self, path):
 		return self.get(path, self._latest_str())
