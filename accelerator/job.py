@@ -468,7 +468,7 @@ class NoJob(Job):
 		return NoJob
 
 NoJob = NoJob()
-
+_cache[(None, None)] = _cache[('', None)] = NoJob
 
 class JobWithFile(namedtuple('JobWithFile', 'job name sliced extra')):
 	__slots__ = ()
