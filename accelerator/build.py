@@ -385,18 +385,26 @@ class JobList(_ListTypePreserver):
 
 
 class UrdResponse(dict):
-	def __new__(cls, d):
+	__slots__ = ()
+
+	def __new__(cls, res):
 		assert cls is UrdResponse, "Always make these through UrdResponse"
-		obj = dict.__new__(UrdResponse if d else EmptyUrdResponse)
+		obj = dict.__new__(EmptyUrdResponse if res in ('{}', 'null', None, {},) else UrdResponse)
 		return obj
 
-	def __init__(self, d):
-		d = dict(d or ())
-		d.setdefault('caption', '')
-		d.setdefault('timestamp', '0')
-		d.setdefault('joblist', JobList())
-		d.setdefault('deps', {})
-		d.setdefault('build_job', None)
+	def __init__(self, res):
+		if isinstance(res, str):
+			d = json.loads(res)
+		d['build_job'] = Job(d.get('build_job'))
+		d['joblist'] = JobList(d['joblist'])
+		deps = {}
+		for path, dep in d.get('deps', {}).items():
+			deps[path] = DotDict(
+				caption=dep['caption'],
+				joblist=JobList(dep['joblist']),
+				timestamp=dep['timestamp'],
+			)
+		d['deps'] = deps
 		dict.__init__(self, d)
 
 	__setitem__ = dict.__setitem__
@@ -411,6 +419,26 @@ class UrdResponse(dict):
 		return DotDict(timestamp=self.timestamp, joblist=self.joblist.as_tuples, caption=self.caption)
 
 class EmptyUrdResponse(UrdResponse):
+	__slots__ = ()
+
+	def __init__(self, res):
+		dict.__init__(
+			self,
+			build='',
+			caption='',
+			deps={},
+			joblist=JobList(),
+			key='',
+			timestamp='0',
+			user='',
+		)
+
+	def __str__(self):
+		return 'EmptyUrdResponse'
+
+	def __repr__(self):
+		return "UrdResponse(None)"
+
 	# so you can do "if urd.latest('foo'):" and similar.
 	def __bool__(self):
 		return False
@@ -514,7 +542,7 @@ class Urd(object):
 		path = self._path(path)
 		assert path not in self._deps, 'Duplicate ' + path
 		url = '/'.join((self._url, path,) + a)
-		res = UrdResponse(self._call(url))
+		res = self._call(url, fmt=UrdResponse)
 		if res:
 			self._deps[path] = res.as_dep
 		self._latest_joblist = res.joblist
@@ -538,7 +566,7 @@ class Urd(object):
 	def peek(self, path, timestamp):
 		path = self._path(path)
 		url = '/'.join((self._url, path, _tsfix(timestamp),))
-		return UrdResponse(self._call(url))
+		return self._call(url, fmt=UrdResponse)
 
 	def peek_latest(self, path):
 		return self.peek(path, self._latest_str())
