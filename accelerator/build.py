@@ -621,11 +621,13 @@ class Urd(object):
 		assert self._current, "Can't record dependency with nothing running"
 		path = self._path(path)
 		timestamp = _tsfix(timestamp)
-		assert path not in self._deps, 'Duplicate ' + path
+		if path not in self._deps:
+			self._deps[path] = {}
 		url = '/'.join((self._url, path, timestamp))
 		res = self._call(url, fmt=UrdResponse)
 		if res:
-			self._deps[path] = [res.as_dep]
+			assert res.timestamp not in self._deps[path], f'Duplicate ts {res.timestamp} in {path}'
+			self._deps[path][res.timestamp] = res.as_dep
 		self._latest_joblist = res.joblist
 		return res
 
@@ -713,7 +715,7 @@ class Urd(object):
 			user=user,
 			build=build,
 			joblist=self.joblist.as_tuples,
-			deps=self._deps,
+			deps={k: list(v.values()) for k, v in self._deps.items()},
 			caption=caption,
 			timestamp=timestamp,
 			build_job=g.job,
