@@ -30,6 +30,7 @@ import time
 import traceback
 from operator import itemgetter
 from collections import defaultdict
+from collections.abc import Mapping
 from datetime import date, datetime, timedelta
 from base64 import b64encode
 from importlib import import_module
@@ -384,6 +385,89 @@ class JobList(_ListTypePreserver):
 		print("Total time", fmttime(total))
 
 
+class UrdDepList(Mapping):
+	__slots__ = ('_d', '_items',)
+
+	def __init__(self, items):
+		Mapping.__init__(self)
+		self._items = tuple(
+			UrdDep(
+				caption=item['caption'],
+				joblist=item['joblist'],
+				timestamp=item['timestamp'],
+			)
+			for item in items
+		)
+		self._d = {item.timestamp: item for item in self._items}
+		assert len(self._d) == len(self._items), f"Duplicate timestamps in {self._items}"
+
+	def __getitem__(self, key):
+		if isinstance(key, (int, slice)):
+			return self._items[key]
+		else:
+			return self._d[key]
+
+	def __iter__(self):
+		return (item.timestamp for item in self._items)
+
+	def values(self):
+		return self._items
+
+	def __reversed__(self):
+		return (item.timestamp for item in reversed(self._items))
+
+	def __len__(self):
+		return len(self._items)
+
+	def __repr__(self, _tmpl='%s([%s,])', _sep=', '):
+		return _tmpl % (
+			self.__class__.__name__,
+			_sep.join(repr(item) for item in self._items)
+		)
+
+	def __str__(self):
+		return self.__repr__(_tmpl='%s([\n\t%s,\n])', _sep=',\n\t')
+
+
+class UrdDep(UrdDepList):
+	__slots__ = ()
+
+	def __init__(self, *, caption, joblist, timestamp):
+		Mapping.__init__(self)
+		self._items = (self,)
+		self._d = {
+			timestamp: self,
+			'caption': caption,
+			'joblist': JobList(joblist),
+			'timestamp': timestamp,
+		}
+
+	@property
+	def caption(self):
+		return self._d['caption']
+
+	@property
+	def joblist(self):
+		return self._d['joblist']
+
+	@property
+	def timestamp(self):
+		return self._d['timestamp']
+
+	def __eq__(self, other):
+		if not isinstance(other, UrdDep):
+			return NotImplemented
+		return \
+			self.timestamp == other.timestamp and \
+			self.caption == other.caption and \
+			self.joblist == other.joblist
+
+	def __repr__(self):
+		return f'{self.__class__.__name__}(timestamp={self.timestamp !r}, joblist={self.joblist !r}, caption={self.caption !r})'
+
+	__str__ = __repr__
+
+
 class UrdResponse(dict):
 	__slots__ = ()
 
@@ -397,14 +481,10 @@ class UrdResponse(dict):
 			d = json.loads(res)
 		d['build_job'] = Job(d.get('build_job'))
 		d['joblist'] = JobList(d['joblist'])
-		deps = {}
-		for path, dep in d.get('deps', {}).items():
-			deps[path] = DotDict(
-				caption=dep['caption'],
-				joblist=JobList(dep['joblist']),
-				timestamp=dep['timestamp'],
-			)
-		d['deps'] = deps
+		d['deps'] = {
+			path: UrdDep(**dep)
+			for path, dep in d.get('deps', {}).items()
+		}
 		dict.__init__(self, d)
 
 	__setitem__ = dict.__setitem__
