@@ -312,9 +312,10 @@ def graph(inp, gtype):
 	if gtype == 'urd':
 		# jobid2urddep is {jobid: "urdlist/timestamp"} for all jobids in depending urdlist
 		jobid2urddep = defaultdict(list)
-		for key, urditem in inp.deps.items():
-			for _, jid in urditem.joblist:
-				jobid2urddep[jid].append("%s/%s" % (key, urditem.timestamp))
+		for key, urditems in inp.deps.items():
+			for urditem in urditems:
+				for _, jid in urditem.joblist:
+					jobid2urddep[jid].append("%s/%s" % (key, urditem.timestamp))
 		jobid2urddep = {key: sorted(val) for key, val in jobid2urddep.items()}
 		jlist = inp.joblist
 		inp = tuple(Job(jid) for _, jid in jlist)

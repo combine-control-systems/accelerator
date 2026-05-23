@@ -138,10 +138,10 @@ def fmt(res, entry):
 	if entry is not None:
 		return joblist.get(entry, '')
 	if res['deps']:
-		deps = sorted(
-			('%s/%s' % (k, v['timestamp'],), v['caption'],)
-			for k, v in res['deps'].items()
-		)
+		deps = []
+		for k, v in sorted(res['deps'].items()):
+			for dep in v:
+				deps.append((f"{k}/{dep['timestamp']}", dep['caption'],))
 		if len(deps) > 1:
 			plen = max(len(path) for path, _ in deps)
 			template = '%%-%ds : %%s' % (plen,)

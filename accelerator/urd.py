@@ -40,7 +40,7 @@ from accelerator.extras import ascii_int
 from accelerator.shell.parser import ArgumentParser
 from accelerator.unixhttp import WaitressServer
 
-LOGFILEVERSION = '4'
+LOGFILEVERSION = '5'
 
 lock = Lock()
 
@@ -192,8 +192,14 @@ class DB:
 		if logfileversion == '3':
 			if line[2] == 'add':
 				line[-1] = json.dumps(line[-1]) # caption is json encoded in v4
-		else:
-			assert logfileversion == '4', logfileversion
+			logfileversion = '4'
+		if logfileversion == '4':
+			if line[2] == 'add':
+				# Deps to list of (single) dep.
+				deps = json.loads(line[5])
+				line[5] = json.dumps({k: [v] for k, v in deps.items()})
+			logfileversion = '5'
+		assert logfileversion == '5', logfileversion
 		if line[2] == 'add' and len(line) < 10:
 			line.append('null')
 		self._parsed[writets] = line[2:]
@@ -235,9 +241,11 @@ class DB:
 			assert isinstance(data.build, str)
 			assert isinstance(data.build_job, str)
 			assert isinstance(data.deps, dict)
-			for v in itervalues(data.deps):
-				assert isinstance(v, dict)
-				self._validate_data(Entry(v), False)
+			for vs in data.deps.values():
+				assert isinstance(vs, list)
+				for v in vs:
+					assert isinstance(v, dict)
+					self._validate_data(Entry(v), False)
 		else:
 			assert set(data) == {'timestamp', 'joblist', 'caption',}
 		assert joblistlike(data.joblist), data.joblist
@@ -272,14 +280,15 @@ class DB:
 		return s
 
 	def _is_ghost(self, data):
-		for key, data in iteritems(data.deps):
+		for key, value in data.deps.items():
 			db = self.db[key]
-			ts = data['timestamp']
-			if ts not in db:
-				return True
-			for k, v in iteritems(data):
-				if db[ts].get(k) != v:
+			for data in value:
+				ts = data['timestamp']
+				if ts not in db:
 					return True
+				for k, v in data.items():
+					if db[ts].get(k) != v:
+						return True
 		return False
 
 	@locked
@@ -292,6 +301,11 @@ class DB:
 		ghosted = 0
 		data.timestamp = TimeStamp(data.timestamp)
 		assert data.timestamp != '0', "Timestamp 0 is special, you can't add it."
+		def ts_sort_dep(lst):
+			for d in lst:
+				d['timestamp'] = TimeStamp(d['timestamp'])
+			return sorted(lst, key=operator.itemgetter('timestamp'))
+		data.deps = {k: ts_sort_dep(v) for k, v in data.deps.items()}
 		is_ghost = self._is_ghost(data)
 		if is_ghost:
 			db = self.ghost_db[key]

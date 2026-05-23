@@ -482,7 +482,7 @@ class UrdResponse(dict):
 		d['build_job'] = Job(d.get('build_job'))
 		d['joblist'] = JobList(d['joblist'])
 		d['deps'] = {
-			path: UrdDep(**dep)
+			path: UrdDep(**dep[0]) if len(dep) == 1 else UrdDepList(dep)
 			for path, dep in d.get('deps', {}).items()
 		}
 		dict.__init__(self, d)
@@ -625,7 +625,7 @@ class Urd(object):
 		url = '/'.join((self._url, path, timestamp))
 		res = self._call(url, fmt=UrdResponse)
 		if res:
-			self._deps[path] = res.as_dep
+			self._deps[path] = [res.as_dep]
 		self._latest_joblist = res.joblist
 		return res
 

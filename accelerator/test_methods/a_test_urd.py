@@ -76,7 +76,7 @@ def synthesis(job):
 	check('test/ing/first'  , dict(timestamp='2023-01', user='test', build='ing', build_job=None, joblist=[['something', 'job-0']], caption="it's a caption", deps={}))
 	check('test/ing/2023-01', dict(timestamp='2023-01', user='test', build='ing', build_job=None, joblist=[['something', 'job-0']], caption="it's a caption", deps={}))
 	check('test/two/2023-02', dict(timestamp='2023-02', user='test', build='two', build_job=None, joblist=[['something', 'job-1']], caption=r'"caption\nwithout escaping"', deps={}))
-	check('test/ing/2023-02', dict(timestamp='2023-02', user='test', build='ing', build_job=None, joblist=[['something', 'job-2']], caption='', deps={'test/ing': dict(caption="it's a caption", joblist=[['something', 'job-0']], timestamp='2023-01'), 'test/two': dict(caption=r'"caption\nwithout escaping"', joblist=[['something', 'job-1']], timestamp='2023-02')}))
+	check('test/ing/2023-02', dict(timestamp='2023-02', user='test', build='ing', build_job=None, joblist=[['something', 'job-2']], caption='', deps={'test/ing': [dict(caption="it's a caption", joblist=[['something', 'job-0']], timestamp='2023-01')], 'test/two': [dict(caption=r'"caption\nwithout escaping"', joblist=[['something', 'job-1']], timestamp='2023-02')]}))
 	check('test/ing/2023-06', dict(timestamp='2023-06', user='test', build='ing', build_job=None, joblist=[['something', 'job-3']], caption="caption\nwith lines\nand\ttab\nand \"quotes\" and | too", deps={}))
 	check('test/ing/latest', dict(timestamp='2024-03', user='test', build='ing', build_job='build_job-0', joblist=[['something', 'job-4']], caption="this one has a build job", deps={}))
 	# Test not overriding, with keys in different order and a build_job.
@@ -124,7 +124,7 @@ def synthesis(job):
 			'END'
 		])
 		for got, want in zip(fh, want_it):
-			assert got.startswith('4\t'), got
+			assert got.startswith('5\t'), got
 			got = got.split('\t', 2)[2]
 			assert want == got, '\nWanted %r,\ngot    %r' % (want, got,)
 		assert next(want_it) == 'END'
