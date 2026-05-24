@@ -88,6 +88,12 @@ def main(urd):
 	dep0 = list(u.deps.values())[0]
 	assert dep0.caption == "first", dep0.caption
 	assert dep0.joblist == jl, '%r != %r' % (dep0.joblist, jl,)
+	assert dep0.caption is dep0['caption']
+	assert dep0.joblist is dep0['joblist']
+	assert dep0.timestamp is dep0['timestamp']
+	assert list(dep0) == [dep0.timestamp], dep0
+	# Single depency "lists" just contain themselves.
+	assert dep0 is dep0[dep0.timestamp] is dep0[0], dep0
 	assert urd.since("tests.urd", 0) == ['1', '2']
 	urd.truncate("tests.urd", 2)
 	assert urd.since("tests.urd", 0) == ['1']
@@ -383,6 +389,14 @@ def main(urd):
 	urd.begin("tests.urd", "2021-09-27T03:14:15.926+5+3+5")
 	e = urd.build('test_shell_data', jobs={'previous': d, 'extra': a})
 	urd.finish("tests.urd")
+	urd.begin("tests.urd", "9999+1", caption="Test depending on two entries from the same list")
+	u = urd.get("tests.urd", "2021-09-27T03:14")
+	u2 = urd.get("tests.urd", "2021-09-27T03:14:15.926+5+3+5")
+	# Getting the same one again is ok, and should not record it again.
+	# You should in fact get the same object again.
+	assert u is urd.get("tests.urd", "2021-09-27T03:14")
+	# Same with getting "latest" (or "first")
+	assert u2 is urd.get("tests.urd", "latest")
 	urd.build('test_shell_commands', command_prefix=command_prefix)
 	# ~ finds earlier jobs with that method, ^ follows jobs.previous falling back to datasets.previous.
 	want = {
@@ -427,9 +441,28 @@ def main(urd):
 		':tests.urd/2021-09-27T03:14:15.926+5+3+5:0/name/with/slash': e + '/name/with/slash',
 	})
 	urd.build('test_shell_ds', command_prefix=command_prefix, want=want)
-	urd.truncate("tests.urd", 0)
+	urd.finish("tests.urd")
+	urd.begin("tests.urd", "9999+2", caption="Multiple entries not in sort order")
+	urd.get("tests.urd", "2021-09-27T03:14")
+	u = urd.get("tests.urd", "9999+1")
+	urd.get("tests.urd", "2021-09-27T03:14:15.926+5+3+5")
+	# u.deps has only a single key ($USER/tests.urd), but we can still access it using just "tests.urd".
+	assert len(u.deps) == 1, u.deps
+	assert list(u.deps)[0].endswith("/tests.urd")
+	deps = u.deps["tests.urd"]
+	assert list(deps) == ["2021-09-27T03:14", "2021-09-27T03:14:15.926+5+3+5"], deps
+	assert deps["2021-09-27T03:14"] is deps[0] is deps[0][0], deps
+	assert deps["2021-09-27T03:14:15.926+5+3+5"] is deps[1] is deps[1][0], deps
 	urd.build('test_shell_grep', command_prefix=command_prefix)
 	urd.build('test_shell_config', command_prefix=command_prefix)
+	urd.finish("tests.urd")
+	u = urd.peek("tests.urd", "9999+2")
+	deps = u.deps["tests.urd"]
+	assert list(deps) == ["9999+1", "2021-09-27T03:14", "2021-09-27T03:14:15.926+5+3+5"], deps
+	assert list(deps.values()) == [deps["9999+1"], deps["2021-09-27T03:14"], deps["2021-09-27T03:14:15.926+5+3+5"]], deps
+	assert deps[1] is deps["2021-09-27T03:14"], deps
+	assert list(reversed(deps)) == [deps[2].timestamp, deps[1].timestamp, deps[0].timestamp], deps
+	urd.truncate("tests.urd", 0)
 
 	print()
 	print("Test board")

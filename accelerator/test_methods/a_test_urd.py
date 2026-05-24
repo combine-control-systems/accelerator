@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 ############################################################################
 #                                                                          #
-# Copyright (c) 2023-2024 Carl Drougge                                     #
+# Copyright (c) 2023-2026 Carl Drougge                                     #
 #                                                                          #
 # Licensed under the Apache License, Version 2.0 (the "License");          #
 # you may not use this file except in compliance with the License.         #
@@ -95,8 +95,11 @@ def synthesis(job):
 	# And that should ghost the 2023-02 entry that depended on the old version
 	check('test/ing/since/0', ['2023-01', '2023-06', '2024-03'])
 
+	# Add two deps with highest timestamp first, expect lowest first in log.
+	check('add', dict(new=True, changed=False, is_ghost=False), b'{"user": "test", "build": "ing", "timestamp": "2026-05", "caption": "two", "deps": {"test/ing": [{"caption": "this one has a build job", "joblist": [["something", "job-4"]], "timestamp": "2024-03"}, {"caption": "new caption", "joblist": [["something else", "job-0"]], "timestamp": "2023-01"}]}, "joblist": [["something", "job-3"]], "flags": [], "build_job": "build_job-2"}')
+
 	# Test truncation
-	check('truncate/test/ing/2023-02', dict(count=2, deps=0), '')
+	check('truncate/test/ing/2023-02', dict(count=3, deps=0), '')
 	check('test/ing/since/0', ['2023-01'])
 
 	# Try with a user mismatch
@@ -120,6 +123,7 @@ def synthesis(job):
 		assert fh.read(len(TEST_LOG_ing)) == TEST_LOG_ing
 		want_it = iter([
 			'add\t2023-01\ttest/ing\t{}\t[["something else", "job-0"]]\tupdate\t"new caption"\t"build_job-1"\n',
+			'add\t2026-05\ttest/ing\t{"test/ing": [{"caption": "new caption", "joblist": [["something else", "job-0"]], "timestamp": "2023-01"}, {"caption": "this one has a build job", "joblist": [["something", "job-4"]], "timestamp": "2024-03"}]}\t[["something", "job-3"]]\t\t"two"\t"build_job-2"\n',
 			'truncate\t2023-02\ttest/ing\n',
 			'END'
 		])
