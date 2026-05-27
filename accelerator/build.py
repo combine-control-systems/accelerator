@@ -623,11 +623,20 @@ class Urd(object):
 		timestamp = _tsfix(timestamp)
 		if path not in self._deps:
 			self._deps[path] = {}
-		url = '/'.join((self._url, path, timestamp))
-		res = self._call(url, fmt=UrdResponse)
-		if res:
-			assert res.timestamp not in self._deps[path], f'Duplicate ts {res.timestamp} in {path}'
-			self._deps[path][res.timestamp] = res.as_dep
+		deps = self._deps[path]
+		if timestamp not in deps:
+			url = '/'.join((self._url, path, timestamp))
+			res = self._call(url, fmt=UrdResponse)
+			# If timestamp is 'latest' or 'first' res.timestamp is different.
+			if res and res.timestamp != timestamp:
+				if res.timestamp in deps:
+					assert res == deps[res.timestamp], f'{path} {res.timestamp} changed when fetched as {timestamp}'
+					res = deps[res.timestamp] # Both should be the same object, not just equal.
+				else:
+					deps[res.timestamp] = res
+			deps[timestamp] = res
+		else:
+			res = deps[timestamp]
 		self._latest_joblist = res.joblist
 		return res
 
@@ -711,11 +720,17 @@ class Urd(object):
 			timestamp = _tsfix(timestamp)
 		assert timestamp, 'No timestamp specified in begin or finish for %s' % (path,)
 		self._move_link_result(path + '/' + timestamp)
+		deps = {}
+		for k, v in self._deps.items():
+			# filter out dups ('latest'/'first') and empty
+			v = {vv.timestamp: vv for vv in v.values() if vv}
+			if v:
+				deps[k] = [vv.as_dep for vv in v.values()]
 		data = DotDict(
 			user=user,
 			build=build,
 			joblist=self.joblist.as_tuples,
-			deps={k: list(v.values()) for k, v in self._deps.items()},
+			deps=deps,
 			caption=caption,
 			timestamp=timestamp,
 			build_job=g.job,
