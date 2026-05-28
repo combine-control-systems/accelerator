@@ -32,6 +32,7 @@ from operator import itemgetter
 from collections import defaultdict
 from collections.abc import Mapping
 from datetime import date, datetime, timedelta
+from functools import partial
 from base64 import b64encode
 from importlib import import_module
 from argparse import RawTextHelpFormatter
@@ -385,6 +386,35 @@ class JobList(_ListTypePreserver):
 		print("Total time", fmttime(total))
 
 
+class UrdDeps(Mapping):
+	__slots__ = ('_d', '_prefix')
+
+	def __init__(self, deps, prefix=''):
+		Mapping.__init__(self)
+		self._d = {
+			path: UrdDep(**dep[0]) if len(dep) == 1 else UrdDepList(dep)
+			for path, dep in deps.items()
+		}
+		self._prefix = prefix
+
+	def __getitem__(self, key):
+		if isinstance(key, str) and '/' not in key:
+			key = self._prefix + key
+		return self._d[key]
+
+	def __iter__(self):
+		return iter(self._d)
+
+	def __len__(self):
+		return len(self._d)
+
+	def __repr__(self):
+		return self.__class__.__name__ + repr(self._d)
+
+	def __str__(self):
+		return repr(self._d)
+
+
 class UrdDepList(Mapping):
 	__slots__ = ('_d', '_items',)
 
@@ -471,20 +501,17 @@ class UrdDep(UrdDepList):
 class UrdResponse(dict):
 	__slots__ = ()
 
-	def __new__(cls, res):
+	def __new__(cls, res, prefix=''):
 		assert cls is UrdResponse, "Always make these through UrdResponse"
 		obj = dict.__new__(EmptyUrdResponse if res in ('{}', 'null', None, {},) else UrdResponse)
 		return obj
 
-	def __init__(self, res):
+	def __init__(self, res, prefix=''):
 		if isinstance(res, str):
 			d = json.loads(res)
 		d['build_job'] = Job(d.get('build_job'))
 		d['joblist'] = JobList(d['joblist'])
-		d['deps'] = {
-			path: UrdDep(**dep[0]) if len(dep) == 1 else UrdDepList(dep)
-			for path, dep in d.get('deps', {}).items()
-		}
+		d['deps'] = UrdDeps(d.get('deps', {}), prefix=prefix)
 		dict.__init__(self, d)
 
 	__setitem__ = dict.__setitem__
@@ -501,7 +528,7 @@ class UrdResponse(dict):
 class EmptyUrdResponse(UrdResponse):
 	__slots__ = ()
 
-	def __init__(self, res):
+	def __init__(self, res, prefix=''):
 		dict.__init__(
 			self,
 			build='',
@@ -577,6 +604,7 @@ class Urd(object):
 			assert '://' in str(info.urd), 'Bad urd URL: %s' % (info.urd,)
 		self._url = info.urd or ''
 		self._user = user
+		self._UrdResponse = partial(UrdResponse, prefix=user + '/')
 		self.info = info
 		self.flags = set(a.flags)
 		self.horizon = horizon
@@ -626,7 +654,7 @@ class Urd(object):
 		deps = self._deps[path]
 		if timestamp not in deps:
 			url = '/'.join((self._url, path, timestamp))
-			res = self._call(url, fmt=UrdResponse)
+			res = self._call(url, fmt=self._UrdResponse)
 			# If timestamp is 'latest' or 'first' res.timestamp is different.
 			if res and res.timestamp != timestamp:
 				if res.timestamp in deps:
@@ -655,7 +683,7 @@ class Urd(object):
 	def peek(self, path, timestamp):
 		path = self._path(path)
 		url = '/'.join((self._url, path, _tsfix(timestamp),))
-		return self._call(url, fmt=UrdResponse)
+		return self._call(url, fmt=self._UrdResponse)
 
 	def peek_latest(self, path):
 		return self.peek(path, self._latest_str())
