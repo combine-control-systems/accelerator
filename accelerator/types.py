@@ -64,9 +64,6 @@ class _ListTypePreserver(list):
 
 	__slots__ = ()
 
-	def __getslice__(self, i, j):
-		return self[slice(i, j)]
-
 	def __getitem__(self, item):
 		if isinstance(item, slice):
 			return self.__class__(list.__getitem__(self, item))
