@@ -3,7 +3,7 @@
 #                                                                          #
 # Copyright (c) 2017 eBay Inc.                                             #
 # Modifications copyright (c) 2019-2021 Anders Berkeman                    #
-# Modifications copyright (c) 2019-2024 Carl Drougge                       #
+# Modifications copyright (c) 2019-2026 Carl Drougge                       #
 #                                                                          #
 # Licensed under the Apache License, Version 2.0 (the "License");          #
 # you may not use this file except in compliance with the License.         #
@@ -144,9 +144,10 @@ def load_config(filename):
 	with open(filename, 'r', encoding='utf-8') as fh:
 		lines = list(enumerate(fh, 1))
 	def parse(handle):
+		nonlocal error_pos
 		key = None
 		for n, line in lines:
-			lineno[0] = n
+			error_pos = (n, filename,)
 			line_stripped = line.strip()
 			if not line_stripped or line_stripped[0] == '#':
 				continue
@@ -200,12 +201,12 @@ def load_config(filename):
 
 	try:
 		project_directory = [os.path.dirname(filename)]
-		lineno = [None]
+		error_pos = (None,)
 		parse(just_project_directory)
-		lineno = [None]
+		error_pos = (None,)
 		project_directory = os.path.realpath(project_directory[0])
 		parse(everything)
-		lineno = [None]
+		error_pos = (None,)
 
 		missing = set()
 		for req in required:
@@ -250,10 +251,10 @@ def load_config(filename):
 		res.board_listen, _ = fixup_listen(res.project_directory, res.get('board_listen', ('.socket.dir/board', None)))
 		res.method_directories = dict(res.method_directories)
 	except _E as e:
-		if lineno[0] is None:
+		if error_pos[0] is None:
 			prefix = 'Error in %s:\n' % (filename,)
 		else:
-			prefix = 'Error on line %d of %s:\n' % (lineno[0], filename,)
+			prefix = 'Error on line %d of %s:\n' % error_pos
 		raise UserError(prefix + e.args[0])
 
 	res.config_filename = os.path.realpath(filename)
