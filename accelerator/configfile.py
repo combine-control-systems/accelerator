@@ -186,7 +186,7 @@ def load_config(filename):
 		if key == 'project directory':
 			if len(val) != 1:
 				raise _E("%s takes a single value path (maybe you meant to quote it?)" % (key,))
-			project_directory[0] = val[0]
+			cfg[key] = val[0]
 	def everything(key, val):
 		if key in parsers:
 			args, p = parsers[key]
@@ -218,11 +218,10 @@ def load_config(filename):
 			cfg[key] = val
 
 	try:
-		project_directory = [os.path.dirname(filename)]
 		error_pos = (None,)
 		parse(filename, just_project_directory)
 		error_pos = (None,)
-		project_directory = os.path.realpath(project_directory[0])
+		project_directory = os.path.realpath(cfg.pop('project directory', os.path.dirname(filename)))
 		parse(filename, everything)
 		error_pos = (None,)
 
