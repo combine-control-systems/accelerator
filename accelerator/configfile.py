@@ -161,6 +161,12 @@ def load_config(filename):
 				if ':' not in line:
 					raise _E('Expected a ":"')
 				key, val = line.split(':', 1)
+				if key.endswith('!'):
+					key = key[:-1]
+					if key in multivalued:
+						cfg[key] = []
+					elif key in cfg:
+						del cfg[key]
 				if key not in known:
 					raise _E('Unknown key %r' % (key,))
 			else:
