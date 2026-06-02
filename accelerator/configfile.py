@@ -19,6 +19,7 @@
 #                                                                          #
 ############################################################################
 
+from functools import lru_cache
 import re
 import os
 import shlex
@@ -66,7 +67,10 @@ def load_config(filename):
 
 	multivalued = {'workdirs', 'method packages', 'interpreters'}
 	required = {'slices', 'workdirs', 'method packages'}
-	known = {'target workdir', 'listen', 'urd', 'board listen', 'result directory', 'input directory', 'project directory'} | required | multivalued
+	known = {
+		'target workdir', 'listen', 'urd', 'board listen', 'result directory',
+		'input directory', 'project directory', 'include',
+	} | required | multivalued
 	cfg = {key: [] for key in multivalued}
 
 	def fixpath(fn, realpath=True):
@@ -141,12 +145,14 @@ def load_config(filename):
 		workdirs=check_workdirs,
 	)
 
-	with open(filename, 'r', encoding='utf-8') as fh:
-		lines = list(enumerate(fh, 1))
-	def parse(handle):
+	@lru_cache(maxsize=None)
+	def read(fn):
+		with open(fn, 'r', encoding='utf-8') as fh:
+			return list(enumerate(fh, 1))
+	def parse(filename, handle, *, depth=0):
 		nonlocal error_pos
 		key = None
-		for n, line in lines:
+		for n, line in read(filename):
 			error_pos = (n, filename,)
 			line_stripped = line.strip()
 			if not line_stripped or line_stripped[0] == '#':
@@ -163,7 +169,19 @@ def load_config(filename):
 				val = line
 			val = shlex.split(interpolate(val), posix=True, comments=True)
 			if val:
-				handle(key, val)
+				if key == 'include':
+					if depth > 5:
+						raise _E('Too high include depth')
+					for fn in val:
+						# Included filename is relative to the including file.
+						fn = os.path.join(os.path.dirname(filename), fn)
+						try:
+							parse(fn, handle, depth=depth+1)
+						except FileNotFoundError:
+							raise _E(f'{fn} does not exist.')
+						error_pos = (n, filename,)
+				else:
+					handle(key, val)
 	def just_project_directory(key, val):
 		if key == 'project directory':
 			if len(val) != 1:
@@ -202,10 +220,10 @@ def load_config(filename):
 	try:
 		project_directory = [os.path.dirname(filename)]
 		error_pos = (None,)
-		parse(just_project_directory)
+		parse(filename, just_project_directory)
 		error_pos = (None,)
 		project_directory = os.path.realpath(project_directory[0])
-		parse(everything)
+		parse(filename, everything)
 		error_pos = (None,)
 
 		missing = set()
