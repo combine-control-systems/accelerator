@@ -65,11 +65,13 @@ def fixup_listen(project_directory, listen):
 def load_config(filename):
 	from accelerator.error import UserError
 
+	SKIP_KEY = object() # a unique value
 	multivalued = {'workdirs', 'method packages', 'interpreters'}
 	required = {'slices', 'workdirs', 'method packages'}
 	known = {
 		'target workdir', 'listen', 'urd', 'board listen', 'result directory',
 		'input directory', 'project directory', 'include',
+		SKIP_KEY
 	} | required | multivalued
 	cfg = {key: [] for key in multivalued}
 
@@ -167,6 +169,10 @@ def load_config(filename):
 						cfg[key] = []
 					elif key in cfg:
 						del cfg[key]
+				elif key.endswith('?'):
+					key = key[:-1]
+					if cfg.get(key):
+						key = SKIP_KEY
 				if key not in known:
 					raise _E('Unknown key %r' % (key,))
 			else:
@@ -186,7 +192,7 @@ def load_config(filename):
 						except FileNotFoundError:
 							raise _E(f'{fn} does not exist.')
 						error_pos = (n, filename,)
-				else:
+				elif key != SKIP_KEY:
 					handle(key, val)
 	def just_project_directory(key, val):
 		if key == 'project directory':
