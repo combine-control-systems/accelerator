@@ -70,7 +70,7 @@ def load_config(filename):
 	required = {'slices', 'workdirs', 'method packages'}
 	known = {
 		'target workdir', 'listen', 'urd', 'board listen', 'result directory',
-		'input directory', 'project directory', 'include',
+		'input directory', 'project directory', 'include', 'setenv',
 		SKIP_KEY
 	} | required | multivalued
 	cfg = {key: [] for key in multivalued}
@@ -192,6 +192,18 @@ def load_config(filename):
 						except FileNotFoundError:
 							raise _E(f'{fn} does not exist.')
 						error_pos = (n, filename,)
+				elif key == 'setenv':
+					if len(val) != 1:
+						raise _E("Only set one variable per line (maybe you meant to quote it?)")
+					name, *value = val[0].split('=', 1)
+					if not name:
+						raise _E("Can't set empty variable name")
+					if name not in changed_environ:
+						changed_environ[name] = os.environ.get(name, '')
+					if value:
+						os.environ[name] = value[0]
+					else:
+						os.environ.pop(name, None)
 				elif key != SKIP_KEY:
 					handle(key, val)
 	def just_project_directory(key, val):
@@ -231,7 +243,11 @@ def load_config(filename):
 
 	try:
 		error_pos = (None,)
+		changed_environ = {}
 		parse(filename, just_project_directory)
+		# Restore the environment after the first pass, so the second pass
+		# interpolates the expected values. (As if there was only one pass.)
+		os.environ.update(changed_environ)
 		error_pos = (None,)
 		project_directory = os.path.realpath(cfg.pop('project directory', os.path.dirname(filename)))
 		parse(filename, everything)
